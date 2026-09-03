@@ -15,12 +15,12 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v2
         env:
-          SONAR_TOKEN: sqp_018ff34b341cfee51d83e6a6bf23fa5bcf9dfb2f
-          SONAR_HOST_URL: https://sesvc.shell.com/
+          SONAR_TOKEN: sqa_40bc558ec2a365eee5c7fb00e9125bc99939d336
+          SONAR_HOST_URL: http://20.244.26.62:9000/
         with:
           args: >
-            -Dsonar.projectKey=com.shell.idso-oic-it4it-lineage-sub-system
-            -Dsonar.projectName=idso-oic-it4it-lineage-sub-system
+            -Dsonar.projectKey=testing-sonar-repo
+            -Dsonar.projectName=testing-sonar-repo
             -Dsonar.sources=.
             -Dsonar.exclusions=**/__pycache__/**,**/*.pyc,**/output_*/**,**/output_excel_reports/**,**/output_jsons/**,.pytest_cache/**
             -Dsonar.python.version=3.13
