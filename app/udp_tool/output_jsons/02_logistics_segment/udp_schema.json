@@ -1,0 +1,158 @@
+[
+  {
+    "udp": "PD_ObjectID",
+    "type": "Text",
+    "length": 40,
+    "purpose": "PowerDesigner GUID. Permanent join key for reapply, reconciliation and any future re-run. Names change; GUIDs don't."
+  },
+  {
+    "udp": "PD_SourceExtraction",
+    "type": "Text",
+    "length": 20,
+    "purpose": "PowerDesigner repository extraction id. Proves which point-in-time extract this model came from."
+  },
+  {
+    "udp": "PD_SourceModel",
+    "type": "Text",
+    "length": 120,
+    "purpose": "Source model name, for traceability across waves."
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Data_Category",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category"
+  },
+  {
+    "udp": "MTED_EDaM_Security_Classification",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>",
+      "Restricted"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Maps_To_Entity",
+    "type": "Text",
+    "length": 65,
+    "value_list": null,
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity",
+    "coverage": "100%",
+    "distinct_observed": 17,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity"
+  },
+  {
+    "udp": "MTED_EDaM_Design_Status",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Draft"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status"
+  },
+  {
+    "udp": "MTED_EDaM_Data_Owner",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Chris Ragan"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner"
+  },
+  {
+    "udp": "DataSourcePersist",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "C:\\Apps\\SA extraction\\02_Logistics_Segment.csv"
+    ],
+    "source_path": "EXCEL_IMPORT.DataSourcePersist",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property EXCEL_IMPORT.DataSourcePersist"
+  },
+  {
+    "udp": "ImportedType",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Entity"
+    ],
+    "source_path": "EXCEL_IMPORT.ImportedType",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property EXCEL_IMPORT.ImportedType"
+  },
+  {
+    "udp": "PersistBooleanMapping",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "EXCEL_IMPORT.PersistBooleanMapping",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property EXCEL_IMPORT.PersistBooleanMapping"
+  },
+  {
+    "udp": "ColumnKind",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Standard"
+    ],
+    "source_path": "EXCEL_IMPORT.ColumnKind",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property EXCEL_IMPORT.ColumnKind"
+  },
+  {
+    "udp": "Attribute",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Name",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Note",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification",
+      "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Version_Date",
+      "SHL_CDM_EntityPropertyExtension.MTED_Version_No"
+    ],
+    "source_path": "EXCEL_IMPORT.Attribute",
+    "coverage": "100%",
+    "distinct_observed": 9,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property EXCEL_IMPORT.Attribute"
+  }
+]

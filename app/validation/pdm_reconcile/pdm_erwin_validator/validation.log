@@ -1,0 +1,68 @@
+2026-08-08 11:03:55,735  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 11:03:55,835  ERROR     XML parse error in C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin: not well-formed (invalid token): line 1, column 0
+2026-08-08 11:03:56,092  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\ValidationReports\validation_report.xlsx
+2026-08-08 11:15:37,686  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 11:15:37,733  ERROR     XML parse error in C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin: not well-formed (invalid token): line 1, column 0
+2026-08-08 11:15:37,868  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\ValidationReports\validation_report.xlsx
+2026-08-08 11:40:49,832  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 11:40:49,833  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 11:40:50,126  INFO      Parsed ERwin C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml: 101 tables, 156 references
+2026-08-08 11:40:50,641  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\ValidationReports\validation_report.xlsx
+2026-08-08 15:51:21,441  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 15:51:21,443  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 15:51:21,720  INFO      Parsed ERwin C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml: 101 tables, 156 references
+2026-08-08 15:51:22,375  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\ValidationReports\validation_report.xlsx
+2026-08-08 16:12:42,257  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:12:42,258  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 16:12:42,557  INFO      Parsed ERwin C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml: 101 tables, 156 references
+2026-08-08 16:12:42,748  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\ValidationReports\validation_report.xlsx
+2026-08-08 16:14:31,019  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:14:31,019  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 16:14:31,339  INFO      Parsed ERwin C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml: 101 tables, 156 references
+2026-08-08 16:14:31,508  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\ValidationReports\validation_report.xlsx
+2026-08-08 16:24:22,870  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:24:22,871  WARNING   1 PD files have no matching ERwin file:
+2026-08-08 16:24:22,871  WARNING     C:\Users\DebanujBarman\Downloads\My Pdm model\PDM_D-B_DEBA.pdm
+2026-08-08 16:24:22,872  WARNING   1 ERwin files have no matching PD file:
+2026-08-08 16:24:22,872  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml
+2026-08-08 16:24:22,873  INFO      Matched 0 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 16:24:29,601  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\pdm_erwin_validator_Fixed\pdm_erwin_validator\test_data\05_Carbon_Calculator.xml
+2026-08-08 16:24:29,609  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:24:29,610  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\Carbon_calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:24:29,611  WARNING   Duplicate key '02_LOGISTICS_SEGMENT': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\02_logistics_segment.erwin, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\Cdm_Logistics\02_logistics_segment.erwin
+2026-08-08 16:24:29,611  WARNING   7 ERwin files have no matching PD file:
+2026-08-08 16:24:29,612  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\oom via xml.xml
+2026-08-08 16:24:29,612  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml
+2026-08-08 16:24:29,613  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\02_logistics_segment.erwin
+2026-08-08 16:24:29,613  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\LDM_D-B_DEBA.erwin
+2026-08-08 16:24:29,613  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\LDM_D-B_DEBA1.erwin
+2026-08-08 16:24:29,614  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\LDM_Erwin_DB.erwin
+2026-08-08 16:24:29,614  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\Model_1.erwin
+2026-08-08 16:24:29,614  INFO      Matched 1 pairs out of 1 PD / 8 ERwin files.
+2026-08-08 16:24:29,642  ERROR     XML parse error in C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\PDM_D-B_DEBA.erwin: not well-formed (invalid token): line 1, column 0
+2026-08-08 16:24:29,776  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\ValidationReports\validation_report.xlsx
+2026-08-08 16:25:44,815  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\pdm_erwin_validator_Fixed\pdm_erwin_validator\test_data\05_Carbon_Calculator.xml
+2026-08-08 16:25:44,825  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:25:44,825  WARNING   Duplicate key '05_CARBON_CALCULATOR': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\Carbon_calculator\05_Carbon_Calculator.erwin
+2026-08-08 16:25:44,825  WARNING   Duplicate key '02_LOGISTICS_SEGMENT': keeping C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\02_logistics_segment.erwin, ignoring C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\Cdm_Logistics\02_logistics_segment.erwin
+2026-08-08 16:25:44,826  WARNING   7 ERwin files have no matching PD file:
+2026-08-08 16:25:44,826  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\oom via xml.xml
+2026-08-08 16:25:44,826  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\05_Carbon_Calculator\05_Carbon_Calculator.xml
+2026-08-08 16:25:44,826  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\02_logistics_segment.erwin
+2026-08-08 16:25:44,826  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\LDM_D-B_DEBA.erwin
+2026-08-08 16:25:44,826  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\LDM_D-B_DEBA1.erwin
+2026-08-08 16:25:44,826  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\LDM_Erwin_DB.erwin
+2026-08-08 16:25:44,827  WARNING     C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\Model_1.erwin
+2026-08-08 16:25:44,827  INFO      Matched 1 pairs out of 1 PD / 8 ERwin files.
+2026-08-08 16:25:44,847  ERROR     XML parse error in C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\PDM_D-B_DEBA.erwin: not well-formed (invalid token): line 1, column 0
+2026-08-08 16:25:44,993  INFO      Report saved → C:\Users\DebanujBarman\OneDrive - Celebal Technologies Private Limited\Desktop\ValidationReports\validation_report.xlsx
+2026-08-08 16:36:23,280  WARNING   Duplicate key 'PDM_D-B_DEBA': keeping C:\Users\DebanujBarman\Downloads\My_Pdm_model\PDM_D-B_DEBA.xml, ignoring C:\Users\DebanujBarman\Downloads\My_Pdm_model\PDM_D-B_DEBA.erwin
+2026-08-08 16:36:23,282  INFO      Matched 1 pairs out of 1 PD / 1 ERwin files.
+2026-08-08 16:36:23,348  INFO      Parsed ERwin C:\Users\DebanujBarman\Downloads\My_Pdm_model\PDM_D-B_DEBA.xml: 13 tables, 15 references
+2026-08-08 16:36:23,457  INFO      Report saved → C:\Users\DebanujBarman\Downloads\My_Pdm_model\validation_reports\validation_report.xlsx
+2026-08-19 11:35:59,405  WARNING   2 ERwin files have no matching PD file:
+2026-08-19 11:35:59,406  WARNING     C:\Users\RutujaMule\Downloads\migration-platform\migration-platform\erwinmodels\1_initial\xml\02_logistics_segment.xml
+2026-08-19 11:35:59,406  WARNING     C:\Users\RutujaMule\Downloads\migration-platform\migration-platform\erwinmodels\1_initial\xml\SUBSURFACE AND WELLS.xml
+2026-08-19 11:35:59,406  INFO      Matched 1 pairs out of 1 PD / 3 ERwin files.
+2026-08-19 11:35:59,743  INFO      Parsed ERwin C:\Users\RutujaMule\Downloads\migration-platform\migration-platform\erwinmodels\1_initial\xml\05_Carbon_Calculator.xml: 101 tables, 156 references
+2026-08-19 11:35:59,922  INFO      Report saved → C:\Users\RutujaMule\Downloads\migration-platform\migration-platform\app\reporting\pdm_reports\validation_report.xlsx

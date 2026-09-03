@@ -1,0 +1,31 @@
+name: Batch Migration Pipeline
+
+on:
+  # This creates the "Run Workflow" button in GitHub so you can trigger it on-demand!
+  workflow_dispatch:
+
+jobs:
+  run-batch-migration:
+    # CRITICAL: This tells GitHub to look for your laptop instead of running in the cloud
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: python -m pip install -r requirements.txt
+        shell: cmd
+
+      - name: Execute Pipeline Orchestrator (main.py)
+        # This will automatically process all SAP models in the sappdmodels/ folder
+        run: python app/main.py
+        shell: cmd
+
+      - name: Upload Excel Reconciliation Reports
+        uses: actions/upload-artifact@v4
+        # Even if the pipeline fails, we want to upload the Excel reports so the developer can see them
+        if: always()
+        with:
+          name: migration-reports
+          path: batch_summary/

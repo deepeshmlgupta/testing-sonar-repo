@@ -1,0 +1,127 @@
+{
+  "model": "05_Carbon_Calculator.pdm",
+  "model_name": "05_Carbon_Calculator",
+  "pd_version": "16.7.6.7257",
+  "extraction_id": null,
+  "band": "B1",
+  "band_label": "Very Simple",
+  "sow_automation_range": [
+    85,
+    95
+  ],
+  "sow_effort_multiplier": 1.0,
+  "knockouts": [],
+  "signals": {
+    "extension_model_definitions": 0,
+    "extension_containers": 3,
+    "extension_properties": 26,
+    "extension_values": 1309,
+    "gtl_templates": 0,
+    "validation_rules": 0,
+    "inheritances": 0,
+    "inheritance_links": 0,
+    "mutually_exclusive_inheritances": 0,
+    "entities_without_definition": 0,
+    "entities_without_identifier": 0,
+    "attributes_untyped": 10,
+    "primary_identifiers": 0,
+    "case_sensitive_naming": false,
+    "glossary_enforced": false,
+    "glossary_shortcuts": 2,
+    "external_glossary_models": 0,
+    "domains": 0,
+    "entities": 101,
+    "attributes": 473,
+    "relationships": 157,
+    "diagrams": 8,
+    "model_type": "PDM_DATA_MODEL_XML",
+    "has_physical_layer": true
+  },
+  "automation_coverage": {
+    "definition": "automation coverage = (source facts delivered by the erwin bridge + source facts reapplied programmatically) / total source facts. A 'fact' is one object or one populated property.",
+    "bridge_delivered": 1147,
+    "automation_reapplied": 1309,
+    "manual_required": 0,
+    "not_recoverable": 2,
+    "total_source_facts": 2458,
+    "bridge_only_pct": 46.7,
+    "with_automation_pct": 99.9
+  },
+  "model_options_of_interest": {
+    "CaseSensitive": "No",
+    "UseTerm": "No",
+    "EnableFullShortcut": "Yes",
+    "FKNameTemplate": null,
+    "FKNameTemplateUsage": null,
+    "DefaultDttp": "",
+    "RlshMigrateExtd": null
+  },
+  "non_equivalence_register": [
+    {
+      "construct": "Entities, attributes, relationships, keys",
+      "volume": "101 / 473 / 157 / 102",
+      "bridge": "Delivered",
+      "disposition": "In scope - bridge"
+    },
+    {
+      "construct": "Definitions (Comment)",
+      "volume": "101 entities, 48 attributes",
+      "bridge": "Delivered (verify mapping to erwin Definition)",
+      "disposition": "In scope - bridge + verify"
+    },
+    {
+      "construct": "Diagrams / subject areas",
+      "volume": "8",
+      "bridge": "Partial layout fidelity",
+      "disposition": "In scope - membership preserved, layout cosmetic"
+    },
+    {
+      "construct": "Extended model definitions (.xem) and extension properties",
+      "volume": "26 properties, 1309 values",
+      "bridge": "NOT delivered - no target construct",
+      "disposition": "AUTOMATION - reapply as erwin UDPs. NOT currently listed in SOW non-equivalence table; scope by omission."
+    },
+    {
+      "construct": "Inheritance exclusivity / completeness flags",
+      "volume": "0",
+      "bridge": "Commonly dropped (SOW: 'may flatten or alter')",
+      "disposition": "AUTOMATION - re-set post-import"
+    },
+    {
+      "construct": "Glossary term bindings (UseTerm)",
+      "volume": "2 term shortcuts",
+      "bridge": "NOT delivered - external .glm has no erwin equivalent",
+      "disposition": "NOT RECOVERABLE as-is. SOW covers under 'naming standards, macros, templates - not automatically migrated'. Re-establish in erwin Naming Standards or relocate to Collibra."
+    },
+    {
+      "construct": "GTL templates (relationship assertion, FK naming)",
+      "volume": "0",
+      "bridge": "NOT delivered",
+      "disposition": "NOT RECOVERABLE. SOW covers under 'model macros - manual rewrite required'."
+    },
+    {
+      "construct": "Repository version history / branch",
+      "volume": "extraction n/a",
+      "bridge": "NOT delivered - point-in-time extract only",
+      "disposition": "OUT OF SCOPE per SOW: 'version history & audit lineage lost'. Archive PD repository read-only."
+    },
+    {
+      "construct": "Primary identifiers",
+      "volume": "0 of 102 flagged primary; 0 entities have none",
+      "bridge": "Delivered as-is",
+      "disposition": "SOURCE CONDITION - do not invent keys. Requires Shell Data Architect confirmation."
+    },
+    {
+      "construct": "Untyped attributes",
+      "volume": "10",
+      "bridge": "Delivered untyped",
+      "disposition": "SOURCE CONDITION - carry through untyped, do not infer."
+    },
+    {
+      "construct": "Domains",
+      "volume": "0",
+      "bridge": "n/a",
+      "disposition": "Not applicable - no domains defined in this model. SOW domain-transport risk does not apply here."
+    }
+  ]
+}

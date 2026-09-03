@@ -1,0 +1,376 @@
+[
+  {
+    "udp": "PD_ObjectID",
+    "type": "Text",
+    "length": 40,
+    "purpose": "PowerDesigner GUID. Permanent join key for reapply, reconciliation and any future re-run. Names change; GUIDs don't."
+  },
+  {
+    "udp": "PD_SourceExtraction",
+    "type": "Text",
+    "length": 20,
+    "purpose": "PowerDesigner repository extraction id. Proves which point-in-time extract this model came from."
+  },
+  {
+    "udp": "PD_SourceModel",
+    "type": "Text",
+    "length": 120,
+    "purpose": "Source model name, for traceability across waves."
+  },
+  {
+    "udp": "DesignStatus",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Approved"
+    ],
+    "source_path": "BIM-core.DesignStatus",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DesignStatus"
+  },
+  {
+    "udp": "DataCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Structured"
+    ],
+    "source_path": "BIM-core.DataCategory",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DataCategory"
+  },
+  {
+    "udp": "EntityCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "External Reference",
+      "Internal Reference",
+      "Intersection",
+      "Master",
+      "Transaction"
+    ],
+    "source_path": "BIM-core.EntityCategory",
+    "coverage": "100%",
+    "distinct_observed": 5,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.EntityCategory"
+  },
+  {
+    "udp": "Criticality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Critical Data"
+    ],
+    "source_path": "BIM-core.Criticality",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.Criticality"
+  },
+  {
+    "udp": "CommerciallySensitiveInformation",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Commercially Sensitive Information"
+    ],
+    "source_path": "BIM-core.CommerciallySensitiveInformation",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.CommerciallySensitiveInformation"
+  },
+  {
+    "udp": "DataConfidentiality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Confidential",
+      "Internal"
+    ],
+    "source_path": "BIM-core.DataConfidentiality",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DataConfidentiality"
+  },
+  {
+    "udp": "EntityPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Personal Data",
+      "Personal Data"
+    ],
+    "source_path": "BIM-core.EntityPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.EntityPersonalData"
+  },
+  {
+    "udp": "FinancialPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Financial Personal Data"
+    ],
+    "source_path": "BIM-core.FinancialPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.FinancialPersonalData"
+  },
+  {
+    "udp": "SensitivePersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Sensitive Personal Data"
+    ],
+    "source_path": "BIM-core.SensitivePersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.SensitivePersonalData"
+  },
+  {
+    "udp": "MTED_EDaM_Mapping_Note",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}"
+    ],
+    "source_path": "BIM-core.MTED_EDaM_Mapping_Note",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.MTED_EDaM_Mapping_Note"
+  },
+  {
+    "udp": "MappingLevel",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Application Specific",
+      "BLM"
+    ],
+    "source_path": "BIM-core.MappingLevel",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.MappingLevel"
+  },
+  {
+    "udp": "CSI",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.CSI",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.CSI"
+  },
+  {
+    "udp": "MTED_Encryption_Required",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required"
+  },
+  {
+    "udp": "PII",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.PII",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.PII"
+  },
+  {
+    "udp": "MapsToEntity",
+    "type": "Text",
+    "length": 78,
+    "value_list": null,
+    "source_path": "BIM-core.MapsToEntity",
+    "coverage": "100%",
+    "distinct_observed": 37,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property BIM-core.MapsToEntity"
+  },
+  {
+    "udp": "DataArea",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Carbon Intensity",
+      "Core HR",
+      "Emission",
+      "Equipment",
+      "Unit Of Measure"
+    ],
+    "source_path": "BIM-core.DataArea",
+    "coverage": "100%",
+    "distinct_observed": 6,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DataArea"
+  },
+  {
+    "udp": "BIM_core_CSI",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "BIM-core.CSI",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.CSI"
+  },
+  {
+    "udp": "EncryptionRequired",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "BIM-core.EncryptionRequired",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.EncryptionRequired"
+  },
+  {
+    "udp": "MaskingRequired",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "BIM-core.MaskingRequired",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.MaskingRequired"
+  },
+  {
+    "udp": "BIM_core_PII",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "BIM-core.PII",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.PII"
+  },
+  {
+    "udp": "Attribute_1",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "Local Extensions.Attribute_1",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Local Extensions.Attribute_1"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Critical_Data",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "L"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data"
+  },
+  {
+    "udp": "MTED_EDaM_Security_Classification",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Restricted"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Security_Classification",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.MTED_EDaM_Security_Classification"
+  },
+  {
+    "udp": "MTED_EDaM_Design_Status",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Approved"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Design_Status",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.MTED_EDaM_Design_Status"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Data_Category",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Master",
+      "Reference"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category"
+  },
+  {
+    "udp": "MTED_EDaM_Mapping_Level",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "02 - Conceptual"
+    ],
+    "source_path": "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_LDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level"
+  }
+]

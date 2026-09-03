@@ -1,0 +1,740 @@
+[
+  {
+    "udp": "PD_ObjectID",
+    "type": "Text",
+    "length": 40,
+    "purpose": "PowerDesigner GUID. Permanent join key for reapply, reconciliation and any future re-run. Names change; GUIDs don't."
+  },
+  {
+    "udp": "PD_SourceExtraction",
+    "type": "Text",
+    "length": 20,
+    "purpose": "PowerDesigner repository extraction id. Proves which point-in-time extract this model came from."
+  },
+  {
+    "udp": "PD_SourceModel",
+    "type": "Text",
+    "length": 120,
+    "purpose": "Source model name, for traceability across waves."
+  },
+  {
+    "udp": "NamingConventionToTitleCaseIsSet",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "BIM-core.NamingConventionToTitleCaseIsSet",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.NamingConventionToTitleCaseIsSet"
+  },
+  {
+    "udp": "BIMType",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Enterprise BLM"
+    ],
+    "source_path": "BIM-core.BIMType",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.BIMType"
+  },
+  {
+    "udp": "EntityCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "External Reference",
+      "Internal Reference",
+      "Intersection",
+      "Master",
+      "Transaction"
+    ],
+    "source_path": "BIM-core.EntityCategory",
+    "coverage": "100%",
+    "distinct_observed": 5,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.EntityCategory"
+  },
+  {
+    "udp": "DataCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Structured",
+      "Unstructured"
+    ],
+    "source_path": "BIM-core.DataCategory",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DataCategory"
+  },
+  {
+    "udp": "Criticality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Critical Data",
+      "No Critical Data"
+    ],
+    "source_path": "BIM-core.Criticality",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.Criticality"
+  },
+  {
+    "udp": "CommerciallySensitiveInformation",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Commercially Sensitive Information",
+      "No Commercially Sensitive Information"
+    ],
+    "source_path": "BIM-core.CommerciallySensitiveInformation",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.CommerciallySensitiveInformation"
+  },
+  {
+    "udp": "DataConfidentiality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Confidential",
+      "Internal",
+      "Most Confidential"
+    ],
+    "source_path": "BIM-core.DataConfidentiality",
+    "coverage": "100%",
+    "distinct_observed": 3,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DataConfidentiality"
+  },
+  {
+    "udp": "EntityPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Personal Data",
+      "Personal Data"
+    ],
+    "source_path": "BIM-core.EntityPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.EntityPersonalData"
+  },
+  {
+    "udp": "FinancialPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Financial Personal Data",
+      "No Financial Personal Data"
+    ],
+    "source_path": "BIM-core.FinancialPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.FinancialPersonalData"
+  },
+  {
+    "udp": "SensitivePersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Sensitive Personal Data"
+    ],
+    "source_path": "BIM-core.SensitivePersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.SensitivePersonalData"
+  },
+  {
+    "udp": "DesignStatus",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Approved"
+    ],
+    "source_path": "BIM-core.DesignStatus",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.DesignStatus"
+  },
+  {
+    "udp": "DataArea",
+    "type": "Text",
+    "length": 72,
+    "value_list": null,
+    "source_path": "BIM-core.DataArea",
+    "coverage": "100%",
+    "distinct_observed": 46,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property BIM-core.DataArea"
+  },
+  {
+    "udp": "EnterpriseLevel",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No",
+      "Yes"
+    ],
+    "source_path": "BIM-core.EnterpriseLevel",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM-core.EnterpriseLevel"
+  },
+  {
+    "udp": "ExchangeId",
+    "type": "Text",
+    "length": 40,
+    "value_list": null,
+    "source_path": "BIM-core.ExchangeId",
+    "coverage": "100%",
+    "distinct_observed": 310,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property BIM-core.ExchangeId"
+  },
+  {
+    "udp": "CSI",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.CSI",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.CSI"
+  },
+  {
+    "udp": "MTED_EDaM_Business_Critical_Data",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Business_Critical_Data",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Business_Critical_Data"
+  },
+  {
+    "udp": "MTED_Encryption_Required",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_Encryption_Required",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_Encryption_Required"
+  },
+  {
+    "udp": "PII",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.PII",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.PII"
+  },
+  {
+    "udp": "EntityUpdateDate",
+    "type": "Text",
+    "length": 60,
+    "value_list": null,
+    "source_path": "SHL_CDM_EntityPropertyExtension.EntityUpdateDate",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.EntityUpdateDate"
+  },
+  {
+    "udp": "MTED_EDaM_Design_Status",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Approved"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status"
+  },
+  {
+    "udp": "MTED_Version_No",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "2021.2",
+      "EDaM 2019.1",
+      "EDaM 2019.2"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_Version_No",
+    "coverage": "100%",
+    "distinct_observed": 4,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_Version_No"
+  },
+  {
+    "udp": "Generation",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.Generation",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.Generation"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Data_Category",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>",
+      "Master",
+      "Standard Reference",
+      "Transaction"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category",
+    "coverage": "100%",
+    "distinct_observed": 5,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category"
+  },
+  {
+    "udp": "MTED_EDaM_Data_Owner",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Andrew Schulze"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Critical_Data",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>",
+      "F",
+      "H"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data",
+    "coverage": "100%",
+    "distinct_observed": 4,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Quality_Indication",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Quality_Indication",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Quality_Indication"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Availability_Indication",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Availability_Indication",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Availability_Indication"
+  },
+  {
+    "udp": "MTED_EDaM_Security_Classification",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "<unspecified>",
+      "Confidential",
+      "Most Confidential",
+      "Restricted",
+      "Unrestricted"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification",
+    "coverage": "100%",
+    "distinct_observed": 6,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification"
+  },
+  {
+    "udp": "MTED_EDaM_Version_Date",
+    "type": "Text",
+    "length": 60,
+    "value_list": null,
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Version_Date",
+    "coverage": "100%",
+    "distinct_observed": 3,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Version_Date"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Maps_To_Entity",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "\"01_EDC_Area\".\"Financial Rate\"",
+      "\"01_EDC_Area\".\"Project Activity\"",
+      "\"01_EDC_Area\".\"Static Earth Model\"",
+      "\"01_EDC_Area\".\"Well Geological\"",
+      "\"01_EDC_Area\".Port"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity",
+    "coverage": "100%",
+    "distinct_observed": 6,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_CSI",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "Business Conceptual Data Model.CSI",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.CSI"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_MTED_Encryption_Required",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "Business Conceptual Data Model.MTED_Encryption_Required",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.MTED_Encryption_Required"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_PII",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "true",
+      "false"
+    ],
+    "source_path": "Business Conceptual Data Model.PII",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.PII"
+  },
+  {
+    "udp": "MTED_EDaM_Mapping_Note",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Mapping for 02 not clear, could also be done to 03 !"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Note",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Note"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_Criticality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Critical Data",
+      "No Critical Data"
+    ],
+    "source_path": "Business Conceptual Data Model.Criticality",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.Criticality"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_DataConfidentiality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Restricted",
+      "Un-restricted"
+    ],
+    "source_path": "Business Conceptual Data Model.DataConfidentiality",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.DataConfidentiality"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_DesignStatus",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Approved"
+    ],
+    "source_path": "Business Conceptual Data Model.DesignStatus",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.DesignStatus"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_SensitivePersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Sensitive Personal Data"
+    ],
+    "source_path": "Business Conceptual Data Model.SensitivePersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.SensitivePersonalData"
+  },
+  {
+    "udp": "MTED_EDaM_Mapping_Level",
+    "type": "Text",
+    "length": 60,
+    "value_list": null,
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level"
+  },
+  {
+    "udp": "MTED_EDaM_Entity_Data_Privacy_Risk",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Personal Sensitive Data Risk"
+    ],
+    "source_path": "SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Privacy_Risk",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Privacy_Risk"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_CommerciallySensitiveInformation",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Commercially Sensitive Information"
+    ],
+    "source_path": "Business Conceptual Data Model.CommerciallySensitiveInformation",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.CommerciallySensitiveInformation"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_DataCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Structured"
+    ],
+    "source_path": "Business Conceptual Data Model.DataCategory",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.DataCategory"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_EntityCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "External Reference",
+      "Master"
+    ],
+    "source_path": "Business Conceptual Data Model.EntityCategory",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.EntityCategory"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_EntityPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Personal Data"
+    ],
+    "source_path": "Business Conceptual Data Model.EntityPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.EntityPersonalData"
+  },
+  {
+    "udp": "Business_Conceptual_Data_Model_FinancialPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Financial Personal Data"
+    ],
+    "source_path": "Business Conceptual Data Model.FinancialPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property Business Conceptual Data Model.FinancialPersonalData"
+  },
+  {
+    "udp": "BIM_CommerciallySensitiveInformation",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Commercially Sensitive Information"
+    ],
+    "source_path": "BIM.CommerciallySensitiveInformation",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.CommerciallySensitiveInformation"
+  },
+  {
+    "udp": "BIM_DataCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Structured"
+    ],
+    "source_path": "BIM.DataCategory",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.DataCategory"
+  },
+  {
+    "udp": "BIM_DataConfidentiality",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Restricted",
+      "Un-restricted"
+    ],
+    "source_path": "BIM.DataConfidentiality",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.DataConfidentiality"
+  },
+  {
+    "udp": "BIM_DesignStatus",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "Approved"
+    ],
+    "source_path": "BIM.DesignStatus",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.DesignStatus"
+  },
+  {
+    "udp": "BIM_EntityCategory",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "External Reference",
+      "Master"
+    ],
+    "source_path": "BIM.EntityCategory",
+    "coverage": "100%",
+    "distinct_observed": 2,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.EntityCategory"
+  },
+  {
+    "udp": "BIM_EntityPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Personal Data"
+    ],
+    "source_path": "BIM.EntityPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.EntityPersonalData"
+  },
+  {
+    "udp": "BIM_FinancialPersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Financial Personal Data"
+    ],
+    "source_path": "BIM.FinancialPersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.FinancialPersonalData"
+  },
+  {
+    "udp": "BIM_SensitivePersonalData",
+    "type": "List",
+    "length": null,
+    "value_list": [
+      "No Sensitive Personal Data"
+    ],
+    "source_path": "BIM.SensitivePersonalData",
+    "coverage": "100%",
+    "distinct_observed": 1,
+    "list_source": "OBSERVED - confirm against BIM-core.xem",
+    "purpose": "PowerDesigner extension property BIM.SensitivePersonalData"
+  }
+]

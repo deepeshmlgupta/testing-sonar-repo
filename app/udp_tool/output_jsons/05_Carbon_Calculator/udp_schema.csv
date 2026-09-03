@@ -1,0 +1,30 @@
+udp,type,length,value_list,source_path,coverage,distinct_observed,list_source
+PD_ObjectID,Text,40,,,,,
+PD_SourceExtraction,Text,20,,,,,
+PD_SourceModel,Text,120,,,,,
+DesignStatus,List,,Approved,BIM-core.DesignStatus,100%,1,OBSERVED - confirm against BIM-core.xem
+DataCategory,List,,Structured,BIM-core.DataCategory,100%,1,OBSERVED - confirm against BIM-core.xem
+EntityCategory,List,,External Reference | Internal Reference | Intersection | Master | Transaction,BIM-core.EntityCategory,100%,5,OBSERVED - confirm against BIM-core.xem
+Criticality,List,,No Critical Data,BIM-core.Criticality,100%,1,OBSERVED - confirm against BIM-core.xem
+CommerciallySensitiveInformation,List,,No Commercially Sensitive Information,BIM-core.CommerciallySensitiveInformation,100%,1,OBSERVED - confirm against BIM-core.xem
+DataConfidentiality,List,,Confidential | Internal,BIM-core.DataConfidentiality,100%,2,OBSERVED - confirm against BIM-core.xem
+EntityPersonalData,List,,No Personal Data | Personal Data,BIM-core.EntityPersonalData,100%,2,OBSERVED - confirm against BIM-core.xem
+FinancialPersonalData,List,,No Financial Personal Data,BIM-core.FinancialPersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+SensitivePersonalData,List,,No Sensitive Personal Data,BIM-core.SensitivePersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Mapping_Note,List,,{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Times New Roman;}},BIM-core.MTED_EDaM_Mapping_Note,100%,1,OBSERVED - confirm against BIM-core.xem
+MappingLevel,List,,Application Specific | BLM,BIM-core.MappingLevel,100%,2,OBSERVED - confirm against BIM-core.xem
+CSI,List,,true | false,SHL_LDM_EntityPropertyExtension.CSI,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_Encryption_Required,List,,true | false,SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required,100%,1,OBSERVED - confirm against BIM-core.xem
+PII,List,,true | false,SHL_LDM_EntityPropertyExtension.PII,100%,1,OBSERVED - confirm against BIM-core.xem
+MapsToEntity,Text,78,,BIM-core.MapsToEntity,100%,37,
+DataArea,List,,Carbon Intensity | Core HR | Emission | Equipment | Unit Of Measure,BIM-core.DataArea,100%,6,OBSERVED - confirm against BIM-core.xem
+BIM_core_CSI,List,,true | false,BIM-core.CSI,100%,2,OBSERVED - confirm against BIM-core.xem
+EncryptionRequired,List,,true | false,BIM-core.EncryptionRequired,100%,1,OBSERVED - confirm against BIM-core.xem
+MaskingRequired,List,,true | false,BIM-core.MaskingRequired,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_core_PII,List,,true | false,BIM-core.PII,100%,1,OBSERVED - confirm against BIM-core.xem
+Attribute_1,List,,true | false,Local Extensions.Attribute_1,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Critical_Data,List,,L,SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Security_Classification,List,,Restricted,SHL_LDM_EntityPropertyExtension.MTED_EDaM_Security_Classification,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Design_Status,List,,Approved,SHL_LDM_EntityPropertyExtension.MTED_EDaM_Design_Status,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Data_Category,List,,Master | Reference,SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Mapping_Level,List,,02 - Conceptual,SHL_LDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level,100%,1,OBSERVED - confirm against BIM-core.xem

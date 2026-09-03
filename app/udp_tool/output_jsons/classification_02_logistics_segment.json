@@ -1,0 +1,142 @@
+{
+  "model": "02_logistics_segment.cdm",
+  "model_name": "02_Logistics_Segment",
+  "pd_version": "16.7.6.7257",
+  "extraction_id": "9649844",
+  "band": "B4",
+  "band_label": "High / Very High",
+  "sow_automation_range": [
+    20,
+    50
+  ],
+  "sow_effort_multiplier": 4.0,
+  "knockouts": [
+    {
+      "forces": "B4",
+      "evidence": "1 custom GTL template(s) in model options (relationship assertion / FK naming). SOW B4: 'macros'. No erwin equivalent."
+    },
+    {
+      "forces": "B4",
+      "evidence": "18 mutually-exclusive inheritance structures require exclusivity flags to be re-set post-import. SOW B4: 'inheritance restructuring'."
+    },
+    {
+      "forces": "B3",
+      "evidence": "18 subtype/supertype structures (51 links). SOW B3: 'subtype/supertype handling'."
+    },
+    {
+      "forces": "B3",
+      "evidence": "147 of 195 entities (75%) lack a definition. SOW B3: 'partial metadata gaps'."
+    },
+    {
+      "forces": "B2",
+      "evidence": "Logical model with no paired physical model. erwin auto-derives a physical layer that was never authored in the source. SOW B2: 'logical + physical alignment needed'."
+    }
+  ],
+  "signals": {
+    "extension_model_definitions": 0,
+    "extension_containers": 2,
+    "extension_properties": 10,
+    "extension_values": 650,
+    "gtl_templates": 1,
+    "validation_rules": 0,
+    "inheritances": 18,
+    "inheritance_links": 51,
+    "mutually_exclusive_inheritances": 18,
+    "entities_without_definition": 147,
+    "entities_without_identifier": 190,
+    "attributes_untyped": 8,
+    "primary_identifiers": 0,
+    "case_sensitive_naming": true,
+    "glossary_enforced": false,
+    "glossary_shortcuts": 2,
+    "external_glossary_models": 0,
+    "domains": 7,
+    "entities": 195,
+    "attributes": 8,
+    "relationships": 194,
+    "diagrams": 0,
+    "model_type": "CDM_DATA_MODEL_XML",
+    "has_physical_layer": false
+  },
+  "automation_coverage": {
+    "definition": "automation coverage = (source facts delivered by the erwin bridge + source facts reapplied programmatically) / total source facts. A 'fact' is one object or one populated property.",
+    "bridge_delivered": 468,
+    "automation_reapplied": 668,
+    "manual_required": 2,
+    "not_recoverable": 2,
+    "total_source_facts": 1140,
+    "bridge_only_pct": 41.1,
+    "with_automation_pct": 99.6
+  },
+  "model_options_of_interest": {
+    "CaseSensitive": "Yes",
+    "UseTerm": "No",
+    "EnableFullShortcut": "No",
+    "FKNameTemplate": null,
+    "FKNameTemplateUsage": null,
+    "DefaultDttp": "",
+    "RlshMigrateExtd": null
+  },
+  "non_equivalence_register": [
+    {
+      "construct": "Entities, attributes, relationships, keys",
+      "volume": "195 / 8 / 194 / 5",
+      "bridge": "Delivered",
+      "disposition": "In scope - bridge"
+    },
+    {
+      "construct": "Definitions (Comment)",
+      "volume": "48 entities, 0 attributes",
+      "bridge": "Delivered (verify mapping to erwin Definition)",
+      "disposition": "In scope - bridge + verify"
+    },
+    {
+      "construct": "Diagrams / subject areas",
+      "volume": "0",
+      "bridge": "Partial layout fidelity",
+      "disposition": "In scope - membership preserved, layout cosmetic"
+    },
+    {
+      "construct": "Extended model definitions (.xem) and extension properties",
+      "volume": "10 properties, 650 values",
+      "bridge": "NOT delivered - no target construct",
+      "disposition": "AUTOMATION - reapply as erwin UDPs. NOT currently listed in SOW non-equivalence table; scope by omission."
+    },
+    {
+      "construct": "Inheritance exclusivity / completeness flags",
+      "volume": "18",
+      "bridge": "Commonly dropped (SOW: 'may flatten or alter')",
+      "disposition": "AUTOMATION - re-set post-import"
+    },
+    {
+      "construct": "Glossary term bindings (UseTerm)",
+      "volume": "2 term shortcuts",
+      "bridge": "NOT delivered - external .glm has no erwin equivalent",
+      "disposition": "NOT RECOVERABLE as-is. SOW covers under 'naming standards, macros, templates - not automatically migrated'. Re-establish in erwin Naming Standards or relocate to Collibra."
+    },
+    {
+      "construct": "GTL templates (relationship assertion, FK naming)",
+      "volume": "1",
+      "bridge": "NOT delivered",
+      "disposition": "NOT RECOVERABLE. SOW covers under 'model macros - manual rewrite required'."
+    },
+    {
+      "construct": "Repository version history / branch",
+      "volume": "extraction n/a",
+      "bridge": "NOT delivered - point-in-time extract only",
+      "disposition": "OUT OF SCOPE per SOW: 'version history & audit lineage lost'. Archive PD repository read-only."
+    },
+    {
+      "construct": "Primary identifiers",
+      "volume": "0 of 5 flagged primary; 190 entities have none",
+      "bridge": "Delivered as-is",
+      "disposition": "SOURCE CONDITION - do not invent keys. Requires Shell Data Architect confirmation."
+    },
+    {
+      "construct": "Untyped attributes",
+      "volume": "8",
+      "bridge": "Delivered untyped",
+      "disposition": "SOURCE CONDITION - carry through untyped, do not infer."
+    }
+  ]
+}

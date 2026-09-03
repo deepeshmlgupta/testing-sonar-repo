@@ -1,0 +1,57 @@
+udp,type,length,value_list,source_path,coverage,distinct_observed,list_source
+PD_ObjectID,Text,40,,,,,
+PD_SourceExtraction,Text,20,,,,,
+PD_SourceModel,Text,120,,,,,
+NamingConventionToTitleCaseIsSet,List,,true | false,BIM-core.NamingConventionToTitleCaseIsSet,100%,1,OBSERVED - confirm against BIM-core.xem
+BIMType,List,,Enterprise BLM,BIM-core.BIMType,100%,1,OBSERVED - confirm against BIM-core.xem
+EntityCategory,List,,External Reference | Internal Reference | Intersection | Master | Transaction,BIM-core.EntityCategory,100%,5,OBSERVED - confirm against BIM-core.xem
+DataCategory,List,,Structured | Unstructured,BIM-core.DataCategory,100%,2,OBSERVED - confirm against BIM-core.xem
+Criticality,List,,Critical Data | No Critical Data,BIM-core.Criticality,100%,2,OBSERVED - confirm against BIM-core.xem
+CommerciallySensitiveInformation,List,,Commercially Sensitive Information | No Commercially Sensitive Information,BIM-core.CommerciallySensitiveInformation,100%,2,OBSERVED - confirm against BIM-core.xem
+DataConfidentiality,List,,Confidential | Internal | Most Confidential,BIM-core.DataConfidentiality,100%,3,OBSERVED - confirm against BIM-core.xem
+EntityPersonalData,List,,No Personal Data | Personal Data,BIM-core.EntityPersonalData,100%,2,OBSERVED - confirm against BIM-core.xem
+FinancialPersonalData,List,,Financial Personal Data | No Financial Personal Data,BIM-core.FinancialPersonalData,100%,2,OBSERVED - confirm against BIM-core.xem
+SensitivePersonalData,List,,No Sensitive Personal Data,BIM-core.SensitivePersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+DesignStatus,List,,Approved,BIM-core.DesignStatus,100%,1,OBSERVED - confirm against BIM-core.xem
+DataArea,Text,72,,BIM-core.DataArea,100%,46,
+EnterpriseLevel,List,,No | Yes,BIM-core.EnterpriseLevel,100%,2,OBSERVED - confirm against BIM-core.xem
+ExchangeId,Text,40,,BIM-core.ExchangeId,100%,310,
+CSI,List,,true | false,SHL_CDM_EntityPropertyExtension.CSI,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Business_Critical_Data,List,,true | false,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Business_Critical_Data,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_Encryption_Required,List,,true | false,SHL_CDM_EntityPropertyExtension.MTED_Encryption_Required,100%,1,OBSERVED - confirm against BIM-core.xem
+PII,List,,true | false,SHL_CDM_EntityPropertyExtension.PII,100%,2,OBSERVED - confirm against BIM-core.xem
+EntityUpdateDate,Text,60,,SHL_CDM_EntityPropertyExtension.EntityUpdateDate,100%,2,
+MTED_EDaM_Design_Status,List,,Approved,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_Version_No,List,,2021.2 | EDaM 2019.1 | EDaM 2019.2,SHL_CDM_EntityPropertyExtension.MTED_Version_No,100%,4,OBSERVED - confirm against BIM-core.xem
+Generation,List,,true | false,SHL_CDM_EntityPropertyExtension.Generation,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Data_Category,List,,<unspecified> | Master | Standard Reference | Transaction,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category,100%,5,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Data_Owner,List,,Andrew Schulze,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Critical_Data,List,,<unspecified> | F | H,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data,100%,4,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Quality_Indication,List,,<unspecified>,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Quality_Indication,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Availability_Indication,List,,<unspecified>,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Availability_Indication,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Security_Classification,List,,<unspecified> | Confidential | Most Confidential | Restricted | Unrestricted,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification,100%,6,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Version_Date,Text,60,,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Version_Date,100%,3,
+MTED_EDaM_Entity_Maps_To_Entity,List,,"""01_EDC_Area"".""Financial Rate"" | ""01_EDC_Area"".""Project Activity"" | ""01_EDC_Area"".""Static Earth Model"" | ""01_EDC_Area"".""Well Geological"" | ""01_EDC_Area"".Port",SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity,100%,6,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_CSI,List,,true | false,Business Conceptual Data Model.CSI,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_MTED_Encryption_Required,List,,true | false,Business Conceptual Data Model.MTED_Encryption_Required,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_PII,List,,true | false,Business Conceptual Data Model.PII,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Mapping_Note,List,,"Mapping for 02 not clear, could also be done to 03 !",SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Note,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_Criticality,List,,Critical Data | No Critical Data,Business Conceptual Data Model.Criticality,100%,2,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_DataConfidentiality,List,,Restricted | Un-restricted,Business Conceptual Data Model.DataConfidentiality,100%,2,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_DesignStatus,List,,Approved,Business Conceptual Data Model.DesignStatus,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_SensitivePersonalData,List,,No Sensitive Personal Data,Business Conceptual Data Model.SensitivePersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Mapping_Level,Text,60,,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level,100%,1,
+MTED_EDaM_Entity_Data_Privacy_Risk,List,,Personal Sensitive Data Risk,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Privacy_Risk,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_CommerciallySensitiveInformation,List,,No Commercially Sensitive Information,Business Conceptual Data Model.CommerciallySensitiveInformation,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_DataCategory,List,,Structured,Business Conceptual Data Model.DataCategory,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_EntityCategory,List,,External Reference | Master,Business Conceptual Data Model.EntityCategory,100%,2,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_EntityPersonalData,List,,No Personal Data,Business Conceptual Data Model.EntityPersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+Business_Conceptual_Data_Model_FinancialPersonalData,List,,No Financial Personal Data,Business Conceptual Data Model.FinancialPersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_CommerciallySensitiveInformation,List,,No Commercially Sensitive Information,BIM.CommerciallySensitiveInformation,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_DataCategory,List,,Structured,BIM.DataCategory,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_DataConfidentiality,List,,Restricted | Un-restricted,BIM.DataConfidentiality,100%,2,OBSERVED - confirm against BIM-core.xem
+BIM_DesignStatus,List,,Approved,BIM.DesignStatus,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_EntityCategory,List,,External Reference | Master,BIM.EntityCategory,100%,2,OBSERVED - confirm against BIM-core.xem
+BIM_EntityPersonalData,List,,No Personal Data,BIM.EntityPersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_FinancialPersonalData,List,,No Financial Personal Data,BIM.FinancialPersonalData,100%,1,OBSERVED - confirm against BIM-core.xem
+BIM_SensitivePersonalData,List,,No Sensitive Personal Data,BIM.SensitivePersonalData,100%,1,OBSERVED - confirm against BIM-core.xem

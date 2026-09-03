@@ -1,0 +1,14 @@
+udp,type,length,value_list,source_path,coverage,distinct_observed,list_source
+PD_ObjectID,Text,40,,,,,
+PD_SourceExtraction,Text,20,,,,,
+PD_SourceModel,Text,120,,,,,
+MTED_EDaM_Entity_Data_Category,List,,<unspecified>,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Security_Classification,List,,<unspecified> | Restricted,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification,100%,2,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Entity_Maps_To_Entity,Text,65,,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity,100%,17,
+MTED_EDaM_Design_Status,List,,Draft,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status,100%,1,OBSERVED - confirm against BIM-core.xem
+MTED_EDaM_Data_Owner,List,,Chris Ragan,SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner,100%,1,OBSERVED - confirm against BIM-core.xem
+DataSourcePersist,List,,C:\Apps\SA extraction\02_Logistics_Segment.csv,EXCEL_IMPORT.DataSourcePersist,100%,1,OBSERVED - confirm against BIM-core.xem
+ImportedType,List,,Entity,EXCEL_IMPORT.ImportedType,100%,1,OBSERVED - confirm against BIM-core.xem
+PersistBooleanMapping,List,,true | false,EXCEL_IMPORT.PersistBooleanMapping,100%,1,OBSERVED - confirm against BIM-core.xem
+ColumnKind,List,,Standard,EXCEL_IMPORT.ColumnKind,100%,1,OBSERVED - confirm against BIM-core.xem
+Attribute,List,,Name | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Data_Owner | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Design_Status | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Entity_Maps_To_Entity | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Mapping_Note | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Security_Classification | SHL_CDM_EntityPropertyExtension.MTED_EDaM_Version_Date | SHL_CDM_EntityPropertyExtension.MTED_Version_No,EXCEL_IMPORT.Attribute,100%,9,OBSERVED - confirm against BIM-core.xem
