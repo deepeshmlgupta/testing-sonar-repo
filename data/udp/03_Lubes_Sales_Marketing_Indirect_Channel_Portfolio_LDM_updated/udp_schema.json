@@ -1,0 +1,20 @@
+[
+  {
+    "udp": "PD_ObjectID",
+    "type": "Text",
+    "length": 40,
+    "purpose": "PowerDesigner GUID. Permanent join key for reapply, reconciliation and any future re-run. Names change; GUIDs don't."
+  },
+  {
+    "udp": "PD_SourceExtraction",
+    "type": "Text",
+    "length": 20,
+    "purpose": "PowerDesigner repository extraction id. Proves which point-in-time extract this model came from."
+  },
+  {
+    "udp": "PD_SourceModel",
+    "type": "Text",
+    "length": 120,
+    "purpose": "Source model name, for traceability across waves."
+  }
+]

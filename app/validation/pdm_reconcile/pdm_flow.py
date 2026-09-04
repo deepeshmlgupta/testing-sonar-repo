@@ -33,12 +33,16 @@ from typing import Any, Dict, List, Optional
 
 from app.preprocessing import pdm_preprocessor
 from app.validation.pdm_reconcile import pdm_validator_bridge as bridge
+# Migration framework additions: staged V1/V2/V3 scoring and the shared
+# >=90% PASS / <90% FAIL routing.
+from app.validation import fidelity_stages, promotion_gate
 
 logger = logging.getLogger(__name__)
 
 STAGE_INITIAL = "1_initial"
 STAGE_PREPROCESSED = "2_preprocessed"
 STAGE_FINAL = "3_final"
+STAGE_MANUAL_REVIEW = "manual_review"  # <model>/manual_review_report
 
 
 @dataclass
@@ -151,12 +155,17 @@ def _gate_failures(result, target_fidelity: float) -> List[str]:
 
     failures: List[str] = []
 
+    # Whether findings block promotion outright is now a setting, so the
+    # ">= PROMOTION_FIDELITY_THRESHOLD means PASS" rule holds for PDM exactly as
+    # it does for CDM and LDM. Set PROMOTION_BLOCK_ON_CRITICAL /
+    # PROMOTION_BLOCK_ON_WARNING to True in app/config/settings.py to restore
+    # the previous behaviour, where any finding held the model back.
     critical = int(getattr(result, "critical_count", 0) or 0)
-    if critical:
+    if critical and promotion_gate.blocks_on_critical():
         failures.append(f"{critical} CRITICAL finding(s)")
 
     warning = int(getattr(result, "warning_count", 0) or 0)
-    if warning:
+    if warning and promotion_gate.blocks_on_warning():
         failures.append(f"{warning} WARNING finding(s) awaiting human sign-off")
 
     raw = float(getattr(result, "fidelity_score_raw",
@@ -180,73 +189,65 @@ def _is_complete(result, target_fidelity: float) -> bool:
     return not _gate_failures(result, target_fidelity)
 
 
-def run_pdm_flow(pdm_path: str,
-                 initial_erwin: str,
-                 initial_xml: str,
-                 preprocessed_erwin: str,
-                 preprocessed_xml: str,
-                 final_erwin: str,
-                 final_xml: str,
-                 target_fidelity: float = 100.0,
-                 preprocess_enabled: bool = True,
-                 keep_preprocessed_copy: bool = False) -> PdmFlowOutcome:
+def _missing_input(pdm_path: str, initial_xml: str) -> str:
     """
-    Validate one PDM model, remediate it if it falls short, and promote it only
-    when it measures at the fidelity target.
+    Why the flow cannot start, or "" when both inputs are present.
 
-    All path arguments are full file paths; parent folders are created on demand.
+    We need both the source model and the erwin XML export.
     """
-    model_name = os.path.splitext(os.path.basename(pdm_path))[0]
-    outcome = PdmFlowOutcome(model_name=model_name, pdm_path=pdm_path)
-
-    # ── Guard: we need both the source model and the erwin XML export ──────────
     if not os.path.exists(pdm_path):
-        outcome.messages.append(f"PowerDesigner model not found: {pdm_path}")
-        logger.error(outcome.messages[-1])
-        return outcome
+        return f"PowerDesigner model not found: {pdm_path}"
     if not os.path.exists(initial_xml):
-        outcome.messages.append(
-            f"erwin XML export not found: {initial_xml}. "
-            "Phase B must produce the XML before reconciliation can run.")
-        logger.error(outcome.messages[-1])
-        return outcome
+        return (f"erwin XML export not found: {initial_xml}. "
+                "Phase B must produce the XML before reconciliation can run.")
+    return ""
 
-    # ── Pass 1: validate the raw import ───────────────────────────────────────
+
+def _log_pass(pass_number: int, result) -> None:
+    logger.info("  pass %d → status=%s fidelity=%.2f%% (critical=%d warning=%d info=%d)",
+                pass_number, result.status, result.fidelity_score,
+                result.critical_count,
+                result.warning_count,
+                result.info_count)
+
+
+def _validate_initial(outcome: "PdmFlowOutcome", pdm_path: str, initial_xml: str,
+                      initial_erwin: str, model_name: str):
+    """Pass 1: validate the raw import; returns the parsed PD model."""
     logger.info("PDM validation (pass 1): %s", model_name)
     pd_model = bridge.parse_pdm(pdm_path)
     outcome.initial_result = bridge.validate_pair(pdm_path, initial_xml)
+    # V1: the raw erwin export, before any remediation or enrichment.
+    fidelity_stages.apply(outcome.initial_result, fidelity_stages.STAGE_V1,
+                          model_type="PDM")
     outcome.final_result = outcome.initial_result
     outcome.artifacts["initial_xml"] = initial_xml
     if os.path.exists(initial_erwin):
         outcome.artifacts["initial_erwin"] = initial_erwin
 
-    logger.info("  pass 1 → status=%s fidelity=%.2f%% (critical=%d warning=%d info=%d)",
-                outcome.initial_result.status, outcome.initial_result.fidelity_score,
-                outcome.initial_result.critical_count,
-                outcome.initial_result.warning_count,
-                outcome.initial_result.info_count)
+    _log_pass(1, outcome.initial_result)
+    return pd_model
 
-    # ── Already perfect: promote straight from 1_initial ──────────────────────
-    if _is_complete(outcome.initial_result, target_fidelity):
-        logger.info("  fidelity target met on import; promoting to %s", STAGE_FINAL)
-        outcome.artifacts["final_xml"] = _copy(initial_xml, final_xml)
-        if os.path.exists(initial_erwin):
-            outcome.artifacts["final_erwin"] = _copy(initial_erwin, final_erwin)
-        outcome.promoted = True
-        outcome.stage = STAGE_FINAL
-        outcome.messages.append(
-            f"Fidelity {outcome.initial_result.fidelity_score:.2f}% on import; "
-            f"promoted to {STAGE_FINAL} without preprocessing.")
-        return _stamp(outcome, pd_model, initial_xml)
 
-    if not preprocess_enabled:
-        outcome.messages.append(
-            f"NOT promoted and preprocessing is disabled. Blocked by: "
-            f"{'; '.join(_gate_failures(outcome.initial_result, target_fidelity))}.")
-        logger.warning("  %s", outcome.messages[-1])
-        return _stamp(outcome, pd_model, initial_xml)
+def _promote_from_initial(outcome: "PdmFlowOutcome", initial_xml: str, initial_erwin: str,
+                          final_xml: str, final_erwin: str) -> None:
+    """Already perfect: promote straight from 1_initial."""
+    logger.info("  fidelity target met on import; promoting to %s", STAGE_FINAL)
+    outcome.artifacts["final_xml"] = _copy(initial_xml, final_xml)
+    if os.path.exists(initial_erwin):
+        outcome.artifacts["final_erwin"] = _copy(initial_erwin, final_erwin)
+    outcome.promoted = True
+    outcome.stage = STAGE_FINAL
+    outcome.messages.append(
+        f"Fidelity {outcome.initial_result.fidelity_score:.2f}% on import; "
+        f"promoted to {STAGE_FINAL} without preprocessing.")
 
-    # ── Preprocess into 2_preprocessed ────────────────────────────────────────
+
+def _run_preprocessing(outcome: "PdmFlowOutcome", pd_model, model_name: str,
+                       initial_xml: str, initial_erwin: str,
+                       preprocessed_xml: str, preprocessed_erwin: str,
+                       target_fidelity: float):
+    """Preprocess into 2_preprocessed; returns the preprocessing report."""
     logger.info("  fidelity %.2f%% below target %.2f%%; applying preprocessing",
                 outcome.initial_result.fidelity_score, target_fidelity)
     report = pdm_preprocessor.preprocess_model(
@@ -266,15 +267,24 @@ def run_pdm_flow(pdm_path: str,
     if os.path.exists(preprocessed_erwin):
         outcome.artifacts["preprocessed_erwin"] = preprocessed_erwin
     logger.info("  preprocessing → %s", report.summary())
+    return report
 
-    # ── Pass 2: re-validate what was actually written ─────────────────────────
+
+def _revalidate(outcome: "PdmFlowOutcome", pdm_path: str, preprocessed_xml: str,
+                model_name: str, report,
+                udp_pass_rate: Optional[float] = None) -> None:
+    """Pass 2: re-validate what was actually written."""
     logger.info("PDM validation (pass 2): %s", model_name)
     outcome.final_result = bridge.validate_pair(pdm_path, preprocessed_xml)
-    logger.info("  pass 2 → status=%s fidelity=%.2f%% (critical=%d warning=%d info=%d)",
-                outcome.final_result.status, outcome.final_result.fidelity_score,
-                outcome.final_result.critical_count,
-                outcome.final_result.warning_count,
-                outcome.final_result.info_count)
+    # V2: after structural remediation, still against the XML export.
+    fidelity_stages.apply(outcome.final_result, fidelity_stages.STAGE_V2,
+                          model_type="PDM")
+    # V3: the same reconciliation, with the UDP component taken from the
+    # enriched erwin model the UDP engine wrote. This is the score the gate
+    # below tests, so promotion reflects the migration as finally delivered.
+    fidelity_stages.apply(outcome.final_result, fidelity_stages.STAGE_V3,
+                          udp_override=udp_pass_rate, model_type="PDM")
+    _log_pass(2, outcome.final_result)
 
     gain = outcome.final_result.fidelity_score - outcome.initial_result.fidelity_score
     outcome.messages.append(
@@ -282,39 +292,144 @@ def run_pdm_flow(pdm_path: str,
         f"{outcome.initial_result.fidelity_score:.2f}% → "
         f"{outcome.final_result.fidelity_score:.2f}% ({gain:+.2f}).")
 
+
+def _warn_if_binary_stale(outcome: "PdmFlowOutcome", report) -> None:
+    """
+    The XML that was validated is the one being promoted. The .erwin
+    binary next to it is only a byte copy of the pre-remediation file
+    unless erwin's COM API was available to regenerate it — so say so
+    rather than letting a "promoted" model ship a binary that still
+    lacks the restored columns.
+    """
+    if getattr(report, "erwin_binary_stale", False):
+        outcome.messages.append(
+            "WARNING: the promoted .erwin binary was carried forward "
+            "unchanged and does NOT contain the remediation — only the "
+            "XML does. Regenerate it on a Windows host with erwin Data "
+            "Modeler before treating the binary as the final artefact.")
+        logger.warning("  %s", outcome.messages[-1])
+
+
+def _promote_after_preprocessing(outcome: "PdmFlowOutcome", report,
+                                 preprocessed_xml: str, preprocessed_erwin: str,
+                                 final_xml: str, final_erwin: str,
+                                 keep_preprocessed_copy: bool) -> None:
+    logger.info("  fidelity target met after preprocessing; promoting to %s",
+                STAGE_FINAL)
+    transfer = _copy if keep_preprocessed_copy else _move
+    outcome.artifacts["final_xml"] = transfer(preprocessed_xml, final_xml)
+    if os.path.exists(preprocessed_erwin):
+        outcome.artifacts["final_erwin"] = transfer(preprocessed_erwin,
+                                                    final_erwin)
+    if not keep_preprocessed_copy:
+        outcome.artifacts.pop("preprocessed_xml", None)
+        outcome.artifacts.pop("preprocessed_erwin", None)
+    outcome.promoted = True
+    outcome.stage = STAGE_FINAL
+    outcome.messages.append(f"Promoted to {STAGE_FINAL}.")
+    _warn_if_binary_stale(outcome, report)
+
+
+def _hold_for_review(outcome: "PdmFlowOutcome", target_fidelity: float,
+                     preprocessed_xml: str = "", preprocessed_erwin: str = "",
+                     manual_review_dir: str = "") -> None:
+    """
+    The model did not reach the promotion threshold.
+
+    Two-band mode (the default) moves it and its .erwin binary into that
+    model's own manual_review_report folder. Three-band mode keeps the previous
+    behaviour and leaves it in 2_preprocessed for review.
+    """
+    blockers = _gate_failures(outcome.final_result, target_fidelity)
+
+    if promotion_gate.bands_mode() == promotion_gate.BANDS_TWO:
+        moved = promotion_gate.route(outcome.final_result,
+                                     preprocessed_xml, preprocessed_erwin,
+                                     destination=manual_review_dir)
+        outcome.stage = STAGE_MANUAL_REVIEW
+        for path in moved:
+            key = ("manual_review_erwin" if path.lower().endswith(".erwin")
+                   else "manual_review_xml")
+            outcome.artifacts[key] = path
+        outcome.artifacts.pop("preprocessed_xml", None)
+        outcome.artifacts.pop("preprocessed_erwin", None)
+        outcome.messages.append(
+            f"FAIL — fidelity below the {target_fidelity:.2f}% threshold; "
+            f"moved to {STAGE_MANUAL_REVIEW}. Blocked by: {'; '.join(blockers)}.")
+        logger.warning("  %s", outcome.messages[-1])
+        return
+
+    outcome.messages.append(
+        f"NOT promoted — held in {STAGE_PREPROCESSED} for review. "
+        f"Blocked by: {'; '.join(blockers)}.")
+    logger.info("  %s", outcome.messages[-1])
+
+
+def run_pdm_flow(pdm_path: str,
+                 initial_erwin: str,
+                 initial_xml: str,
+                 preprocessed_erwin: str,
+                 preprocessed_xml: str,
+                 final_erwin: str,
+                 final_xml: str,
+                 target_fidelity: float = 100.0,
+                 preprocess_enabled: bool = True,
+                 keep_preprocessed_copy: bool = False,
+                 udp_pass_rate: Optional[float] = None,
+                 manual_review_dir: str = "") -> PdmFlowOutcome:
+    """
+    Validate one PDM model, remediate it if it falls short, and promote it only
+    when it measures at the fidelity target.
+
+    All path arguments are full file paths; parent folders are created on demand.
+    """
+    model_name = os.path.splitext(os.path.basename(pdm_path))[0]
+    outcome = PdmFlowOutcome(model_name=model_name, pdm_path=pdm_path)
+
+    # ── Guard: we need both the source model and the erwin XML export ──────────
+    missing = _missing_input(pdm_path, initial_xml)
+    if missing:
+        outcome.messages.append(missing)
+        logger.error(outcome.messages[-1])
+        return outcome
+
+    # ── Pass 1: validate the raw import ───────────────────────────────────────
+    pd_model = _validate_initial(outcome, pdm_path, initial_xml,
+                                 initial_erwin, model_name)
+
+    # ── Already perfect: promote straight from 1_initial ──────────────────────
+    if _is_complete(outcome.initial_result, target_fidelity):
+        _promote_from_initial(outcome, initial_xml, initial_erwin,
+                              final_xml, final_erwin)
+        return _stamp(outcome, pd_model, initial_xml)
+
+    if not preprocess_enabled:
+        outcome.messages.append(
+            f"NOT promoted and preprocessing is disabled. Blocked by: "
+            f"{'; '.join(_gate_failures(outcome.initial_result, target_fidelity))}.")
+        logger.warning("  %s", outcome.messages[-1])
+        return _stamp(outcome, pd_model, initial_xml)
+
+    # ── Preprocess into 2_preprocessed ────────────────────────────────────────
+    report = _run_preprocessing(outcome, pd_model, model_name,
+                                initial_xml, initial_erwin,
+                                preprocessed_xml, preprocessed_erwin,
+                                target_fidelity)
+
+    # ── Pass 2: re-validate what was actually written ─────────────────────────
+    _revalidate(outcome, pdm_path, preprocessed_xml, model_name, report,
+                udp_pass_rate)
+
     # ── Promotion gate ────────────────────────────────────────────────────────
     if _is_complete(outcome.final_result, target_fidelity):
-        logger.info("  fidelity target met after preprocessing; promoting to %s",
-                    STAGE_FINAL)
-        transfer = _copy if keep_preprocessed_copy else _move
-        outcome.artifacts["final_xml"] = transfer(preprocessed_xml, final_xml)
-        if os.path.exists(preprocessed_erwin):
-            outcome.artifacts["final_erwin"] = transfer(preprocessed_erwin,
-                                                        final_erwin)
-        if not keep_preprocessed_copy:
-            outcome.artifacts.pop("preprocessed_xml", None)
-            outcome.artifacts.pop("preprocessed_erwin", None)
-        outcome.promoted = True
-        outcome.stage = STAGE_FINAL
-        outcome.messages.append(f"Promoted to {STAGE_FINAL}.")
-        # The XML that was validated is the one being promoted. The .erwin
-        # binary next to it is only a byte copy of the pre-remediation file
-        # unless erwin's COM API was available to regenerate it — so say so
-        # rather than letting a "promoted" model ship a binary that still
-        # lacks the restored columns.
-        if getattr(report, "erwin_binary_stale", False):
-            outcome.messages.append(
-                "WARNING: the promoted .erwin binary was carried forward "
-                "unchanged and does NOT contain the remediation — only the "
-                "XML does. Regenerate it on a Windows host with erwin Data "
-                "Modeler before treating the binary as the final artefact.")
-            logger.warning("  %s", outcome.messages[-1])
+        _promote_after_preprocessing(outcome, report,
+                                     preprocessed_xml, preprocessed_erwin,
+                                     final_xml, final_erwin,
+                                     keep_preprocessed_copy)
     else:
-        blockers = _gate_failures(outcome.final_result, target_fidelity)
-        outcome.messages.append(
-            f"NOT promoted — held in {STAGE_PREPROCESSED} for review. "
-            f"Blocked by: {'; '.join(blockers)}.")
-        logger.info("  %s", outcome.messages[-1])
+        _hold_for_review(outcome, target_fidelity,
+                         preprocessed_xml, preprocessed_erwin,
+                         manual_review_dir)
 
     # Pass 2 read the remediated XML, so that is the erwin side of the report.
     return _stamp(outcome, pd_model,

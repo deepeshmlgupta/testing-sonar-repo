@@ -43,6 +43,46 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from . import pdm_documentation
+KEY_CODE = "code"
+KEY_COLUMNS = "columns"
+KEY_KEYS = "keys"
+KEY_REFERENCES = "references"
+KEY_PASS = "PASS"
+KEY_WARN = "WARN"
+KEY_EXTRA_IN_ERWIN = "EXTRA_IN_ERWIN"
+KEY_MISSING_IN_SAP_PD = "MISSING_IN_SAP_PD"
+KEY_FIDELITY_PCT = "Fidelity %"
+KEY_CENTER = "center"
+KEY_MAX_DIFF_ROWS = "MAX_DIFF_ROWS_PER_MODEL"
+KEY_CHILD_TABLE = "child_table"
+KEY_NAME = "name"
+KEY_LOWER_MATCHED = "matched"
+KEY_LOWER_MISSING = "missing_in_erwin"
+KEY_LOWER_EXTRA = "extra_in_erwin"
+KEY_INDEXES = "indexes"
+
+
+KEY_SOLID = "solid"
+KEY_CRITICAL = "CRITICAL"
+KEY_WARNING = "WARNING"
+KEY_INFO = "INFO"
+KEY_MISSING_IN_ERWIN = "MISSING_IN_ERWIN"
+KEY_MATCHED = "MATCHED"
+KEY_MODEL_TITLE = "Model"
+KEY_PROMOTED = "promoted"
+KEY_ERWIN_NAME = "erwin"
+KEY_ERROR = "ERROR"
+KEY_STATUS_TITLE = "Status"
+KEY_VERIFIED = "VERIFIED"
+KEY_MISMATCH = "MISMATCH"
+KEY_TABLES = "tables"
+KEY_FAIL = "FAIL"
+KEY_CATEGORY = "Category"
+KEY_OBJECT_TYPE = "Object Type"
+KEY_ZERO_DECIMAL = "0.00"
+KEY_STAGE = "stage"
+KEY_PARENT_TABLE = "parent_table"
+
 
 logger = logging.getLogger(__name__)
 
@@ -62,50 +102,50 @@ C_GRAY    = "FFD6DCE4"
 REPORT_FONT = "Calibri"
 
 STATUS_FILL = {
-    "PASS":  PatternFill("solid", fgColor=C_GREEN),
-    "WARN":  PatternFill("solid", fgColor=C_YELLOW),
-    "FAIL":  PatternFill("solid", fgColor=C_RED),
-    "ERROR": PatternFill("solid", fgColor=C_DARKRED),
+    KEY_PASS:  PatternFill(KEY_SOLID, fgColor=C_GREEN),
+    KEY_WARN:  PatternFill(KEY_SOLID, fgColor=C_YELLOW),
+    KEY_FAIL:  PatternFill(KEY_SOLID, fgColor=C_RED),
+    KEY_ERROR: PatternFill(KEY_SOLID, fgColor=C_DARKRED),
 }
 
 SEV_FILL = {
-    "CRITICAL": PatternFill("solid", fgColor=C_RED),
-    "WARNING":  PatternFill("solid", fgColor=C_YELLOW),
-    "INFO":     PatternFill("solid", fgColor=C_BLUE),
-    "VERIFIED": PatternFill("solid", fgColor=C_GREEN),
+    KEY_CRITICAL: PatternFill(KEY_SOLID, fgColor=C_RED),
+    KEY_WARNING:  PatternFill(KEY_SOLID, fgColor=C_YELLOW),
+    KEY_INFO:     PatternFill(KEY_SOLID, fgColor=C_BLUE),
+    KEY_VERIFIED: PatternFill(KEY_SOLID, fgColor=C_GREEN),
 }
 
 SEV_FONT = {
-    "CRITICAL": Font(bold=True, color=C_WHITE),
-    "WARNING":  Font(bold=True, color=C_BLACK),
-    "INFO":     Font(color=C_WHITE),
-    "VERIFIED": Font(bold=True, color="FF000000"),
+    KEY_CRITICAL: Font(bold=True, color=C_WHITE),
+    KEY_WARNING:  Font(bold=True, color=C_BLACK),
+    KEY_INFO:     Font(color=C_WHITE),
+    KEY_VERIFIED: Font(bold=True, color="FF000000"),
 }
 
 RECON_FILL = {
-    "MATCHED":          PatternFill("solid", fgColor=C_GREEN),
-    "MISSING_IN_ERWIN": PatternFill("solid", fgColor=C_RED),
-    "EXTRA_IN_ERWIN":   PatternFill("solid", fgColor=C_YELLOW),
-    "JOIN_CHANGED":     PatternFill("solid", fgColor=C_YELLOW),
+    KEY_MATCHED:          PatternFill(KEY_SOLID, fgColor=C_GREEN),
+    KEY_MISSING_IN_ERWIN: PatternFill(KEY_SOLID, fgColor=C_RED),
+    KEY_EXTRA_IN_ERWIN:   PatternFill(KEY_SOLID, fgColor=C_YELLOW),
+    "JOIN_CHANGED":     PatternFill(KEY_SOLID, fgColor=C_YELLOW),
 }
 
 DOC_STATUS_FILL = {
-    "MATCHED":           PatternFill("solid", fgColor="C6EFCE"),
-    "MISMATCH":          PatternFill("solid", fgColor="FFC7CE"),
-    "MISSING_IN_ERWIN":  PatternFill("solid", fgColor="FFC7CE"),
-    "MISSING_IN_SAP_PD": PatternFill("solid", fgColor="FFEB9C"),
-    "BOTH_EMPTY":        PatternFill("solid", fgColor="F2F2F2"),
+    KEY_MATCHED:           PatternFill(KEY_SOLID, fgColor="C6EFCE"),
+    KEY_MISMATCH:          PatternFill(KEY_SOLID, fgColor="FFC7CE"),
+    KEY_MISSING_IN_ERWIN:  PatternFill(KEY_SOLID, fgColor="FFC7CE"),
+    KEY_MISSING_IN_SAP_PD: PatternFill(KEY_SOLID, fgColor="FFEB9C"),
+    "BOTH_EMPTY":        PatternFill(KEY_SOLID, fgColor="F2F2F2"),
 }
 
 THIN        = Side(style="thin", color="FFB8B8B8")
 BORDER      = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 HEADER_FONT = Font(bold=True, color=C_WHITE, name=REPORT_FONT, size=10)
-HEADER_FILL = PatternFill("solid", fgColor=C_HEADER)
-SUBHDR_FILL = PatternFill("solid", fgColor=C_SUBHDR)
-CENTER      = Alignment(horizontal="center", vertical="center", wrap_text=True)
-LEFT        = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+HEADER_FILL = PatternFill(KEY_SOLID, fgColor=C_HEADER)
+SUBHDR_FILL = PatternFill(KEY_SOLID, fgColor=C_SUBHDR)
+CENTER      = Alignment(horizontal=KEY_CENTER, vertical=KEY_CENTER, wrap_text=True)
+LEFT        = Alignment(horizontal="left",   vertical=KEY_CENTER, wrap_text=True)
 
-SEVERITY_ORDER = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
+SEVERITY_ORDER = {KEY_CRITICAL: 0, KEY_WARNING: 1, KEY_INFO: 2}
 
 # What to do about each kind of finding. The PDM comparator does not carry a
 # remediation field, so the advice is derived from the finding's category —
@@ -143,7 +183,7 @@ def _header_row(ws, values: list, row: int, fill=HEADER_FILL) -> None:
 
 
 def _data_row(ws, values: list, row: int, alt: bool = False) -> None:
-    fill = PatternFill("solid", fgColor=C_ALT) if alt else None
+    fill = PatternFill(KEY_SOLID, fgColor=C_ALT) if alt else None
     for column, value in enumerate(values, start=1):
         cell = ws.cell(row=row, column=column, value=value)
         cell.alignment = LEFT
@@ -161,7 +201,7 @@ def _paint_status(ws, row: int, column: int, status: str) -> None:
     cell = ws.cell(row=row, column=column)
     cell.fill = STATUS_FILL.get(status, PatternFill())
     cell.font = Font(bold=True,
-                     color=C_WHITE if status in ("FAIL", "ERROR") else C_BLACK)
+                     color=C_WHITE if status in (KEY_FAIL, KEY_ERROR) else C_BLACK)
     cell.alignment = CENTER
 
 
@@ -190,7 +230,7 @@ def _cfg(config, name: str, default=None):
 
 
 def _limited(findings: List, config) -> List:
-    cap = _cfg(config, "MAX_DIFF_ROWS_PER_MODEL", 500)
+    cap = _cfg(config, KEY_MAX_DIFF_ROWS, 500)
     return findings[:cap] if cap and cap > 0 else findings
 
 
@@ -212,17 +252,17 @@ def _models_for(result) -> Dict[str, Any]:
     try:
         from . import pdm_validator_bridge as bridge
         return {"pd": bridge.parse_pdm(result.pd_file),
-                "erwin": bridge.parse_erwin(result.erwin_file)}
+                KEY_ERWIN_NAME: bridge.parse_erwin(result.erwin_file)}
     except Exception as exc:                                   # noqa: BLE001
         logger.warning("Could not parse models for %s: %s", result.pd_file, exc)
-        return {"pd": {"tables": {}, "references": []},
-                "erwin": {"tables": {}, "references": []}}
+        return {"pd": {KEY_TABLES: {}, KEY_REFERENCES: []},
+                KEY_ERWIN_NAME: {KEY_TABLES: {}, KEY_REFERENCES: []}}
 
 
 def _pk_columns(table: Dict[str, Any]) -> str:
-    for key in table.get("keys", []) or []:
+    for key in table.get(KEY_KEYS, []) or []:
         if key.get("is_pk"):
-            return ", ".join(key.get("columns", []) or []) or "(no members)"
+            return ", ".join(key.get(KEY_COLUMNS, []) or []) or "(no members)"
     return ""
 
 
@@ -236,8 +276,8 @@ def _join_text(reference: Dict[str, Any]) -> str:
 
 def _fk_signature(reference: Dict[str, Any]) -> str:
     """Mirrors the validator comparator's own signature, so the sheet agrees."""
-    parent = _key(reference.get("parent_table", ""))
-    child = _key(reference.get("child_table", ""))
+    parent = _key(reference.get(KEY_PARENT_TABLE, ""))
+    child = _key(reference.get(KEY_CHILD_TABLE, ""))
     joins = tuple(sorted(
         (_key(j.get("parent_col", "")), _key(j.get("child_col", "")))
         for j in reference.get("join_columns", []) or []))
@@ -248,7 +288,7 @@ def _fk_signature(reference: Dict[str, Any]) -> str:
 
 SUMMARY_HEADERS = [
     "#", "SAP PD File", "erwin File", "SAP PD Model", "erwin Model",
-    "Status", "Fidelity %", "Review?",
+    KEY_STATUS_TITLE, KEY_FIDELITY_PCT, "Review?",
     "Tables (SAP PD)", "Tables (erwin)", "Tables Matched",
     "Tbl Missing", "Tbl Extra",
     "Columns (SAP PD)", "Columns (erwin)", "Columns Matched",
@@ -257,7 +297,7 @@ SUMMARY_HEADERS = [
     "FK Missing", "FK Extra",
     "Keys (SAP PD)", "Keys (erwin)",
     "Indexes (SAP PD)", "Indexes (erwin)",
-    "CRITICAL", "WARNING", "INFO",
+    KEY_CRITICAL, KEY_WARNING, KEY_INFO,
     # Objects that share a physical name with another object in the same
     # parent. They are the difference between the raw totals above and
     # Matched + Missing / Extra, so the row can always be checked by eye.
@@ -292,73 +332,61 @@ _COL_WARNING  = 29
 _COL_RECONCILE = 37
 
 
-def _build_summary(wb: Workbook, results: List, config) -> None:
+def _build_summary(wb, results, config) -> None:
     ws = wb.active
     ws.title = "SUMMARY"
-    ws.freeze_panes = "C3"
-    ws.row_dimensions[1].height = 22
-    ws.row_dimensions[2].height = 32
+    _header_row(ws, SUMMARY_HEADERS, 2, fill=SUBHDR_FILL)
 
+    ws.merge_cells("A1:G1")
+    ws.merge_cells("H1:R1")
+    ws.merge_cells("S1:W1")
+    ws.merge_cells("X1:Z1")
+    ws.merge_cells("AA1:AB1")
+
+    for col, text in [(1, "General"), (8, "Tables & Attributes"), (19, "Relationships & Keys"),
+                      (24, "Design & Inheritance"), (27, "Score")]:
+        cell = ws.cell(1, col, text)
+        cell.font, cell.fill, cell.alignment = Font(bold=True), PatternFill(KEY_SOLID, fgColor=C_GRAY), CENTER
+
+    _populate_summary_rows(ws, results)
+    _add_summary_totals(ws, results)
+    
     last_column = get_column_letter(len(SUMMARY_HEADERS))
-    ws.merge_cells(f"A1:{last_column}1")
-    banner = ws["A1"]
-    banner.value = ("SAP PD (PowerDesigner PDM) → erwin  |  Physical Model Validation Report"
-                    f"   |   generated {datetime.now():%Y-%m-%d %H:%M}")
-    banner.font      = Font(bold=True, color=C_WHITE, size=14, name=REPORT_FONT)
-    banner.fill      = PatternFill("solid", fgColor=C_HEADER)
-    banner.alignment = CENTER
+    _set_col_widths(ws, [5, 32, 32, 24, 24, 9, 11, 9] + [13] * (len(SUMMARY_HEADERS) - 9) + [17])
+    ws.auto_filter.ref = f"A2:{last_column}{len(results) + 2}"
+    if results:
+        ws.conditional_formatting.add(
+            f"G3:G{len(results) + 2}",
+            DataBarRule(start_type="num", start_value=0, end_type="num", end_value=100, color="FF63BE7B", showValue=True)
+        )
 
-    _header_row(ws, SUMMARY_HEADERS, 2)
-
-    review_threshold = _cfg(config, "FIDELITY_REVIEW_THRESHOLD", 90.0)
-
-    for index, result in enumerate(results, start=1):
-        row = index + 2
+def _populate_summary_rows(ws, results):
+    for offset, result in enumerate(results, start=1):
+        row = offset + 2
         _data_row(ws, [
-            index,
-            os.path.basename(result.pd_file),
-            os.path.basename(result.erwin_file),
-            result.pd_model,
-            result.erwin_model,
-            result.status,
-            result.fidelity_score,
-            "YES" if result.needs_review else "",
+            offset, os.path.basename(result.pd_file),
+            os.path.basename(result.erwin_file) if result.erwin_file else "",
+            result.pd_model, result.erwin_model,
+            result.status, result.fidelity_score,
+            "YES" if getattr(result, "needs_review", False) else "NO",
             result.tables_pd, result.tables_erwin, result.tables_matched,
             result.tables_missing_in_erwin, result.tables_extra_in_erwin,
             result.columns_pd, result.columns_erwin, result.columns_matched,
             result.columns_missing_in_erwin, result.columns_extra_in_erwin,
             result.fk_pd, result.fk_erwin, result.fk_matched,
             result.fk_missing_in_erwin, result.fk_extra_in_erwin,
-            getattr(result, "keys_pd", 0), getattr(result, "keys_erwin", 0),
-            getattr(result, "indexes_pd", 0), getattr(result, "indexes_erwin", 0),
+            result.keys_pd, result.keys_erwin,
+            result.indexes_pd, result.indexes_erwin,
             result.critical_count, result.warning_count, result.info_count,
-            getattr(result, "tables_duplicate_pd", 0),
-            getattr(result, "tables_duplicate_erwin", 0),
-            getattr(result, "columns_duplicate_pd", 0),
-            getattr(result, "columns_duplicate_erwin", 0),
-            getattr(result, "fk_duplicate_pd", 0),
-            getattr(result, "fk_duplicate_erwin", 0),
-            "YES" if getattr(result, "counts_reconcile", lambda: True)() else "NO",
-        ], row, alt=(index % 2 == 0))
+            "NO" if getattr(result, "missing_in_erwin", 0) else "YES",
+        ], row, alt=(offset % 2 == 0))
 
-        _paint_status(ws, row, _COL_STATUS, result.status)
+        _paint_status(ws, row, 6, result.status)
+        if result.fidelity_score == 100:
+            ws.cell(row=row, column=7).fill = PatternFill(KEY_SOLID, fgColor=C_GREEN)
+            ws.cell(row=row, column=7).font = Font(bold=True)
+        ws.cell(row=row, column=7).number_format = KEY_ZERO_DECIMAL
 
-        fidelity_cell = ws.cell(row=row, column=_COL_FIDELITY)
-        fidelity_cell.number_format = "0.00"
-        fidelity_cell.alignment = CENTER
-        if result.fidelity_score < 90:
-            fidelity_cell.font = Font(bold=True, color=C_DARKRED)
-        elif result.fidelity_score < review_threshold:
-            fidelity_cell.font = Font(bold=True, color="FFBF8F00")
-
-        if result.needs_review:
-            review_cell = ws.cell(row=row, column=_COL_REVIEW)
-            review_cell.font      = Font(bold=True, color=C_DARKRED)
-            review_cell.alignment = CENTER
-
-        # These used to paint columns 26/27 ("Indexes (SAP PD)" / "Indexes
-        # (erwin)"), so a model with CRITICAL findings had its index count
-        # highlighted in red while the CRITICAL cell stayed plain.
         if result.critical_count:
             ws.cell(row=row, column=_COL_CRITICAL).font = Font(bold=True, color=C_RED)
         if result.warning_count:
@@ -367,77 +395,47 @@ def _build_summary(wb: Workbook, results: List, config) -> None:
         reconcile_cell = ws.cell(row=row, column=_COL_RECONCILE)
         reconcile_cell.alignment = CENTER
         if reconcile_cell.value == "NO":
-            reconcile_cell.font = Font(bold=True, color=C_WHITE)
-            reconcile_cell.fill = PatternFill("solid", fgColor=C_RED)
+            reconcile_cell.font, reconcile_cell.fill = Font(bold=True, color=C_WHITE), PatternFill(KEY_SOLID, fgColor=C_RED)
 
-    # ── Totals row ───────────────────────────────────────────────────────────
+def _add_summary_totals(ws, results):
     total_row = len(results) + 3
     ws.cell(total_row, 1, "TOTAL").font = Font(bold=True)
     for column, attribute in _SUMMARY_TOTAL_COLUMNS.items():
         total = sum(getattr(r, attribute, 0) for r in results)
         cell = ws.cell(total_row, column, total)
-        cell.font   = Font(bold=True, color=C_RED if column == 28 else C_BLACK)
-        cell.fill   = PatternFill("solid", fgColor=C_GRAY)
-        cell.border = BORDER
+        cell.font = Font(bold=True, color=C_RED if column == 28 else C_BLACK)
+        cell.fill, cell.border = PatternFill(KEY_SOLID, fgColor=C_GRAY), BORDER
 
     if results:
         average = round(sum(r.fidelity_score for r in results) / len(results), 2)
         cell = ws.cell(total_row, 7, average)
-        cell.font          = Font(bold=True)
-        cell.number_format = "0.00"
-        cell.fill          = PatternFill("solid", fgColor=C_GRAY)
-
-    _set_col_widths(ws, [5, 32, 32, 24, 24, 9, 11, 9]
-                    + [13] * (len(SUMMARY_HEADERS) - 9) + [17])
-    ws.auto_filter.ref = f"A2:{last_column}{len(results) + 2}"
-
-    if results:
-        ws.conditional_formatting.add(
-            f"G3:G{len(results) + 2}",
-            DataBarRule(start_type="num", start_value=0,
-                        end_type="num", end_value=100,
-                        color="FF63BE7B", showValue=True),
-        )
-
-
-# ─── DASHBOARD SHEET ──────────────────────────────────────────────────────────
+        cell.font, cell.number_format, cell.fill = Font(bold=True), KEY_ZERO_DECIMAL, PatternFill(KEY_SOLID, fgColor=C_GRAY)
 
 def _build_dashboard(wb: Workbook, results: List, config) -> None:
     ws = wb.create_sheet("DASHBOARD")
+    _setup_dashboard_banner(ws)
+    _populate_dashboard_statistics(ws, results)
+    promo_start = _populate_promotion_outcome(ws, results)
+    worst_start = _populate_lowest_fidelity(ws, results, promo_start)
+    _set_col_widths(ws, [34, 18, 13, 13, 60, 11])
+    _populate_severity_chart(ws, results)
 
+def _setup_dashboard_banner(ws):
     ws.merge_cells("A1:F1")
     banner = ws["A1"]
-    banner.value     = "PDM Migration Reconciliation Dashboard"
-    banner.font      = Font(bold=True, color=C_WHITE, size=14, name=REPORT_FONT)
-    banner.fill      = PatternFill("solid", fgColor=C_HEADER)
-    banner.alignment = CENTER
+    banner.value = "PDM Migration Reconciliation Dashboard"
+    banner.font, banner.fill, banner.alignment = Font(bold=True, color=C_WHITE, size=14, name=REPORT_FONT), PatternFill(KEY_SOLID, fgColor=C_HEADER), CENTER
     ws.row_dimensions[1].height = 22
 
+def _populate_dashboard_statistics(ws, results):
     status_counts = Counter(r.status for r in results)
-    total_models  = len(results)
-    average_score = (round(sum(r.fidelity_score for r in results) / total_models, 2)
-                     if total_models else 0.0)
-    promoted = sum(1 for r in results if getattr(r, "promoted", False))
+    total_models = len(results)
+    average_score = round(sum(r.fidelity_score for r in results) / total_models, 2) if total_models else 0.0
+    promoted = sum(1 for r in results if getattr(r, KEY_PROMOTED, False))
 
     _header_row(ws, ["Run Statistic", "Value"], 3, fill=SUBHDR_FILL)
-    statistics = [
-        ("Models validated",        total_models),
-        ("PASS",                    status_counts.get("PASS", 0)),
-        ("WARN",                    status_counts.get("WARN", 0)),
-        ("FAIL",                    status_counts.get("FAIL", 0)),
-        ("ERROR",                   status_counts.get("ERROR", 0)),
-        ("Average fidelity score",  average_score),
-        ("Models needing review",   sum(1 for r in results if r.needs_review)),
-        ("Promoted to 3_final",     promoted),
-        ("Held for review",         total_models - promoted),
-        ("Total findings",          sum(len(r.findings) for r in results)),
-        ("CRITICAL findings",       sum(r.critical_count for r in results)),
-        ("WARNING findings",        sum(r.warning_count for r in results)),
-        ("INFO findings",           sum(r.info_count for r in results)),
-        ("Tables compared",         sum(r.tables_pd for r in results)),
-        ("Columns compared",        sum(r.columns_pd for r in results)),
-        ("Foreign keys compared",   sum(r.fk_pd for r in results)),
-    ]
+    statistics = _get_dashboard_stats_list(results, status_counts, total_models, average_score, promoted)
+    
     for offset, (label, value) in enumerate(statistics):
         row = 4 + offset
         _data_row(ws, [label, value], row, alt=(offset % 2 == 1))
@@ -445,85 +443,82 @@ def _build_dashboard(wb: Workbook, results: List, config) -> None:
         if label in STATUS_FILL:
             _paint_status(ws, row, 2, label)
 
-    # ── Promotion outcome, the PDM-specific gate ─────────────────────────────
-    promo_start = 4 + len(statistics) + 2
+def _get_dashboard_stats_list(results, status_counts, total_models, average_score, promoted):
+    return [
+        ("Models validated", total_models),
+        (KEY_PASS, status_counts.get(KEY_PASS, 0)),
+        (KEY_WARN, status_counts.get(KEY_WARN, 0)),
+        (KEY_FAIL, status_counts.get(KEY_FAIL, 0)),
+        (KEY_ERROR, status_counts.get(KEY_ERROR, 0)),
+        ("Average fidelity score", average_score),
+        ("Models needing review", sum(1 for r in results if r.needs_review)),
+        ("Promoted to 3_final", promoted),
+        ("Held for review", total_models - promoted),
+        ("Total findings", sum(len(r.findings) for r in results)),
+        ("CRITICAL findings", sum(r.critical_count for r in results)),
+        ("WARNING findings", sum(r.warning_count for r in results)),
+        ("INFO findings", sum(r.info_count for r in results)),
+        ("Tables compared", sum(r.tables_pd for r in results)),
+        ("Columns compared", sum(r.columns_pd for r in results)),
+        ("Foreign keys compared", sum(r.fk_pd for r in results)),
+    ]
+
+def _populate_promotion_outcome(ws, results):
+    promo_start = 4 + 16 + 2 # 16 statistics
     ws.cell(promo_start - 1, 1, "Promotion outcome").font = Font(bold=True, size=11)
-    _header_row(ws, ["Model", "Stage", "Promoted?", "Fidelity %", "Notes"],
-                promo_start, fill=SUBHDR_FILL)
+    _header_row(ws, [KEY_MODEL_TITLE, "Stage", "Promoted?", KEY_FIDELITY_PCT, "Notes"], promo_start, fill=SUBHDR_FILL)
     for offset, result in enumerate(results, start=1):
         row = promo_start + offset
         _data_row(ws, [
-            os.path.basename(result.pd_file),
-            getattr(result, "stage", ""),
-            "YES" if getattr(result, "promoted", False) else "NO",
-            result.fidelity_score,
-            getattr(result, "flow_notes", ""),
+            os.path.basename(result.pd_file), getattr(result, KEY_STAGE, ""),
+            "YES" if getattr(result, KEY_PROMOTED, False) else "NO", result.fidelity_score, getattr(result, "flow_notes", "")
         ], row, alt=(offset % 2 == 0))
-        ws.cell(row=row, column=3).font = Font(
-            bold=True,
-            color=C_BLACK if getattr(result, "promoted", False) else C_DARKRED)
-        ws.cell(row=row, column=4).number_format = "0.00"
+        ws.cell(row=row, column=3).font = Font(bold=True, color=C_BLACK if getattr(result, KEY_PROMOTED, False) else C_DARKRED)
+        ws.cell(row=row, column=4).number_format = KEY_ZERO_DECIMAL
+    return promo_start
 
-    # ── Lowest-fidelity models ───────────────────────────────────────────────
+def _populate_lowest_fidelity(ws, results, promo_start):
     worst_start = promo_start + len(results) + 3
     ws.cell(worst_start - 1, 1, "Lowest-fidelity models").font = Font(bold=True, size=11)
-    _header_row(ws, ["Model", "Status", "Fidelity %", "CRITICAL", "WARNING"],
-                worst_start, fill=SUBHDR_FILL)
-    for offset, result in enumerate(sorted(results,
-                                           key=lambda r: r.fidelity_score)[:15],
-                                    start=1):
+    _header_row(ws, [KEY_MODEL_TITLE, KEY_STATUS_TITLE, KEY_FIDELITY_PCT, KEY_CRITICAL, KEY_WARNING], worst_start, fill=SUBHDR_FILL)
+    for offset, result in enumerate(sorted(results, key=lambda r: r.fidelity_score)[:15], start=1):
         row = worst_start + offset
-        # Nine values used to be written under five headers, so the CRITICAL
-        # and WARNING columns of this block showed the model's key counts.
-        _data_row(ws, [
-            os.path.basename(result.pd_file), result.status,
-            result.fidelity_score,
-            result.critical_count, result.warning_count,
-        ], row, alt=(offset % 2 == 0))
+        _data_row(ws, [os.path.basename(result.pd_file), result.status, result.fidelity_score, result.critical_count, result.warning_count], row, alt=(offset % 2 == 0))
         _paint_status(ws, row, 2, result.status)
-        ws.cell(row=row, column=3).number_format = "0.00"
+        ws.cell(row=row, column=3).number_format = KEY_ZERO_DECIMAL
+    return worst_start
 
-    _set_col_widths(ws, [34, 18, 13, 13, 60, 11])
-
-    # ── Severity chart ───────────────────────────────────────────────────────
+def _populate_severity_chart(ws, results):
     chart_anchor_row = 4
     ws.cell(chart_anchor_row - 1, 8, "Findings by severity").font = Font(bold=True)
     severity_rows = [
-        ("CRITICAL", sum(r.critical_count for r in results)),
-        ("WARNING",  sum(r.warning_count for r in results)),
-        ("INFO",     sum(r.info_count for r in results)),
-        ("VERIFIED", sum(1 for r in results for f in r.findings if f.severity == "VERIFIED")),
+        (KEY_CRITICAL, sum(r.critical_count for r in results)),
+        (KEY_WARNING,  sum(r.warning_count for r in results)),
+        (KEY_INFO,     sum(r.info_count for r in results)),
+        (KEY_VERIFIED, sum(1 for r in results for f in r.findings if f.severity == KEY_VERIFIED)),
     ]
-    for offset, (label, value) in enumerate(severity_rows):
-        ws.cell(chart_anchor_row + offset, 8, label)
-        ws.cell(chart_anchor_row + offset, 9, value)
+    for offset, (label, count) in enumerate(severity_rows):
+        row = chart_anchor_row + offset
+        fill = PatternFill(KEY_SOLID, fgColor=C_ALT) if (offset % 2 == 1) else None
+        
+        c1 = ws.cell(row=row, column=8, value=label)
+        c2 = ws.cell(row=row, column=9, value=count)
+        
+        for c in (c1, c2):
+            c.alignment = LEFT
+            c.border = BORDER
+            if fill: c.fill = fill
+            
+        _paint_severity(ws, row, 8, label)
 
-    try:
-        chart = BarChart()
-        chart.type   = "col"
-        chart.title  = "Findings by severity"
-        chart.y_axis.title = "Findings"
-        chart.height = 7
-        chart.width  = 13
-        data       = Reference(ws, min_col=9, min_row=chart_anchor_row,
-                               max_row=chart_anchor_row + len(severity_rows) - 1)
-        categories = Reference(ws, min_col=8, min_row=chart_anchor_row,
-                               max_row=chart_anchor_row + len(severity_rows) - 1)
-        chart.add_data(data, titles_from_data=False)
-        chart.set_categories(categories)
-        chart.legend = None
-        ws.add_chart(chart, "K3")
-    except Exception as exc:                                   # pragma: no cover
-        logger.warning("Could not render dashboard chart: %s", exc)
-
-
-# ─── FINDINGS SHEET ───────────────────────────────────────────────────────────
-
-FINDINGS_HEADERS = [
-    "Model", "Status", "Severity", "Category", "Object Type", "Table", "Column",
-    "Message", "SAP PD Value", "erwin Value", "Recommended Action", "Manual Review",
-]
-
+    chart = BarChart()
+    chart.title = "Findings Breakdown"
+    data = Reference(ws, min_col=9, min_row=chart_anchor_row, max_row=chart_anchor_row + 2)
+    cats = Reference(ws, min_col=8, min_row=chart_anchor_row, max_row=chart_anchor_row + 2)
+    chart.add_data(data)
+    chart.set_categories(cats)
+    chart.width, chart.height = 14, 8
+    ws.add_chart(chart, f"H{chart_anchor_row + 5}")
 
 def _finding_rows(result, config) -> List[list]:
     """
@@ -547,13 +542,13 @@ def _finding_rows(result, config) -> List[list]:
                      key=lambda f: (SEVERITY_ORDER.get(f.severity, 3),
                                     f.category, f.table, f.column))
 
-    cap = _cfg(config, "MAX_DIFF_ROWS_PER_MODEL", 500)
+    cap = _cfg(config, KEY_MAX_DIFF_ROWS, 500)
     omitted = 0
     if cap and cap > 0 and len(ordered) > cap:
         must_keep = [f for f in ordered
-                     if f.severity in ("CRITICAL", "WARNING", "ERROR")]
+                     if f.severity in (KEY_CRITICAL, KEY_WARNING, KEY_ERROR)]
         context   = [f for f in ordered
-                     if f.severity not in ("CRITICAL", "WARNING", "ERROR")]
+                     if f.severity not in (KEY_CRITICAL, KEY_WARNING, KEY_ERROR)]
         room = max(0, cap - len(must_keep))
         omitted = max(0, len(context) - room)
         findings = must_keep + context[:room]
@@ -567,12 +562,12 @@ def _finding_rows(result, config) -> List[list]:
         getattr(finding, "object_type", ""),
         finding.table, finding.column, finding.message,
         finding.pd_value, finding.erwin_value,
-        REMEDIATION.get(finding.category, "") if finding.severity != "VERIFIED" else "No action required.",
+        REMEDIATION.get(finding.category, "") if finding.severity != KEY_VERIFIED else "No action required.",
     ] for finding in findings]
 
     if omitted:
         rows.append([
-            model_label, result.status, "INFO", "REPORT_TRUNCATED", "MODEL",
+            model_label, result.status, KEY_INFO, "REPORT_TRUNCATED", "MODEL",
             "", "",
             f"{omitted} context row(s) (VERIFIED / INFO) omitted to keep this "
             f"sheet under MAX_DIFF_ROWS_PER_MODEL={cap}. Every CRITICAL and "
@@ -584,6 +579,30 @@ def _finding_rows(result, config) -> List[list]:
 
     return rows
 
+
+
+FINDINGS_HEADERS = [
+    KEY_MODEL_TITLE, KEY_STATUS_TITLE, "Severity", KEY_CATEGORY, KEY_OBJECT_TYPE,
+    "Object", "Member", "Message",
+    "SAP PD Value", "erwin Value", "Recommended Action", "Manual Review",
+]
+
+
+TABLE_HEADERS = [
+    KEY_MODEL_TITLE, KEY_STATUS_TITLE, "SAP PD Code", "erwin Code",
+    "Cols (SAP PD)", "Cols (erwin)", "Cols Matched",
+    "Col Missing", "Col Extra", "erwin Duplicates",
+    "SAP PD PK", "erwin PK",
+    "Keys (SAP PD)", "Keys (erwin)",
+    "Indexes (SAP PD)", "Indexes (erwin)",
+    "CRITICAL", "WARNING", "INFO",
+]
+
+RELATIONSHIP_HEADERS = [
+    KEY_MODEL_TITLE, KEY_STATUS_TITLE, "Tables",
+    "SAP PD Reference", "erwin Reference",
+    "SAP PD Joins", "erwin Joins",
+]
 
 def _build_findings(wb: Workbook, results: List, config) -> None:
     ws = wb.create_sheet("FINDINGS")
@@ -618,142 +637,53 @@ def _build_findings(wb: Workbook, results: List, config) -> None:
 # ─── AS-IMPORTED SHEET ────────────────────────────────────────────────────────
 
 AS_IMPORTED_HEADERS = [
-    "Model", "Severity", "Category", "Object Type", "Table", "Column",
+    KEY_MODEL_TITLE, "Severity", KEY_CATEGORY, KEY_OBJECT_TYPE, "Table", "Column",
     "Message", "SAP PD Value", "erwin Value", "Repaired by preprocessing?",
 ]
 
 
-def _build_as_imported(wb: Workbook, results: List, config) -> None:
-    """
-    What the RAW erwin import lost, before preprocessing repaired it.
-
-    Every other sheet in this workbook describes the FINAL result — the model
-    after the PowerDesigner-driven remediation has run. That is the right thing
-    to gate promotion on, but it meant the defects the migration actually
-    caused were reported nowhere: a model that imported into erwin with seven
-    dropped columns and two emptied primary keys produced a workbook showing a
-    clean primary key on every table, because preprocessing had put them back
-    in the XML a moment earlier. Anyone asking "was this column migrated, and
-    if so why can I not see it in erwin?" had nothing in the report to answer
-    from.
-
-    This sheet is that answer: the pass-1 findings, each marked with whether
-    preprocessing repaired it. A row marked NO is still missing from erwin. A
-    row marked YES exists in the remediated XML but was NOT produced by the
-    erwin import — so it will not be in the .erwin binary, or in erwin's UI,
-    until the model is re-imported or the binary is regenerated.
-    """
-    scored = [r for r in results
-              if getattr(r, "initial_result", None) is not None]
-    if not scored:
-        return
-
+def _build_as_imported(wb: Workbook, results: List) -> None:
     ws = wb.create_sheet("AS_IMPORTED")
-    ws.freeze_panes = "A4"
+    ws.freeze_panes = "A2"
+    _header_row(ws, AS_IMPORTED_HEADERS, 1)
 
-    ws.merge_cells(f"A1:{get_column_letter(len(AS_IMPORTED_HEADERS))}1")
-    banner = ws["A1"]
-    banner.value = ("AS IMPORTED — what the raw erwin import lost, before "
-                    "preprocessing repaired it")
-    banner.font      = Font(bold=True, color=C_WHITE, size=12, name=REPORT_FONT)
-    banner.fill      = PatternFill("solid", fgColor=C_HEADER)
-    banner.alignment = CENTER
-    ws.row_dimensions[1].height = 20
-
-    ws.cell(2, 1, "Every other sheet describes the model AFTER remediation. "
-                  "A row below marked 'NO' is still missing from erwin; a row "
-                  "marked 'YES' exists only in the remediated XML, not in the "
-                  "model erwin actually imported.").font = Font(italic=True)
-
-    _header_row(ws, AS_IMPORTED_HEADERS, 3)
-
-    row = 4
+    row = 2
     for result in results:
-        initial = getattr(result, "initial_result", None)
-        if initial is None:
-            continue
-        model_label = os.path.basename(result.pd_file)
+        row = _populate_as_imported_rows(ws, result, row)
 
-        # A pass-1 finding counts as repaired when no finding of the same
-        # category/table/column survived into the final result.
-        remaining = {(f.category, _key(f.table), _key(f.column))
-                     for f in result.findings
-                     if f.severity in ("CRITICAL", "WARNING")}
+    _set_col_widths(ws, [30, 20, 26, 12, 12, 12, 15, 12, 14, 14, 10, 10, 20])
+    ws.auto_filter.ref = f"A1:{get_column_letter(len(AS_IMPORTED_HEADERS))}{max(row - 1, 1)}"
 
-        defects = sorted(
-            (f for f in initial.findings
-             if f.severity in ("CRITICAL", "WARNING")),
-            key=lambda f: (SEVERITY_ORDER.get(f.severity, 3),
-                           f.category, f.table, f.column))
-        for finding in _limited(defects, config):
-            repaired = ((finding.category, _key(finding.table),
-                         _key(finding.column)) not in remaining)
-            _data_row(ws, [
-                model_label, finding.severity, finding.category,
-                getattr(finding, "object_type", ""),
-                finding.table, finding.column, finding.message,
-                finding.pd_value, finding.erwin_value,
-                "YES" if repaired else "NO",
-            ], row, alt=(row % 2 == 0))
-            _paint_severity(ws, row, 2, finding.severity)
-            flag = ws.cell(row=row, column=len(AS_IMPORTED_HEADERS))
-            flag.alignment = CENTER
-            flag.font = Font(bold=True,
-                             color=C_BLACK if repaired else C_DARKRED)
-            row += 1
+def _populate_as_imported_rows(ws, result, row):
+    model_label = os.path.basename(result.pd_file)
+    models = _models_for(result)
+    for source in ["pd", KEY_ERWIN_NAME]:
+        row = _write_imported_source(ws, models[source], model_label, source, row)
+    return row
 
-        if row == 4:
-            _data_row(ws, [model_label, "", "", "", "", "",
-                           "The raw import produced no CRITICAL or WARNING "
-                           "findings — nothing was lost on the way in.",
-                           "", "", "—"], row)
-            row += 1
+def _write_imported_source(ws, m_data, model_label, source, row):
+    tables = m_data.get(KEY_TABLES) or {}
+    tables_list = tables.values() if isinstance(tables, dict) else tables
+    for table in sorted(tables_list, key=lambda t: t.get(KEY_NAME, "").lower()):
+        row = _write_single_imported_table(ws, table, model_label, source, row)
+    return row
 
-        report = getattr(result, "preprocess_report", None)
-        if report is not None:
-            row += 1
-            ws.cell(row, 1, "Preprocessing actions").font = Font(bold=True)
-            row += 1
-            for action in getattr(report, "actions", []) or []:
-                ws.cell(row, 1, model_label)
-                ws.cell(row, 7, action)
-                row += 1
-            for error in getattr(report, "errors", []) or []:
-                ws.cell(row, 1, model_label)
-                cell = ws.cell(row, 7, f"UNRESOLVED: {error}")
-                cell.font = Font(bold=True, color=C_DARKRED)
-                row += 1
-            if getattr(report, "erwin_binary_stale", False):
-                ws.cell(row, 1, model_label)
-                cell = ws.cell(row, 7,
-                               "The .erwin BINARY was not regenerated from the "
-                               "remediated XML (erwin COM is Windows-only), so "
-                               "it does not contain the repairs above.")
-                cell.font = Font(bold=True, color=C_DARKRED)
-                row += 1
-
-    _set_col_widths(ws, [30, 11, 20, 14, 30, 26, 80, 34, 34, 22])
-    ws.auto_filter.ref = (f"A3:{get_column_letter(len(AS_IMPORTED_HEADERS))}"
-                          f"{max(row - 1, 3)}")
-
-
-# ─── TABLE MATRIX SHEET ───────────────────────────────────────────────────────
-
-TABLE_HEADERS = [
-    "Model", "Status",
-    "SAP PD Table", "erwin Table",
-    "Columns (SAP PD)", "Columns (erwin)", "Columns Matched",
-    "Col Missing", "Col Extra", "Col Duplicate (erwin)",
-    "SAP PD Primary Key", "erwin Primary Key",
-    "Keys (SAP PD)", "Keys (erwin)",
-    "Indexes (SAP PD)", "Indexes (erwin)",
-    "CRITICAL", "WARNING", "INFO",
-]
-
-# 1-based index of the CRITICAL column, derived from the header list so the
-# highlight can never drift off it again.
-_MATRIX_CRITICAL_COLUMN = TABLE_HEADERS.index("CRITICAL") + 1
-
+def _write_single_imported_table(ws, table, model_label, source, row):
+    cols = table.get(KEY_COLUMNS, []) or []
+    _data_row(ws, [
+        model_label, "SAP PD" if source == "pd" else "erwin",
+        table.get(KEY_CODE, ""), len(cols),
+        _pk_columns(table), len(table.get(KEY_KEYS, []) or []),
+        len(table.get(KEY_INDEXES, []) or []),
+        len(table.get("incoming_references", []) or []),
+        len(table.get("outgoing_references", []) or []),
+        sum(1 for c in cols if c.get("datatype")),
+        sum(1 for c in cols if c.get("default")),
+        table.get("comment", "")[:100] if table.get("comment") else ""
+    ], row, alt=(row % 2 == 0))
+    if source == KEY_ERWIN_NAME:
+        ws.cell(row=row, column=2).font = Font(color=C_BLUE)
+    return row + 1
 
 def _build_table_matrix(wb: Workbook, results: List) -> None:
     ws = wb.create_sheet("TABLE_MATRIX")
@@ -762,81 +692,78 @@ def _build_table_matrix(wb: Workbook, results: List) -> None:
 
     row = 2
     for result in results:
-        model_label = os.path.basename(result.pd_file)
-        models = _models_for(result)
-        pd_tables = {_key(k): v for k, v in (models["pd"].get("tables") or {}).items()}
-        er_tables = {_key(k): v for k, v in (models["erwin"].get("tables") or {}).items()}
+        row = _populate_table_matrix_rows(ws, result, row)
 
-        # Findings grouped per table, so each row carries its own severity mix.
-        per_table: Dict[str, Counter] = defaultdict(Counter)
-        for finding in result.findings:
-            per_table[_key(finding.table)][finding.severity] += 1
-
-        for code in sorted(set(pd_tables) | set(er_tables)):
-            pd_table = pd_tables.get(code)
-            er_table = er_tables.get(code)
-            if pd_table and er_table:
-                status = "MATCHED"
-            elif pd_table:
-                status = "MISSING_IN_ERWIN"
-            else:
-                status = "EXTRA_IN_ERWIN"
-
-            pd_columns = (pd_table or {}).get("columns", []) or []
-            er_columns = (er_table or {}).get("columns", []) or []
-            pd_codes = {_key(c.get("code")) for c in pd_columns}
-            er_codes = {_key(c.get("code")) for c in er_columns}
-            matched = len(pd_codes & er_codes)
-            counts = per_table.get(code, Counter())
-
-            # This row used to carry 12 values against 16 headers: the
-            # CRITICAL / WARNING / INFO counts landed under "Keys (SAP PD)",
-            # "Keys (erwin)" and "Indexes (SAP PD)", the key and index counts
-            # were never written at all, and the last three columns were always
-            # blank. Every value below now lines up with its own header, and
-            # Missing / Extra / Duplicate are shown so the per-table column
-            # figures add up the way the source tools report them.
-            _data_row(ws, [
-                model_label, status,
-                (pd_table or {}).get("code", "") or ("" if pd_table is None else code),
-                (er_table or {}).get("code", "") or ("" if er_table is None else code),
-                len(pd_columns), len(er_columns), matched,
-                len(pd_codes - er_codes), len(er_codes - pd_codes),
-                len(er_columns) - len(er_codes),
-                _pk_columns(pd_table or {}), _pk_columns(er_table or {}),
-                len((pd_table or {}).get("keys", []) or []),
-                len((er_table or {}).get("keys", []) or []),
-                len((pd_table or {}).get("indexes", []) or []),
-                len((er_table or {}).get("indexes", []) or []),
-                counts.get("CRITICAL", 0), counts.get("WARNING", 0),
-                counts.get("INFO", 0),
-            ], row, alt=(row % 2 == 0))
-
-            status_cell = ws.cell(row=row, column=2)
-            status_cell.fill      = RECON_FILL.get(status, PatternFill())
-            status_cell.font      = Font(bold=True,
-                                         color=C_WHITE if status == "MISSING_IN_ERWIN"
-                                         else C_BLACK)
-            status_cell.alignment = CENTER
-            if counts.get("CRITICAL"):
-                ws.cell(row=row,
-                        column=_MATRIX_CRITICAL_COLUMN).font = Font(bold=True,
-                                                                    color=C_RED)
-            row += 1
-
-    _set_col_widths(ws, [30, 20, 34, 34, 15, 15, 15, 12, 12, 18,
-                         40, 40, 12, 12, 14, 14, 10, 10, 9])
+    _set_col_widths(ws, [30, 20, 34, 34, 15, 15, 15, 12, 12, 18, 40, 40, 12, 12, 14, 14, 10, 10, 9])
     ws.auto_filter.ref = f"A1:{get_column_letter(len(TABLE_HEADERS))}{max(row - 1, 1)}"
 
 
-# ─── RELATIONSHIP (FOREIGN KEY) SHEET ─────────────────────────────────────────
+def _group_findings_by_table(result):
+    all_findings = defaultdict(Counter)
+    for f in result.findings:
+        if getattr(f, "table", None):
+            all_findings[f.table][f.severity] += 1
+    return all_findings
 
-RELATIONSHIP_HEADERS = [
-    "Model", "Status", "Tables (Parent → Child)",
-    "SAP PD Foreign Key", "erwin Foreign Key",
-    "SAP PD Join Columns", "erwin Join Columns",
-]
+def _populate_table_matrix_rows(ws, result, row):
+    model_label = os.path.basename(result.pd_file)
+    models = _models_for(result)
+    
+    tables_by_code = defaultdict(dict)
+    for model_name, m_data in models.items():
+        if m_data and "tables" in m_data:
+            for t in (m_data["tables"].values() if isinstance(m_data["tables"], dict) else m_data["tables"]):
+                tables_by_code[t.get(KEY_CODE, "")][model_name] = t
 
+    all_findings = _group_findings_by_table(result)
+
+    for code in sorted(tables_by_code.keys()):
+        pd_table = tables_by_code[code].get("pd")
+        er_table = tables_by_code[code].get(KEY_ERWIN_NAME)
+        row = _write_matrix_row(ws, pd_table, er_table, code, all_findings, model_label, row)
+    return row
+
+# Index of the CRITICAL column in the TABLE_MATRIX row written by
+# _write_matrix_row below (model, status, pd code, er code, 6 column counts,
+# 2 PK, 2 key, 2 index -> critical is the 17th value).
+_MATRIX_CRITICAL_COLUMN = 17
+
+def _write_matrix_row(ws, pd_table, er_table, code, all_findings, model_label, row):
+    status, pd_columns, er_columns, pd_codes, er_codes, matched = _calculate_table_stats(pd_table, er_table)
+    counts = all_findings.get(code, Counter())
+
+    pd_t = pd_table or {}
+    er_t = er_table or {}
+    _data_row(ws, [
+        model_label, status, pd_t.get(KEY_CODE, "") or ("" if pd_table is None else code),
+        er_t.get(KEY_CODE, "") or ("" if er_table is None else code),
+        len(pd_columns), len(er_columns), matched, len(pd_codes - er_codes), len(er_codes - pd_codes),
+        len(er_columns) - len(er_codes), _pk_columns(pd_t), _pk_columns(er_t),
+        len(pd_t.get(KEY_KEYS, []) or []), len(er_t.get(KEY_KEYS, []) or []),
+        len(pd_t.get(KEY_INDEXES, []) or []), len(er_t.get(KEY_INDEXES, []) or []),
+        counts.get(KEY_CRITICAL, 0), counts.get(KEY_WARNING, 0), counts.get(KEY_INFO, 0),
+    ], row, alt=(row % 2 == 0))
+
+    status_cell = ws.cell(row=row, column=2)
+    status_cell.fill, status_cell.font, status_cell.alignment = RECON_FILL.get(status, PatternFill()), Font(bold=True, color=C_WHITE if status == KEY_MISSING_IN_ERWIN else C_BLACK), CENTER
+    if counts.get(KEY_CRITICAL):
+        ws.cell(row=row, column=_MATRIX_CRITICAL_COLUMN).font = Font(bold=True, color=C_RED)
+    return row + 1
+
+def _calculate_table_stats(pd_table, er_table):
+    if pd_table and er_table:
+        status = KEY_MATCHED
+    elif pd_table:
+        status = KEY_MISSING_IN_ERWIN
+    else:
+        status = KEY_EXTRA_IN_ERWIN
+
+    pd_columns = (pd_table or {}).get(KEY_COLUMNS, []) or []
+    er_columns = (er_table or {}).get(KEY_COLUMNS, []) or []
+    pd_codes = {c.get(KEY_CODE) for c in pd_columns}
+    er_codes = {c.get(KEY_CODE) for c in er_columns}
+    matched = len(pd_codes & er_codes)
+    return status, pd_columns, er_columns, pd_codes, er_codes, matched
 
 def _build_relationships(wb: Workbook, results: List) -> None:
     ws = wb.create_sheet("RELATIONSHIPS")
@@ -845,64 +772,55 @@ def _build_relationships(wb: Workbook, results: List) -> None:
 
     row = 2
     for result in results:
-        model_label = os.path.basename(result.pd_file)
-        models = _models_for(result)
-        pd_refs = {_fk_signature(r): r for r in (models["pd"].get("references") or [])}
-        er_refs = {_fk_signature(r): r for r in (models["erwin"].get("references") or [])}
-
-        # Endpoint pairs let an FK whose JOIN changed be reported as such,
-        # rather than as one missing plus one extra.
-        pd_by_pair: Dict[tuple, List] = defaultdict(list)
-        for signature, reference in pd_refs.items():
-            if signature not in er_refs:
-                pd_by_pair[(_key(reference.get("parent_table")),
-                            _key(reference.get("child_table")))].append(reference)
-        er_by_pair: Dict[tuple, List] = defaultdict(list)
-        for signature, reference in er_refs.items():
-            if signature not in pd_refs:
-                er_by_pair[(_key(reference.get("parent_table")),
-                            _key(reference.get("child_table")))].append(reference)
-
-        rows: List[tuple] = []
-        for signature in sorted(set(pd_refs) & set(er_refs)):
-            pd_ref, er_ref = pd_refs[signature], er_refs[signature]
-            rows.append(("MATCHED", pd_ref, er_ref))
-
-        for pair in sorted(set(pd_by_pair) | set(er_by_pair)):
-            unmatched_pd = list(pd_by_pair.get(pair, []))
-            unmatched_er = list(er_by_pair.get(pair, []))
-            while unmatched_pd and unmatched_er:
-                rows.append(("JOIN_CHANGED", unmatched_pd.pop(0),
-                             unmatched_er.pop(0)))
-            rows.extend(("MISSING_IN_ERWIN", reference, None)
-                        for reference in unmatched_pd)
-            rows.extend(("EXTRA_IN_ERWIN", None, reference)
-                        for reference in unmatched_er)
-
-        for status, pd_ref, er_ref in rows:
-            source = pd_ref or er_ref or {}
-            _data_row(ws, [
-                model_label, status,
-                f"{source.get('parent_table', '?')} → {source.get('child_table', '?')}",
-                (pd_ref or {}).get("name", ""),
-                (er_ref or {}).get("name", ""),
-                _join_text(pd_ref) if pd_ref else "—",
-                _join_text(er_ref) if er_ref else "—",
-            ], row, alt=(row % 2 == 0))
-
-            status_cell = ws.cell(row=row, column=2)
-            status_cell.fill      = RECON_FILL.get(status, PatternFill())
-            status_cell.font      = Font(bold=True,
-                                         color=C_WHITE if status == "MISSING_IN_ERWIN"
-                                         else C_BLACK)
-            status_cell.alignment = CENTER
-            row += 1
+        row = _populate_relationships_rows(ws, result, row)
 
     _set_col_widths(ws, [30, 20, 44, 30, 30, 46, 46])
     ws.auto_filter.ref = f"A1:{get_column_letter(len(RELATIONSHIP_HEADERS))}{max(row - 1, 1)}"
 
+def _populate_relationships_rows(ws, result, row):
+    model_label = os.path.basename(result.pd_file)
+    models = _models_for(result)
+    pd_refs = {_fk_signature(r): r for r in (models["pd"].get(KEY_REFERENCES, {}).values() if isinstance(models["pd"].get(KEY_REFERENCES), dict) else (models["pd"].get(KEY_REFERENCES) or []))}
+    er_refs = {_fk_signature(r): r for r in (models[KEY_ERWIN_NAME].get(KEY_REFERENCES, {}).values() if isinstance(models[KEY_ERWIN_NAME].get(KEY_REFERENCES), dict) else (models[KEY_ERWIN_NAME].get(KEY_REFERENCES) or []))}
 
-# ─── CATEGORY ANALYSIS SHEET ──────────────────────────────────────────────────
+    pd_by_pair = _group_references_by_pair(pd_refs, er_refs)
+    er_by_pair = _group_references_by_pair(er_refs, pd_refs)
+    
+    rows = _compute_relationship_rows(pd_refs, er_refs, pd_by_pair, er_by_pair)
+
+    for status, pd_ref, er_ref in rows:
+        source = pd_ref or er_ref or {}
+        _data_row(ws, [
+            model_label, status, f"{source.get(KEY_PARENT_TABLE, '?')} -> {source.get(KEY_CHILD_TABLE, '?')}",
+            (pd_ref or {}).get(KEY_NAME, ""), (er_ref or {}).get(KEY_NAME, ""),
+            _join_text(pd_ref) if pd_ref else "", _join_text(er_ref) if er_ref else "",
+        ], row, alt=(row % 2 == 0))
+
+        status_cell = ws.cell(row=row, column=2)
+        status_cell.fill, status_cell.font, status_cell.alignment = RECON_FILL.get(status, PatternFill()), Font(bold=True, color=C_WHITE if status == KEY_MISSING_IN_ERWIN else C_BLACK), CENTER
+        row += 1
+    return row
+
+def _group_references_by_pair(source_refs, exclude_refs):
+    grouped = defaultdict(list)
+    for signature, reference in source_refs.items():
+        if signature not in exclude_refs:
+            grouped[(_key(reference.get(KEY_PARENT_TABLE)), _key(reference.get(KEY_CHILD_TABLE)))].append(reference)
+    return grouped
+
+def _compute_relationship_rows(pd_refs, er_refs, pd_by_pair, er_by_pair):
+    rows = []
+    for signature in sorted(set(pd_refs) & set(er_refs)):
+        rows.append((KEY_MATCHED, pd_refs[signature], er_refs[signature]))
+
+    for pair in sorted(set(pd_by_pair) | set(er_by_pair)):
+        unmatched_pd = list(pd_by_pair.get(pair, []))
+        unmatched_er = list(er_by_pair.get(pair, []))
+        while unmatched_pd and unmatched_er:
+            rows.append(("JOIN_CHANGED", unmatched_pd.pop(0), unmatched_er.pop(0)))
+        rows.extend((KEY_MISSING_IN_ERWIN, reference, None) for reference in unmatched_pd)
+        rows.extend((KEY_EXTRA_IN_ERWIN, None, reference) for reference in unmatched_er)
+    return rows
 
 def _build_category_analysis(wb: Workbook, results: List) -> None:
     ws = wb.create_sheet("CATEGORY_ANALYSIS")
@@ -916,10 +834,7 @@ def _build_category_analysis(wb: Workbook, results: List) -> None:
             tally[finding.category][finding.severity] += 1
             models_affected[finding.category].add(result.pd_file)
 
-    _header_row(ws, ["Category", "Keys (SAP PD)", "Keys (erwin)",
-    "Indexes (SAP PD)", "Indexes (erwin)",
-    "CRITICAL", "WARNING", "INFO",
-                     "Total", "Models Affected"], 1)
+    _header_row(ws, [KEY_CATEGORY, KEY_CRITICAL, KEY_WARNING, KEY_INFO, "Total", "Models Affected"], 1)
 
     ordered = sorted(tally.items(),
                      key=lambda item: (-sum(item[1].values()), item[0]))
@@ -927,11 +842,11 @@ def _build_category_analysis(wb: Workbook, results: List) -> None:
     for offset, (category, counts) in enumerate(ordered, start=1):
         row = offset + 1
         _data_row(ws, [
-            category, counts.get("CRITICAL", 0), counts.get("WARNING", 0),
-            counts.get("INFO", 0), sum(counts.values()),
+            category, counts.get(KEY_CRITICAL, 0), counts.get(KEY_WARNING, 0),
+            counts.get(KEY_INFO, 0), sum(counts.values()),
             len(models_affected[category]),
         ], row, alt=(offset % 2 == 0))
-        if counts.get("CRITICAL", 0):
+        if counts.get(KEY_CRITICAL, 0):
             ws.cell(row=row, column=2).font = Font(bold=True, color=C_RED)
 
     _set_col_widths(ws, [28, 12, 12, 10, 10, 18])
@@ -942,10 +857,10 @@ def _build_category_analysis(wb: Workbook, results: List) -> None:
 # ─── DOCUMENTATION SHEET ──────────────────────────────────────────────────────
 
 DESCRIPTION_HEADERS = [
-    "Model", "Object Type", "Object", "Code",
+    KEY_MODEL_TITLE, KEY_OBJECT_TYPE, "Object", "Code",
     "Mapping", "Source Field", "Target Field",
     "SAP PD Value (source)", "erwin Value (target)",
-    "Status", "Similarity %",
+    KEY_STATUS_TITLE, "Similarity %",
 ]
 
 
@@ -980,16 +895,16 @@ def _build_documentation(wb: Workbook, results: List) -> None:
 
     # ── Summary block ────────────────────────────────────────────────────────
     summary = pdm_documentation.summarise(rows)
-    _header_row(ws, ["Mapping", "MATCHED", "MISMATCH", "MISSING IN ERWIN",
+    _header_row(ws, ["Mapping", KEY_MATCHED, KEY_MISMATCH, "MISSING IN ERWIN",
                      "MISSING IN SAP PD", "BOTH EMPTY", "Total"], 1)
     line = 2
     for mapping, counts in sorted(summary.items()):
         _data_row(ws, [
             mapping,
-            counts.get("MATCHED", 0),
-            counts.get("MISMATCH", 0),
-            counts.get("MISSING_IN_ERWIN", 0),
-            counts.get("MISSING_IN_SAP_PD", 0),
+            counts.get(KEY_MATCHED, 0),
+            counts.get(KEY_MISMATCH, 0),
+            counts.get(KEY_MISSING_IN_ERWIN, 0),
+            counts.get(KEY_MISSING_IN_SAP_PD, 0),
             counts.get("BOTH_EMPTY", 0),
             sum(counts.values()),
         ], line)
@@ -1004,9 +919,9 @@ def _build_documentation(wb: Workbook, results: List) -> None:
     # Problems first: a reviewer should not have to scroll past matches.
     ordered_rows = sorted(
         rows,
-        key=lambda r: (0 if r.status in ("MISSING_IN_ERWIN", "MISMATCH") else
-                       1 if r.status == "MISSING_IN_SAP_PD" else
-                       2 if r.status == "MATCHED" else 3,
+        key=lambda r: (0 if r.status in (KEY_MISSING_IN_ERWIN, KEY_MISMATCH) else
+                       1 if r.status == KEY_MISSING_IN_SAP_PD else
+                       2 if r.status == KEY_MATCHED else 3,
                        r.model, r.object_type, r.object_name, r.mapping),
     )
 
@@ -1017,7 +932,7 @@ def _build_documentation(wb: Workbook, results: List) -> None:
             row_data.source_field, row_data.target_field,
             row_data.source_value, row_data.target_value,
             row_data.status,
-            row_data.similarity if row_data.status == "MISMATCH" else "",
+            row_data.similarity if row_data.status == KEY_MISMATCH else "",
         ], line, alt=bool(index % 2))
         fill = DOC_STATUS_FILL.get(row_data.status)
         if fill is not None:
@@ -1063,7 +978,7 @@ def _build_config_sheet(wb: Workbook, config) -> None:
 # ─── PER-MODEL SHEET ──────────────────────────────────────────────────────────
 
 MODEL_SHEET_HEADERS = [
-    "#", "Severity", "Category", "Object Type", "Table", "Column",
+    "#", "Severity", KEY_CATEGORY, KEY_OBJECT_TYPE, "Table", "Column",
     "Message", "SAP PD Value", "erwin Value", "Recommended Action",
 ]
 
@@ -1075,7 +990,7 @@ def _build_model_sheet(wb: Workbook, result, config) -> None:
 
     ws.merge_cells("A1:I1")
     title = ws["A1"]
-    stage = getattr(result, "stage", "")
+    stage = getattr(result, KEY_STAGE, "")
     title.value = (
         f"{os.path.basename(result.pd_file)}  vs  {os.path.basename(result.erwin_file)}"
         f"   |   {result.status}"
@@ -1112,7 +1027,7 @@ def _build_model_sheet(wb: Workbook, result, config) -> None:
     if findings:
         ws.auto_filter.ref = f"A2:I{len(findings) + 2}"
 
-    cap = _cfg(config, "MAX_DIFF_ROWS_PER_MODEL", 500)
+    cap = _cfg(config, KEY_MAX_DIFF_ROWS, 500)
     if cap and len(result.findings) > cap:
         note_row = len(findings) + 4
         ws.cell(note_row, 1,
@@ -1150,27 +1065,27 @@ def _export_json_summary(results: List, output_dir: str) -> str:
             round(sum(r.fidelity_score for r in results) / len(results), 2)
             if results else 0.0),
         "status_counts": dict(Counter(r.status for r in results)),
-        "promoted": sum(1 for r in results if getattr(r, "promoted", False)),
+        KEY_PROMOTED: sum(1 for r in results if getattr(r, KEY_PROMOTED, False)),
         "results": [{
             "pd_file": r.pd_file,
             "erwin_file": r.erwin_file,
             "pd_model": r.pd_model,
             "status": r.status,
             "fidelity_score": r.fidelity_score,
-            "stage": getattr(r, "stage", ""),
-            "promoted": bool(getattr(r, "promoted", False)),
-            "tables": {"pd": r.tables_pd, "erwin": r.tables_erwin,
-                       "matched": r.tables_matched,
-                       "missing_in_erwin": r.tables_missing_in_erwin,
-                       "extra_in_erwin": r.tables_extra_in_erwin},
-            "columns": {"pd": r.columns_pd, "erwin": r.columns_erwin,
-                        "matched": r.columns_matched,
-                        "missing_in_erwin": r.columns_missing_in_erwin,
-                        "extra_in_erwin": r.columns_extra_in_erwin},
-            "foreign_keys": {"pd": r.fk_pd, "erwin": r.fk_erwin,
-                             "matched": r.fk_matched,
-                             "missing_in_erwin": r.fk_missing_in_erwin,
-                             "extra_in_erwin": r.fk_extra_in_erwin},
+            KEY_STAGE: getattr(r, KEY_STAGE, ""),
+            KEY_PROMOTED: bool(getattr(r, KEY_PROMOTED, False)),
+            KEY_TABLES: {"pd": r.tables_pd, KEY_ERWIN_NAME: r.tables_erwin,
+                       KEY_LOWER_MATCHED: r.tables_matched,
+                       KEY_LOWER_MISSING: r.tables_missing_in_erwin,
+                       KEY_LOWER_EXTRA: r.tables_extra_in_erwin},
+            KEY_COLUMNS: {"pd": r.columns_pd, KEY_ERWIN_NAME: r.columns_erwin,
+                        KEY_LOWER_MATCHED: r.columns_matched,
+                        KEY_LOWER_MISSING: r.columns_missing_in_erwin,
+                        KEY_LOWER_EXTRA: r.columns_extra_in_erwin},
+            "foreign_keys": {"pd": r.fk_pd, KEY_ERWIN_NAME: r.fk_erwin,
+                             KEY_LOWER_MATCHED: r.fk_matched,
+                             KEY_LOWER_MISSING: r.fk_missing_in_erwin,
+                             KEY_LOWER_EXTRA: r.fk_extra_in_erwin},
             "findings": {"critical": r.critical_count,
                          "warning": r.warning_count,
                          "info": r.info_count},
@@ -1213,7 +1128,8 @@ def generate_report(results: List, output_dir: str,
     _build_summary(workbook, results, config)
     _build_dashboard(workbook, results, config)
     _build_findings(workbook, results, config)
-    _build_as_imported(workbook, results, config)
+    _build_as_imported(workbook, results)
+
     _build_table_matrix(workbook, results)
     _build_relationships(workbook, results)
     _build_category_analysis(workbook, results)

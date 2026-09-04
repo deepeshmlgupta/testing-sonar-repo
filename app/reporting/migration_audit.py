@@ -70,6 +70,30 @@ import sys
 import xml.etree.ElementTree as ET  # nosec B405
 from defusedxml.ElementTree import parse as safe_parse, iterparse as safe_iterparse
 from collections import Counter, OrderedDict
+KEY_SOLID = "solid"
+KEY_DEFINITION = "Definition"
+KEY_BASE = "base"
+KEY_SUFFIX = "suffix"
+KEY_OUTCOME = "outcome"
+KEY_PD_INV = "pd_inventory"
+KEY_PROVENANCE = "provenance"
+KEY_NOTE = "Note"
+KEY_COMMENT = "Comment"
+KEY_TOTAL = "Total"
+KEY_NOTES_XML = "Notes"
+COLOR_FFC7CE = "FFC7CE"
+EXT_XML = ".xml"
+EXT_LDM = ".ldm"
+EXT_PDM = ".pdm"
+KIND_ENTITY = "Entity"
+KIND_RELATIONSHIP = "Relationship"
+KEY_NOTES_WHEN = "notes"
+KEY_NOTES_SIZE = "notes_size"
+KEY_VALIDATION = "validation"
+DIR_ERWINMODELS = "erwinmodels"
+KEY_ERWIN = "erwin"
+
+
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -82,24 +106,24 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, os.pardir, os.pardir))
 
 SAP_DIRS = {
-    ".ldm": os.path.join(PROJECT_ROOT, "sappdmodels", "ldm"),
+    EXT_LDM: os.path.join(PROJECT_ROOT, "sappdmodels", "ldm"),
     ".cdm": os.path.join(PROJECT_ROOT, "sappdmodels", "cdm"),
-    ".pdm": os.path.join(PROJECT_ROOT, "sappdmodels", "pdm"),
+    EXT_PDM: os.path.join(PROJECT_ROOT, "sappdmodels", "pdm"),
 }
-INITIAL_ERWIN = os.path.join(PROJECT_ROOT, "erwinmodels", "1_initial", "erwin")
-INITIAL_XML = os.path.join(PROJECT_ROOT, "erwinmodels", "1_initial", "xml")
-PREPROCESSED_XML = os.path.join(PROJECT_ROOT, "erwinmodels", "2_preprocessed", "xml")
-FINAL_ERWIN = os.path.join(PROJECT_ROOT, "erwinmodels", "3_final", "final_erwin")
-FINAL_XML = os.path.join(PROJECT_ROOT, "erwinmodels", "3_final", "final_xml")
+INITIAL_ERWIN = os.path.join(PROJECT_ROOT, DIR_ERWINMODELS, "1_initial", KEY_ERWIN)
+INITIAL_XML = os.path.join(PROJECT_ROOT, DIR_ERWINMODELS, "1_initial", "xml")
+PREPROCESSED_XML = os.path.join(PROJECT_ROOT, DIR_ERWINMODELS, "2_preprocessed", "xml")
+FINAL_ERWIN = os.path.join(PROJECT_ROOT, DIR_ERWINMODELS, "3_final", "final_erwin")
+FINAL_XML = os.path.join(PROJECT_ROOT, DIR_ERWINMODELS, "3_final", "final_xml")
 REPORT_DIRS = {
-    ".ldm": os.path.join(PROJECT_ROOT, "app", "reporting", "ldm_reports"),
+    EXT_LDM: os.path.join(PROJECT_ROOT, "app", "reporting", "ldm_reports"),
     ".cdm": os.path.join(PROJECT_ROOT, "app", "reporting", "cdm_reports"),
-    ".pdm": os.path.join(PROJECT_ROOT, "app", "reporting", "pdm_reports"),
+    EXT_PDM: os.path.join(PROJECT_ROOT, "app", "reporting", "pdm_reports"),
 }
 
 def field_map_report_for(suffix):
     """Each model type gets its own field-mapping workbook, beside its report."""
-    return os.path.join(REPORT_DIRS.get(suffix, REPORT_DIRS[".ldm"]),
+    return os.path.join(REPORT_DIRS.get(suffix, REPORT_DIRS[EXT_LDM]),
                         "field_mapping_report.xlsx")
 
 
@@ -145,36 +169,36 @@ STATUS_TEXT = {
     (NOT_IMPL, NA):       "Not implemented in the code",
 }
 STATUS_FILL = {
-    "Done by a person":                    PatternFill("solid", fgColor="FFF2CC"),
-    "WAITING ON A PERSON":                 PatternFill("solid", fgColor="FFC7CE"),
-    "Person attempted, failed":            PatternFill("solid", fgColor="FFC7CE"),
-    "Ran in the pipeline (py -m app.main)": PatternFill("solid", fgColor="C6EFCE"),
-    "PIPELINE NOT RUN for this model":     PatternFill("solid", fgColor="FFC7CE"),
-    "PIPELINE STEP FAILED":                PatternFill("solid", fgColor="FFC7CE"),
-    "Ran as a separate script":            PatternFill("solid", fgColor="DDEBF7"),
-    "SEPARATE SCRIPT NOT RUN":             PatternFill("solid", fgColor="FFC7CE"),
-    "SEPARATE SCRIPT FAILED":              PatternFill("solid", fgColor="FFC7CE"),
-    "Not implemented in the code": PatternFill("solid", fgColor="E7E6E6"),
-    "Not applicable":              PatternFill("solid", fgColor="E7E6E6"),
+    "Done by a person":                    PatternFill(KEY_SOLID, fgColor="FFF2CC"),
+    "WAITING ON A PERSON":                 PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    "Person attempted, failed":            PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    "Ran in the pipeline (py -m app.main)": PatternFill(KEY_SOLID, fgColor="C6EFCE"),
+    "PIPELINE NOT RUN for this model":     PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    "PIPELINE STEP FAILED":                PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    "Ran as a separate script":            PatternFill(KEY_SOLID, fgColor="DDEBF7"),
+    "SEPARATE SCRIPT NOT RUN":             PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    "SEPARATE SCRIPT FAILED":              PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    "Not implemented in the code": PatternFill(KEY_SOLID, fgColor="E7E6E6"),
+    "Not applicable":              PatternFill(KEY_SOLID, fgColor="E7E6E6"),
 }
 
 
 def status_text(prov, outcome):
     return STATUS_TEXT.get((prov, outcome), "%s / %s" % (prov, outcome))
 
-HDR_FILL = PatternFill("solid", fgColor="1F3864")
+HDR_FILL = PatternFill(KEY_SOLID, fgColor="1F3864")
 HDR_FONT = Font(bold=True, color="FFFFFF")
 PROV_FILL = {
-    PIPELINE: PatternFill("solid", fgColor="C6EFCE"),
-    SCRIPT:    PatternFill("solid", fgColor="DDEBF7"),
-    MANUAL:    PatternFill("solid", fgColor="FFF2CC"),
-    NOT_IMPL:  PatternFill("solid", fgColor="E7E6E6"),
+    PIPELINE: PatternFill(KEY_SOLID, fgColor="C6EFCE"),
+    SCRIPT:    PatternFill(KEY_SOLID, fgColor="DDEBF7"),
+    MANUAL:    PatternFill(KEY_SOLID, fgColor="FFF2CC"),
+    NOT_IMPL:  PatternFill(KEY_SOLID, fgColor="E7E6E6"),
 }
 OUTCOME_FILL = {
-    DONE:    PatternFill("solid", fgColor="C6EFCE"),
-    PENDING: PatternFill("solid", fgColor="FFC7CE"),
-    FAILED:  PatternFill("solid", fgColor="FFC7CE"),
-    NA:      PatternFill("solid", fgColor="E7E6E6"),
+    DONE:    PatternFill(KEY_SOLID, fgColor="C6EFCE"),
+    PENDING: PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    FAILED:  PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE),
+    NA:      PatternFill(KEY_SOLID, fgColor="E7E6E6"),
 }
 
 
@@ -238,26 +262,26 @@ def pd_authors(ldm_path):
 # erwin_props entry maps each kind onto the props block that holds its text.
 # ---------------------------------------------------------------------------
 KIND_SPECS = {
-    ".ldm": (("Entity",       "Entity",           "EntityProps"),
+    EXT_LDM: ((KIND_ENTITY,       KIND_ENTITY,           "EntityProps"),
              ("Attribute",    "EntityAttribute",  "AttributeProps"),
-             ("Relationship", "Relationship",     "RelationshipProps")),
-    ".cdm": (("Entity",       "Entity",           "EntityProps"),
+             (KIND_RELATIONSHIP, KIND_RELATIONSHIP,     "RelationshipProps")),
+    ".cdm": ((KIND_ENTITY,       KIND_ENTITY,           "EntityProps"),
              ("Attribute",    "EntityAttribute",  "AttributeProps"),
-             ("Relationship", "Relationship",     "RelationshipProps")),
-    ".pdm": (("Table",        "Table",            "EntityProps"),
+             (KIND_RELATIONSHIP, KIND_RELATIONSHIP,     "RelationshipProps")),
+    EXT_PDM: (("Table",        "Table",            "EntityProps"),
              ("Column",       "Column",           "AttributeProps"),
              ("Reference",    "Reference",        "RelationshipProps")),
 }
 
 # Default for callers that predate the per-type split.
-PD_KINDS = ("Entity", "Attribute", "Relationship")
-PD_TAG = {"Entity": "Entity", "Attribute": "EntityAttribute",
-          "Relationship": "Relationship"}
+PD_KINDS = (KIND_ENTITY, "Attribute", KIND_RELATIONSHIP)
+PD_TAG = {KIND_ENTITY: KIND_ENTITY, "Attribute": "EntityAttribute",
+          KIND_RELATIONSHIP: KIND_RELATIONSHIP}
 
 
 def kinds_for(suffix):
     """(kind, pd_tag, erwin_props) triples for one model type."""
-    return KIND_SPECS.get(suffix, KIND_SPECS[".ldm"])
+    return KIND_SPECS.get(suffix, KIND_SPECS[EXT_LDM])
 
 
 def kind_names(suffix):
@@ -286,11 +310,11 @@ def latest_timings():
     return last
 
 
-def pd_text_inventory(ldm_path, suffix=".ldm"):
+def pd_text_inventory(ldm_path, suffix=EXT_LDM):
     """
     Per-object-kind census of the SOURCE model.
 
-    Returns {kind: {"total": n, "comment": n, "definition": n}}, where the
+    Returns {kind: {KEY_TOTAL: n, KEY_COMMENT: n, KEY_DEFINITION: n}}, where the
     kinds are Entity/Attribute/Relationship for a conceptual or logical model
     and Table/Column/Reference for a physical one.
 
@@ -300,7 +324,7 @@ def pd_text_inventory(ldm_path, suffix=".ldm"):
     and only the breakdown distinguishes them.
     """
     specs = kinds_for(suffix)
-    inv = OrderedDict((k, {"total": 0, "comment": 0, "definition": 0})
+    inv = OrderedDict((k, {KEY_TOTAL: 0, KEY_COMMENT: 0, KEY_DEFINITION: 0})
                       for k, _t, _p in specs)
     try:
         root = safe_parse(ldm_path).getroot()
@@ -311,14 +335,14 @@ def pd_text_inventory(ldm_path, suffix=".ldm"):
         for el in root.iter(O + pd_tag):
             if el.get("Id") is None:            # Ref= pointers are not objects
                 continue
-            inv[kind]["total"] += 1
+            inv[kind][KEY_TOTAL] += 1
             # PowerDesigner writes some scalars class-qualified
             # (<a:Table.Comment>), so both spellings have to be accepted or a
             # populated field reads as empty.
             if _pd_text(el, "Comment"):
-                inv[kind]["comment"] += 1
+                inv[kind][KEY_COMMENT] += 1
             if _pd_text(el, "Description") or _pd_text(el, "Annotation"):
-                inv[kind]["definition"] += 1
+                inv[kind][KEY_DEFINITION] += 1
     return inv
 
 
@@ -336,11 +360,11 @@ def _pd_text(el, name):
     return ""
 
 
-ER_PROPS = {"Entity": "EntityProps", "Attribute": "AttributeProps",
-            "Relationship": "RelationshipProps"}
+ER_PROPS = {KIND_ENTITY: "EntityProps", "Attribute": "AttributeProps",
+            KIND_RELATIONSHIP: "RelationshipProps"}
 
 
-def erwin_text_inventory(xml_path, suffix=".ldm"):
+def erwin_text_inventory(xml_path, suffix=EXT_LDM):
     """
     The same census on the erwin side: how many objects carry a Note or a
     Definition, per kind. Put beside the PD figures this shows exactly what
@@ -352,7 +376,7 @@ def erwin_text_inventory(xml_path, suffix=".ldm"):
     physical metamodel, so a .pdm's tables live in <EntityProps>.
     """
     specs = kinds_for(suffix)
-    inv = OrderedDict((k, {"total": 0, "note": 0, "definition": 0})
+    inv = OrderedDict((k, {KEY_TOTAL: 0, KEY_NOTE: 0, KEY_DEFINITION: 0})
                       for k, _t, _p in specs)
     if not xml_path or not os.path.isfile(xml_path):
         return inv
@@ -363,11 +387,11 @@ def erwin_text_inventory(xml_path, suffix=".ldm"):
         return inv
     for kind, _pd_tag, props in specs:
         for block in re.findall(r"<%s>(.*?)</%s>" % (props, props), raw, re.S):
-            inv[kind]["total"] += 1
+            inv[kind][KEY_TOTAL] += 1
             if re.search(r"<Note_List\b", block):
-                inv[kind]["note"] += 1
+                inv[kind][KEY_NOTE] += 1
             if re.search(r"<Definition\b[^>]*>(?!\s*</Definition>)", block):
-                inv[kind]["definition"] += 1
+                inv[kind][KEY_DEFINITION] += 1
     return inv
 
 
@@ -431,7 +455,7 @@ def read_validation(report_path, model_name):
                 rec = dict(zip(header, r))
                 if model_name in str(rec.get("SAP PD Model", "")) or \
                    model_name in str(rec.get("SAP PD File", "")):
-                    return {"status": rec.get("Status"),
+                    return {KEY_STATUS: rec.get("Status"),
                             "fidelity": rec.get("Fidelity %"),
                             "critical": rec.get("CRITICAL"),
                             # Present only in the PDM report, whose promotion
@@ -448,48 +472,45 @@ def read_validation(report_path, model_name):
 # --------------------------------------------------------------------------
 
 def build_steps(ctx):
-    """
-    Return the ordered list of step records for one model.
-
-    Each record carries a provenance tag (who did it) and an outcome tag (did
-    it happen), so the report can be filtered either way.
-
-    The first four steps are the same for every model type — a person authors
-    the SAP model and performs the two erwin steps erwin's OEM licence forbids
-    automating — and the pipeline half then differs: a .pdm runs through
-    validate -> remediate -> re-validate -> promotion gate, while a .ldm/.cdm
-    runs Comment->Note preprocessing and a single reconciliation.
-    """
     S = []
-
     def add(step, phase, prov, outcome, detail, evidence="", when="", size=0):
         S.append({
-            "step": step, "phase": phase, "provenance": prov,
-            "outcome": outcome, "detail": detail,
-            "evidence": rel(evidence) if evidence else "",
+            KEY_STEP: step, KEY_PHASE: phase, KEY_PROVENANCE: prov,
+            KEY_OUTCOME: outcome, KEY_DETAIL: detail,
+            KEY_EVIDENCE: rel(evidence) if evidence else "",
             "when": when, "bytes": size,
         })
-
-    label_for = {".pdm": "SAP PD physical model (.pdm)",
+    
+    label_for = {EXT_PDM: "SAP PD physical model (.pdm)",
                  ".cdm": "SAP PD conceptual model (.cdm)"}.get(
-                     ctx["suffix"], "SAP PD logical model (.ldm)")
+                     ctx[KEY_SUFFIX], "SAP PD logical model (.ldm)")
+                     
+    _build_source_author_steps(ctx, add, label_for)
+    _build_manual_erwin_steps(ctx, add)
+    xml_ok = _build_phase_b_gate(ctx, add)
+    
+    if ctx[KEY_SUFFIX] == EXT_PDM:
+        _pdm_steps(ctx, add, xml_ok)
+    else:
+        _build_non_pdm_steps(ctx, add, xml_ok)
+        
+    return S
 
-    # ---- 1. author the source model ------------------------------------
+def _build_source_author_steps(ctx, add, label_for):
     creators, modifiers = ctx["authors"]
     add("Author SAP PD model", "Source", MANUAL, DONE,
         "%s modelled by hand in PowerDesigner. Creator(s): %s. Modifier(s): %s"
         % (label_for, creators or "unknown", modifiers or "unknown"),
         ctx["ldm"], ctx["ldm_when"], ctx["ldm_size"])
-
-    # ---- 2. Phase A ------------------------------------------------------
+        
     add("Phase A - extract UDPs", "A", NOT_IMPL, NA,
         "Removed from main.py ('completely removed per user request'). No UDP "
         "extraction happens, so custom properties are not carried across.")
 
-    # ---- 3/4. the manual erwin steps -------------------------------------
+def _build_manual_erwin_steps(ctx, add):
     for label, path, when, size, kind in (
-        ("Import into erwin (.erwin)", ctx["erwin"], ctx["erwin_when"],
-         ctx["erwin_size"], "erwin"),
+        ("Import into erwin (.erwin)", ctx[KEY_ERWIN], ctx["erwin_when"],
+         ctx["erwin_size"], KEY_ERWIN),
         ("Export erwin XML (.xml)", ctx["xml"], ctx["xml_when"],
          ctx["xml_size"], "xml"),
     ):
@@ -510,15 +531,12 @@ def build_steps(ctx):
             add(label, "B", MANUAL, PENDING,
                 "REQUIRED AND NOT DONE. A person must open erwin, import the "
                 "%s and save this file. The pipeline cannot proceed past "
-                "Phase B without it." % ctx["suffix"],
+                "Phase B without it." % ctx[KEY_SUFFIX],
                 ctx["expect_%s" % kind])
 
-    # ---- 5. Phase B gate -------------------------------------------------
-    # The XML is what every downstream step reads; the .erwin is only the
-    # promotion copy. Reporting the gate as failed when just the binary is
-    # absent told you nothing could run, while reconciliation ran fine.
+def _build_phase_b_gate(ctx, add):
     xml_ok = os.path.isfile(ctx["xml"] or "")
-    both = xml_ok and os.path.isfile(ctx["erwin"] or "")
+    both = xml_ok and os.path.isfile(ctx[KEY_ERWIN] or "")
     add("Phase B - import gate", "B", AUTOMATED, DONE if xml_ok else FAILED,
         "GATE, not an import: erwin_importer.py only checks that the "
         "hand-made files exist, then stands aside and lets the pipeline "
@@ -527,89 +545,22 @@ def build_steps(ctx):
            ("XML present, gate passed; the .erwin binary is absent so only "
             "the promotion copy is affected." if xml_ok else
             "XML missing, gate failed - nothing downstream can run.")))
+    return xml_ok
 
-    if ctx["suffix"] == ".pdm":
-        _pdm_steps(ctx, add, xml_ok)
-        return S
-
-    # ---- 6/7. the script-generated enrichment ---------------------------
-    src_comments = totals(ctx["pd_inv"], "comment")
-    src_defs = totals(ctx["pd_inv"], "definition")
-
-    def per_kind(inv, key):
-        return ", ".join("%s %d" % (k, v[key]) for k, v in inv.items() if v[key])
-    kinds_text = " or ".join(kind_names(ctx["suffix"]))
-    census = ", ".join("%s %d objects" % (k, v["total"])
-                       for k, v in ctx["pd_inv"].items())
-    via = ctx["notes_via"]          # PIPELINE when main.py ran it, else SCRIPT
-    ran_by = ("app/main.py's preprocessing orchestrator"
-              if via == PIPELINE else "pd_comment_to_erwin_note.py, run by hand")
-
-    if ctx["notes_xml"]:
-        n, d, author = ctx["notes_counts"]
-
-        if src_comments == 0:
-            add("Comment -> Note migration", "C", via, NA,
-                "Nothing to migrate: no %s in the SAP PD model carries a "
-                "Comment (checked %s)." % (kinds_text, census),
-                ctx["notes_xml"], ctx["notes_when"], ctx["notes_size"])
-        else:
-            add("Comment -> Note migration", "C", via,
-                DONE if n else PENDING,
-                "%s wrote %d Note record(s) from %d PD Comment(s). Source by "
-                "kind: %s. erwin now carries Notes on: %s. Note author "
-                "recorded as %r."
-                % (ran_by, n, src_comments,
-                   per_kind(ctx["pd_inv"], "comment") or "none",
-                   per_kind(ctx["er_inv"], "note") or "none",
-                   author or "unset") if n else
-                "The model has %d Comment(s) but the output has no Notes."
-                % src_comments,
-                ctx["notes_xml"], ctx["notes_when"], ctx["notes_size"])
-
-        if src_defs == 0:
-            add("Definition -> Definition migration", "C", via, NA,
-                "Nothing to migrate: no %s in the SAP PD model has text in "
-                "its Definition tab (checked %s). Fill the Definition tab in "
-                "PowerDesigner if erwin Definitions are expected."
-                % (kinds_text, census),
-                ctx["notes_xml"], ctx["notes_when"], ctx["notes_size"])
-        else:
-            add("Definition -> Definition migration", "C", via,
-                DONE if d else PENDING,
-                "Wrote %d Definition(s) from %d in the source. Source by kind: "
-                "%s. erwin now carries Definitions on: %s."
-                % (d, src_defs, per_kind(ctx["pd_inv"], "definition") or "none",
-                   per_kind(ctx["er_inv"], "definition") or "none") if d else
-                "The model has %d Definition(s) but none reached erwin - the "
-                "script was run WITHOUT --definitions." % src_defs,
-                ctx["notes_xml"], ctx["notes_when"], ctx["notes_size"])
-    else:
-        expected = os.path.join(PREPROCESSED_XML, ctx["base"] + ".xml")
-        add("Comment -> Note migration", "C", PIPELINE,
-            NA if src_comments == 0 else PENDING,
-            "Nothing to migrate: the model has no Comments."
-            if src_comments == 0 else
-            "Not run. The model has %d Comment(s) waiting to migrate. "
-            "`py -m app.main` runs this as Phase C." % src_comments, expected)
-        add("Definition -> Definition migration", "C", PIPELINE,
-            NA if src_defs == 0 else PENDING,
-            "Nothing to migrate: the model has no Definitions."
-            if src_defs == 0 else
-            "Not run. The model has %d Definition(s) waiting to migrate."
-            % src_defs, expected)
-
-    # ---- 8. Phase C ------------------------------------------------------
+def _build_non_pdm_steps(ctx, add, xml_ok):
+    _enrichment_steps(ctx, add)
+    
     add("Phase C - inject UDPs", "C", NOT_IMPL, NA,
         "Removed from main.py. UDP injection does not run.")
-
-    # ---- 9. Phase D ------------------------------------------------------
-    v = ctx["validation"]
+        
+    v = ctx[KEY_VALIDATION]
+    both = xml_ok and os.path.isfile(ctx[KEY_ERWIN] or "")
+    
     if v:
         add("Phase D - reconciliation", "D", AUTOMATED, DONE,
             "Compared SAP PD against the erwin XML. Status %s, fidelity %s%%, "
             "%s critical finding(s)."
-            % (v.get("status"), v.get("fidelity"), v.get("critical")),
+            % (v.get(KEY_STATUS), v.get("fidelity"), v.get("critical")),
             ctx["detail_report"], ctx["detail_when"], ctx["detail_size"])
     else:
         add("Phase D - reconciliation", "D", AUTOMATED,
@@ -618,13 +569,87 @@ def build_steps(ctx):
             if both else
             "Cannot run: Phase B gate not satisfied.",
             ctx["detail_report"])
-
-    # ---- 10. reports -----------------------------------------------------
+            
     _report_steps(ctx, add)
+    _non_pdm_promotion_gate(ctx, add, v)
 
-    # ---- 11. promotion ---------------------------------------------------
-    promoted_path = promoted_artefact(ctx["base"])
-    passed = bool(v and str(v.get("status")).upper() == "PASS"
+def _enrichment_steps(ctx, add):
+    src_comments = totals(ctx[KEY_PD_INV], KEY_COMMENT)
+    src_defs = totals(ctx[KEY_PD_INV], KEY_DEFINITION)
+
+    via = ctx["notes_via"]
+    ran_by = ("app/main.py's preprocessing orchestrator"
+              if via == PIPELINE else "pd_comment_to_erwin_note.py, run by hand")
+
+    if ctx[KEY_NOTES_XML]:
+        _enrichment_with_notes_xml(ctx, add, src_comments, src_defs, via, ran_by)
+    else:
+        _enrichment_without_notes_xml(ctx, add, src_comments, src_defs)
+
+def _enrichment_with_notes_xml(ctx, add, src_comments, src_defs, via, ran_by):
+    n, d, author = ctx["notes_counts"]
+    kinds_text = " or ".join(kind_names(ctx[KEY_SUFFIX]))
+    census = ", ".join("%s %d objects" % (k, v[KEY_TOTAL])
+                       for k, v in ctx[KEY_PD_INV].items())
+                       
+    def per_kind(inv, key):
+        return ", ".join("%s %d" % (k, v[key]) for k, v in inv.items() if v[key])
+
+    if src_comments == 0:
+        add("Comment -> Note migration", "C", via, NA,
+            "Nothing to migrate: no %s in the SAP PD model carries a "
+            "Comment (checked %s)." % (kinds_text, census),
+            ctx[KEY_NOTES_XML], ctx[KEY_NOTES_WHEN], ctx[KEY_NOTES_SIZE])
+    else:
+        add("Comment -> Note migration", "C", via,
+            DONE if n else PENDING,
+            "%s wrote %d Note record(s) from %d PD Comment(s). Source by "
+            "kind: %s. erwin now carries Notes on: %s. Note author "
+            "recorded as %r."
+            % (ran_by, n, src_comments,
+               per_kind(ctx[KEY_PD_INV], KEY_COMMENT) or "none",
+               per_kind(ctx["er_inv"], KEY_NOTE) or "none",
+               author or "unset") if n else
+            "The model has %d Comment(s) but the output has no Notes."
+            % src_comments,
+            ctx[KEY_NOTES_XML], ctx[KEY_NOTES_WHEN], ctx[KEY_NOTES_SIZE])
+
+    if src_defs == 0:
+        add("Definition -> Definition migration", "C", via, NA,
+            "Nothing to migrate: no %s in the SAP PD model has text in "
+            "its Definition tab (checked %s). Fill the Definition tab in "
+            "PowerDesigner if erwin Definitions are expected."
+            % (kinds_text, census),
+            ctx[KEY_NOTES_XML], ctx[KEY_NOTES_WHEN], ctx[KEY_NOTES_SIZE])
+    else:
+        add("Definition -> Definition migration", "C", via,
+            DONE if d else PENDING,
+            "Wrote %d Definition(s) from %d in the source. Source by kind: "
+            "%s. erwin now carries Definitions on: %s."
+            % (d, src_defs, per_kind(ctx[KEY_PD_INV], KEY_DEFINITION) or "none",
+               per_kind(ctx["er_inv"], KEY_DEFINITION) or "none") if d else
+            "The model has %d Definition(s) but none reached erwin - the "
+            "script was run WITHOUT --definitions." % src_defs,
+            ctx[KEY_NOTES_XML], ctx[KEY_NOTES_WHEN], ctx[KEY_NOTES_SIZE])
+
+def _enrichment_without_notes_xml(ctx, add, src_comments, src_defs):
+    expected = os.path.join(PREPROCESSED_XML, ctx[KEY_BASE] + EXT_XML)
+    add("Comment -> Note migration", "C", PIPELINE,
+        NA if src_comments == 0 else PENDING,
+        "Nothing to migrate: the model has no Comments."
+        if src_comments == 0 else
+        "Not run. The model has %d Comment(s) waiting to migrate. "
+        "py -m app.main runs this as Phase C." % src_comments, expected)
+    add("Definition -> Definition migration", "C", PIPELINE,
+        NA if src_defs == 0 else PENDING,
+        "Nothing to migrate: the model has no Definitions."
+        if src_defs == 0 else
+        "Not run. The model has %d Definition(s) waiting to migrate."
+        % src_defs, expected)
+
+def _non_pdm_promotion_gate(ctx, add, v):
+    promoted_path = promoted_artefact(ctx[KEY_BASE])
+    passed = bool(v and str(v.get(KEY_STATUS)).upper() == "PASS"
                   and str(v.get("critical")) in ("0", "0.0", "None"))
     add("Promote to 3_final", "Gate", AUTOMATED,
         DONE if promoted_path else (PENDING if passed else NA),
@@ -633,9 +658,7 @@ def build_steps(ctx):
         ("Eligible but not copied." if passed else
          "Not eligible. main.py copies a model into 3_final only when status is "
          "PASS with zero criticals; anything else stays put."),
-        promoted_path or os.path.join(FINAL_XML, ctx["base"] + ".xml"))
-    return S
-
+        promoted_path or os.path.join(FINAL_XML, ctx[KEY_BASE] + EXT_XML))
 
 def _report_steps(ctx, add):
     """
@@ -645,7 +668,7 @@ def _report_steps(ctx, add):
     for label, path, prov in (
             ("Detailed validation report", ctx["detail_report"], PIPELINE),
             ("Pass/Fail summary", SUMMARY_REPORT, PIPELINE),
-            ("Field mapping report", field_map_report_for(ctx["suffix"]), SCRIPT)):
+            ("Field mapping report", field_map_report_for(ctx[KEY_SUFFIX]), SCRIPT)):
         ok, when, size = stat(path)
         detail = ("Generated by the framework." if prov == PIPELINE
                   else "Generated by a separate script.")
@@ -663,27 +686,23 @@ def _report_steps(ctx, add):
 
 
 def _pdm_steps(ctx, add, xml_ok):
-    """
-    The pipeline half of a PHYSICAL model, which is a different shape from the
-    conceptual/logical one: there is no Comment->Note preprocessing step, and
-    promotion is gated on a MEASURED fidelity target rather than on PASS.
-
-        pass 1 validate  ->  below target?  ->  remediate (columns / PKs / FK
-        joins from PowerDesigner)  ->  pass 2 re-validate  ->  promote only at
-        the target, otherwise held in 2_preprocessed.
-    """
-    v = ctx["validation"] or {}
+    v = ctx[KEY_VALIDATION] or {}
     stage = str(v.get("stage") or "").strip()
     promoted_flag = str(v.get("promoted") or "").strip().upper() == "YES"
-    remediated = bool(ctx["notes_xml"])          # 2_preprocessed/xml/<base>.xml
+    remediated = bool(ctx[KEY_NOTES_XML])
+    
+    _pdm_pass1_validate(ctx, add, xml_ok, v)
+    _pdm_remediation(ctx, add, xml_ok, v, remediated)
+    _report_steps(ctx, add)
+    _pdm_promotion_gate(ctx, add, promoted_flag)
 
-    # ---- pass 1: validate the raw import --------------------------------
+def _pdm_pass1_validate(ctx, add, xml_ok, v):
     if v:
         add("Phase D - validate 1_initial", "D", PIPELINE, DONE,
             "pdm_flow validated the raw erwin export against the .pdm. "
             "The report holds the FINAL result (status %s, fidelity %s%%, %s "
             "critical); pass-1 numbers are in the run log."
-            % (v.get("status"), v.get("fidelity"), v.get("critical")),
+            % (v.get(KEY_STATUS), v.get("fidelity"), v.get("critical")),
             ctx["detail_report"], ctx["detail_when"], ctx["detail_size"])
     else:
         add("Phase D - validate 1_initial", "D", PIPELINE,
@@ -692,7 +711,7 @@ def _pdm_steps(ctx, add, xml_ok):
             if xml_ok else "Cannot run: Phase B gate not satisfied.",
             ctx["detail_report"])
 
-    # ---- remediation ----------------------------------------------------
+def _pdm_remediation(ctx, add, xml_ok, v, remediated):
     if remediated:
         add("Remediation (preprocessing)", "C", PIPELINE, DONE,
             "pdm_preprocessor rewrote the erwin XML from the PowerDesigner "
@@ -700,53 +719,36 @@ def _pdm_steps(ctx, add, xml_ok):
             "and broken foreign-key joins repaired. It never invents data to "
             "raise a score, so legitimate modelling differences and defects "
             "in the source model stay in the report.",
-            ctx["notes_xml"], ctx["notes_when"], ctx["notes_size"])
+            ctx[KEY_NOTES_XML], ctx[KEY_NOTES_WHEN], ctx[KEY_NOTES_SIZE])
         add("Phase D - re-validate 2_preprocessed", "D", PIPELINE,
             DONE if v else PENDING,
-            "The remediated XML was re-parsed from disk and scored again — "
+            "The remediated XML was re-parsed from disk and scored again -- "
             "promotion follows a MEASURED result, never what preprocessing "
             "believes it changed. Final status %s, fidelity %s%%."
-            % (v.get("status"), v.get("fidelity")) if v else
+            % (v.get(KEY_STATUS), v.get("fidelity")) if v else
             "Remediated XML exists but no result was recorded.",
-            ctx["notes_xml"], ctx["notes_when"], ctx["notes_size"])
+            ctx[KEY_NOTES_XML], ctx[KEY_NOTES_WHEN], ctx[KEY_NOTES_SIZE])
     else:
-        expected = os.path.join(PREPROCESSED_XML, ctx["base"] + ".xml")
+        expected = os.path.join(PREPROCESSED_XML, ctx[KEY_BASE] + EXT_XML)
         at_target = bool(v) and str(v.get("stage") or "") == "3_final"
         add("Remediation (preprocessing)", "C", PIPELINE,
             NA if at_target else (PENDING if xml_ok else NA),
             "Not needed: the model met the fidelity target on import."
             if at_target else
-            ("Not run. `py -m app.main` remediates a PDM that falls short of "
+            ("Not run. py -m app.main remediates a PDM that falls short of "
              "the target (see PDM_FIDELITY_TARGET in app/config/settings.py)."
              if xml_ok else "Cannot run: Phase B gate not satisfied."),
             expected)
         add("Phase D - re-validate 2_preprocessed", "D", PIPELINE, NA,
             "Only runs when remediation runs.", expected)
 
-    # ---- reports --------------------------------------------------------
-    _report_steps(ctx, add)
-
-    # ---- promotion gate -------------------------------------------------
-    promoted_path = promoted_artefact(ctx["base"])
+def _pdm_promotion_gate(ctx, add, promoted_flag):
+    promoted_path = promoted_artefact(ctx[KEY_BASE])
     if promoted_path or promoted_flag:
         add("Promote to 3_final", "Gate", PIPELINE, DONE,
             "Fidelity target met on a measured score; copied into "
             "erwinmodels/3_final - this is the blessed output.",
-            promoted_path or os.path.join(FINAL_XML, ctx["base"] + ".xml"))
-    else:
-        add("Promote to 3_final", "Gate", PIPELINE, NA,
-            "Not promoted. The model measured %s%% and is held in %s for "
-            "review. This is the gate working, not failing: the remaining "
-            "findings are modelling differences or defects in the source "
-            "model, and inventing data to clear them would corrupt the "
-            "physical model."
-            % (v.get("fidelity", "?"), stage or "2_preprocessed"),
-            os.path.join(FINAL_XML, ctx["base"] + ".xml"))
-
-
-# --------------------------------------------------------------------------
-# scan
-# --------------------------------------------------------------------------
+            promoted_path or os.path.join(FINAL_XML, ctx[KEY_BASE] + EXT_XML))
 
 def promoted_artefact(base):
     """
@@ -757,9 +759,9 @@ def promoted_artefact(base):
     promotion reported as "not done" because the folder was renamed is worse
     than no report at all.
     """
-    final_root = os.path.join(PROJECT_ROOT, "erwinmodels", "3_final")
-    for folder, ext in (("final_erwin", ".erwin"), ("erwin", ".erwin"),
-                        ("final_xml", ".xml"), ("xml", ".xml")):
+    final_root = os.path.join(PROJECT_ROOT, DIR_ERWINMODELS, "3_final")
+    for folder, ext in (("final_erwin", ".erwin"), (KEY_ERWIN, ".erwin"),
+                        ("final_xml", EXT_XML), ("xml", EXT_XML)):
         path = os.path.join(final_root, folder, base + ext)
         if os.path.isfile(path):
             return path
@@ -782,7 +784,7 @@ def scan_model(suffix, ldm_path):
     _, ldm_when, ldm_size = stat(ldm_path)
 
     erwin = os.path.join(INITIAL_ERWIN, base + ".erwin")
-    xml = os.path.join(INITIAL_XML, base + ".xml")
+    xml = os.path.join(INITIAL_XML, base + EXT_XML)
     erwin_ok, erwin_when, erwin_size = stat(erwin)
     xml_ok, xml_when, xml_size = stat(xml)
 
@@ -795,7 +797,7 @@ def scan_model(suffix, ldm_path):
     # writes <base>_notes.xml. That is the difference between "one command did
     # this" and "someone remembered to run a second tool".
     notes_xml, notes_via = "", PIPELINE
-    for cand, via in ((base + ".xml", PIPELINE),
+    for cand, via in ((base + EXT_XML, PIPELINE),
                       (base + "_notes.xml", SCRIPT)):
         p = os.path.join(PREPROCESSED_XML, cand)
         if os.path.isfile(p):
@@ -808,24 +810,24 @@ def scan_model(suffix, ldm_path):
     _, detail_when, detail_size = stat(detail_report)
 
     ctx = {
-        "base": base, "suffix": suffix,
+        KEY_BASE: base, KEY_SUFFIX: suffix,
         "ldm": ldm_path, "ldm_when": ldm_when, "ldm_size": ldm_size,
         # Creator / Modifier are stamped by PowerDesigner on every model type,
         # so every type can name the people behind its MANUAL steps.
         "authors": pd_authors(ldm_path),
-        "erwin": erwin if erwin_ok else "", "erwin_when": erwin_when,
+        KEY_ERWIN: erwin if erwin_ok else "", "erwin_when": erwin_when,
         "erwin_size": erwin_size, "expect_erwin": erwin,
         "xml": xml if xml_ok else "", "xml_when": xml_when,
         "xml_size": xml_size, "expect_xml": xml,
         "origin": erwin_export_origin(xml) if xml_ok else "",
         "stale_hours": stale_hours,
-        "notes_xml": notes_xml, "notes_when": notes_when,
-        "notes_size": notes_size, "notes_via": notes_via,
+        KEY_NOTES_XML: notes_xml, KEY_NOTES_WHEN: notes_when,
+        KEY_NOTES_SIZE: notes_size, "notes_via": notes_via,
         "notes_counts": notes_stats(notes_xml) if notes_xml else (0, 0, ""),
         "detail_report": detail_report, "detail_when": detail_when,
         "detail_size": detail_size,
-        "validation": read_validation(detail_report, base),
-        "pd_inv": pd_text_inventory(ldm_path, suffix),
+        KEY_VALIDATION: read_validation(detail_report, base),
+        KEY_PD_INV: pd_text_inventory(ldm_path, suffix),
         "er_inv": erwin_text_inventory(notes_xml or xml, suffix),
         "kinds": kind_names(suffix),
     }
@@ -851,17 +853,28 @@ def write_report(scanned, run_ts, note):
     wb = Workbook()
     wb.remove(wb.active)
 
-    # ---- STEP_LEDGER -----------------------------------------------------
+    _write_step_ledger(wb, scanned)
+    _write_manual_actions(wb, scanned)
+    _write_blockers(wb, scanned)
+    _write_artefacts(wb, scanned)
+    _write_content_inventory(wb, scanned)
+    _write_timings(wb)
+    _write_summary(wb, scanned, run_ts, note)
+
+    os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
+    wb.save(REPORT_PATH)
+
+def _write_step_ledger(wb, scanned):
     ws = wb.create_sheet("STEP_LEDGER")
     ws.append(["Model", "Type", "Phase", "Step", "What happened",
                "Provenance", "Outcome",
                "Detail", "Evidence file", "Evidence timestamp", "Bytes"])
     for ctx, steps in scanned:
         for s in steps:
-            ws.append([ctx["base"], ctx["suffix"], s["phase"], s["step"],
-                       status_text(s["provenance"], s["outcome"]),
-                       s["provenance"], s["outcome"], s["detail"],
-                       s["evidence"], s["when"], s["bytes"]])
+            ws.append([ctx[KEY_BASE], ctx[KEY_SUFFIX], s[KEY_PHASE], s[KEY_STEP],
+                       status_text(s[KEY_PROVENANCE], s[KEY_OUTCOME]),
+                       s[KEY_PROVENANCE], s[KEY_OUTCOME], s[KEY_DETAIL],
+                       s[KEY_EVIDENCE], s["when"], s["bytes"]])
     for row in ws.iter_rows(min_row=2, min_col=5, max_col=7):
         if row[0].value in STATUS_FILL:
             row[0].fill = STATUS_FILL[row[0].value]
@@ -874,16 +887,16 @@ def write_report(scanned, run_ts, note):
             c.alignment = Alignment(vertical="top", wrap_text=True)
     style(ws, [30, 8, 10, 32, 26, 17, 10, 70, 46, 20, 11])
 
-    # ---- MANUAL_ACTIONS --------------------------------------------------
+def _write_manual_actions(wb, scanned):
     ws = wb.create_sheet("MANUAL_ACTIONS")
     ws.append(["Model", "Step", "What happened", "What the person must do / did",
                "File", "Timestamp"])
     for ctx, steps in scanned:
         for s in steps:
-            if s["provenance"] == MANUAL:
-                ws.append([ctx["base"], s["step"],
-                           status_text(s["provenance"], s["outcome"]),
-                           s["detail"], s["evidence"], s["when"]])
+            if s[KEY_PROVENANCE] == MANUAL:
+                ws.append([ctx[KEY_BASE], s[KEY_STEP],
+                           status_text(s[KEY_PROVENANCE], s[KEY_OUTCOME]),
+                           s[KEY_DETAIL], s[KEY_EVIDENCE], s["when"]])
     for row in ws.iter_rows(min_row=2, min_col=3, max_col=3):
         if row[0].value in STATUS_FILL:
             row[0].fill = STATUS_FILL[row[0].value]
@@ -891,137 +904,121 @@ def write_report(scanned, run_ts, note):
         row[0].alignment = Alignment(vertical="top", wrap_text=True)
     style(ws, [30, 30, 26, 80, 46, 20])
 
-    # ---- BLOCKERS --------------------------------------------------------
+def _write_blockers(wb, scanned):
     ws = wb.create_sheet("BLOCKERS")
     ws.append(["Model", "Step", "Provenance", "Why it is blocking", "Expected file"])
     for ctx, steps in scanned:
         for s in steps:
-            if s["outcome"] in (PENDING, FAILED):
-                ws.append([ctx["base"], s["step"], s["provenance"],
-                           s["detail"], s["evidence"]])
+            if s[KEY_OUTCOME] in (PENDING, FAILED):
+                ws.append([ctx[KEY_BASE], s[KEY_STEP], s[KEY_PROVENANCE],
+                           s[KEY_DETAIL], s[KEY_EVIDENCE]])
     for row in ws.iter_rows(min_row=2, min_col=4, max_col=4):
         row[0].alignment = Alignment(vertical="top", wrap_text=True)
     style(ws, [30, 32, 17, 86, 46])
 
-    # ---- ARTEFACTS -------------------------------------------------------
+def _write_artefacts(wb, scanned):
     ws = wb.create_sheet("ARTEFACTS")
     ws.append(["Model", "Artefact", "Produced by", "Path", "Timestamp", "Bytes"])
     for ctx, steps in scanned:
         for s in steps:
-            if s["evidence"] and s["outcome"] == DONE:
-                ws.append([ctx["base"], s["step"], s["provenance"],
-                           s["evidence"], s["when"], s["bytes"]])
+            if s[KEY_EVIDENCE] and s[KEY_OUTCOME] == DONE:
+                ws.append([ctx[KEY_BASE], s[KEY_STEP], s[KEY_PROVENANCE],
+                           s[KEY_EVIDENCE], s["when"], s["bytes"]])
     style(ws, [30, 32, 17, 52, 20, 12])
 
-    # ---- CONTENT_INVENTORY ----------------------------------------------
-    # The census that answers "how much is there to migrate, and where".
-    # Per object kind, both sides, side by side. A gap in the last two columns
-    # against the middle two is text that did not cross.
+def _write_content_inventory(wb, scanned):
     ws = wb.create_sheet("CONTENT_INVENTORY")
     ws.append(["Model", "Type", "Object kind",
                "SAP PD objects", "SAP PD with Comment", "SAP PD with Definition",
                "erwin objects", "erwin with Note", "erwin with Definition",
                "Comment not carried over", "Definition not carried over"])
     for ctx, _steps in scanned:
-        # Per-model kinds: a .pdm reports Table/Column/Reference, a .ldm or
-        # .cdm reports Entity/Attribute/Relationship.
         for kind in ctx["kinds"]:
-            pdk = ctx["pd_inv"][kind]
+            pdk = ctx[KEY_PD_INV][kind]
             erk = ctx["er_inv"][kind]
-            # A .pdm carries its Comment into erwin's Definition (erwin's own
-            # importer does it); .ldm/.cdm carry it into a Note via the
-            # preprocessing step. Measuring every type against Note flagged a
-            # fully-migrated physical model as a 100% gap.
-            carried = (max(erk["note"], erk["definition"])
-                       if ctx["suffix"] == ".pdm" else erk["note"])
-            ws.append([ctx["base"], ctx["suffix"], kind,
-                       pdk["total"], pdk["comment"], pdk["definition"],
-                       erk["total"], erk["note"], erk["definition"],
-                       max(0, pdk["comment"] - carried),
-                       max(0, pdk["definition"] - erk["definition"])])
-        pdt = ctx["pd_inv"]
+            carried = (max(erk[KEY_NOTE], erk[KEY_DEFINITION])
+                       if ctx[KEY_SUFFIX] == EXT_PDM else erk[KEY_NOTE])
+            ws.append([ctx[KEY_BASE], ctx[KEY_SUFFIX], kind,
+                       pdk[KEY_TOTAL], pdk[KEY_COMMENT], pdk[KEY_DEFINITION],
+                       erk[KEY_TOTAL], erk[KEY_NOTE], erk[KEY_DEFINITION],
+                       max(0, pdk[KEY_COMMENT] - carried),
+                       max(0, pdk[KEY_DEFINITION] - erk[KEY_DEFINITION])])
+        pdt = ctx[KEY_PD_INV]
         ert = ctx["er_inv"]
-        carried_total = (max(totals(ert, "note"), totals(ert, "definition"))
-                         if ctx["suffix"] == ".pdm" else totals(ert, "note"))
-        ws.append([ctx["base"], ctx["suffix"], "TOTAL",
-                   totals(pdt, "total"), totals(pdt, "comment"),
-                   totals(pdt, "definition"),
-                   totals(ert, "total"), totals(ert, "note"),
-                   totals(ert, "definition"),
-                   max(0, totals(pdt, "comment") - carried_total),
-                   max(0, totals(pdt, "definition") - totals(ert, "definition"))])
+        carried_total = (max(totals(ert, KEY_NOTE), totals(ert, KEY_DEFINITION))
+                         if ctx[KEY_SUFFIX] == EXT_PDM else totals(ert, KEY_NOTE))
+        ws.append([ctx[KEY_BASE], ctx[KEY_SUFFIX], "TOTAL",
+                   totals(pdt, KEY_TOTAL), totals(pdt, KEY_COMMENT),
+                   totals(pdt, KEY_DEFINITION),
+                   totals(ert, KEY_TOTAL), totals(ert, KEY_NOTE),
+                   totals(ert, KEY_DEFINITION),
+                   max(0, totals(pdt, KEY_COMMENT) - carried_total),
+                   max(0, totals(pdt, KEY_DEFINITION) - totals(ert, KEY_DEFINITION))])
         for cell in ws[ws.max_row]:
             cell.font = Font(bold=True)
-    # flag any non-zero gap
     for row in ws.iter_rows(min_row=2, min_col=10, max_col=11):
         for c in row:
             if isinstance(c.value, int) and c.value > 0:
-                c.fill = PatternFill("solid", fgColor="FFC7CE")
+                c.fill = PatternFill(KEY_SOLID, fgColor=COLOR_FFC7CE)
     style(ws, [30, 8, 14, 15, 20, 22, 14, 16, 20, 20, 24])
 
-    # ---- TIMINGS ---------------------------------------------------------
-    # Deliberately small. The question is "how long does it take?", so the
-    # sheet answers that and stops. Full per-phase detail stays in
-    # batch_summary/audit/timings.jsonl for anyone who needs it.
+def _write_timings(wb):
     timings = latest_timings()
     ws = wb.create_sheet("TIMINGS")
     if not timings:
         ws["A1"] = "No timing recorded yet."
         ws["A2"] = "Run:  py app\\reporting\\benchmark.py"
         ws.column_dimensions["A"].width = 60
-    else:
-        scen = timings.get("scenarios", [])
-        ws.append(["How long the framework takes"])
-        ws["A1"].font = Font(bold=True, size=14)
-        ws.append(["Measured", timings.get("run", "")])
+        return
+        
+    scen = timings.get("scenarios", [])
+    ws.append(["How long the framework takes"])
+    ws["A1"].font = Font(bold=True, size=14)
+    ws.append(["Measured", timings.get("run", "")])
+    ws.append([])
+
+    _write_timing_scenarios(ws, scen)
+    _write_timing_details(ws, scen)
+
+    for i, w in enumerate([34, 16, 18], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+def _write_timing_scenarios(ws, scen):
+    ws.append(["Models", "Total seconds", "Seconds per model"])
+    hdr = ws.max_row
+    for r in scen:
+        size = r.get("size")
+        distinct = r.get("distinct_models")
+        if r.get("repeats_used") and distinct:
+            size = "%d (%d real, %d reused)" % (size, distinct, size - distinct)
+        ws.append([size, r.get("end_to_end_s"), r.get("per_model_avg_s")])
+    for cell in ws[hdr]:
+        cell.fill = HDR_FILL
+        cell.font = HDR_FONT
+
+    if len(scen) >= 2:
+        one, many = scen[0], scen[-1]
+        naive = round((one.get("end_to_end_s") or 0) * (many.get("size") or 0), 1)
         ws.append([])
+        ws.append(["%d models together" % many.get("size"), many.get("end_to_end_s"), "seconds"])
+        ws.append(["%d models one at a time" % many.get("size"), naive, "seconds"])
 
-        ws.append(["Models", "Total seconds", "Seconds per model"])
-        hdr = ws.max_row
-        for r in scen:
-            size = r.get("size")
-            distinct = r.get("distinct_models")
-            # Say plainly when a scenario was bigger than the project: the
-            # batch was filled by re-running real models, so "5" on a 4-model
-            # project is a scenario size, not a count of files on disk.
-            if r.get("repeats_used") and distinct:
-                size = "%d (%d real, %d reused)" % (size, distinct,
-                                                    size - distinct)
-            ws.append([size, r.get("end_to_end_s"),
-                       r.get("per_model_avg_s")])
-        for cell in ws[hdr]:
-            cell.fill = HDR_FILL
-            cell.font = HDR_FONT
+def _write_timing_details(ws, scen):
+    rows = [m for r in scen for m in r.get("per_model", [])]
+    if rows:
+        m = rows[0]
+        ws.append([])
+        ws.append(["Where the time goes, for one model"])
+        ws[ws.max_row][0].font = Font(bold=True, size=12)
+        ws.append(["Reading the SAP PD model", m.get("parse_pd_s"), "seconds"])
+        ws.append(["Reading the erwin XML", m.get("parse_erwin_s"), "seconds"])
+        ws.append(["Comparing them", m.get("compare_s"), "seconds"])
 
-        if len(scen) >= 2:
-            one, many = scen[0], scen[-1]
-            naive = round((one.get("end_to_end_s") or 0) * (many.get("size") or 0), 1)
-            ws.append([])
-            ws.append(["%d models together" % many.get("size"),
-                       many.get("end_to_end_s"), "seconds"])
-            ws.append(["%d models one at a time" % many.get("size"),
-                       naive, "seconds"])
+    if any(r.get("repeats_used") for r in scen):
+        ws.append([])
+        ws.append(["Note: not enough models available, so one model was reused to fill the batch."])
 
-        # which step is slowest - the one number an optimisation needs
-        rows = [m for r in scen for m in r.get("per_model", [])]
-        if rows:
-            m = rows[0]
-            ws.append([])
-            ws.append(["Where the time goes, for one model"])
-            ws[ws.max_row][0].font = Font(bold=True, size=12)
-            ws.append(["Reading the SAP PD model", m.get("parse_pd_s"), "seconds"])
-            ws.append(["Reading the erwin XML", m.get("parse_erwin_s"), "seconds"])
-            ws.append(["Comparing them", m.get("compare_s"), "seconds"])
-
-        if any(r.get("repeats_used") for r in scen):
-            ws.append([])
-            ws.append(["Note: not enough models available, so one model was "
-                       "reused to fill the batch."])
-
-        for i, w in enumerate([34, 16, 18], start=1):
-            ws.column_dimensions[get_column_letter(i)].width = w
-
-    # ---- SUMMARY (first) -------------------------------------------------
+def _write_summary(wb, scanned, run_ts, note):
     ws = wb.create_sheet("SUMMARY", 0)
     ws.append(["Migration Provenance Audit"])
     ws["A1"].font = Font(bold=True, size=14)
@@ -1035,47 +1032,35 @@ def write_report(scanned, run_ts, note):
                "Pipeline done", "Separate script done", "Manual done",
                "Manual PENDING", "Not implemented", "Blockers"])
     hdr = ws.max_row
+    
+    _populate_summary_rows(ws, scanned)
+    _style_summary_sheet(ws, hdr)
+
+def _populate_summary_rows(ws, scanned):
     for ctx, steps in scanned:
-        c = Counter((s["provenance"], s["outcome"]) for s in steps)
-        blockers = sum(1 for s in steps if s["outcome"] in (PENDING, FAILED))
-        v = ctx["validation"] or {}
-        ws.append([ctx["base"], ctx["suffix"], v.get("status", "-"),
+        c = Counter((s[KEY_PROVENANCE], s[KEY_OUTCOME]) for s in steps)
+        blockers = sum(1 for s in steps if s[KEY_OUTCOME] in (PENDING, FAILED))
+        v = ctx[KEY_VALIDATION] or {}
+        ws.append([ctx[KEY_BASE], ctx[KEY_SUFFIX], v.get(KEY_STATUS, "-"),
                    v.get("fidelity", "-"),
-                   totals(ctx["pd_inv"], "comment"),
-                   totals(ctx["pd_inv"], "definition"),
+                   totals(ctx[KEY_PD_INV], KEY_COMMENT),
+                   totals(ctx[KEY_PD_INV], KEY_DEFINITION),
                    c[(AUTOMATED, DONE)], c[(SCRIPT, DONE)], c[(MANUAL, DONE)],
                    c[(MANUAL, PENDING)],
                    sum(n for (p, _o), n in c.items() if p == NOT_IMPL),
                    blockers])
+
+def _style_summary_sheet(ws, hdr):
     for cell in ws[hdr]:
         cell.fill = HDR_FILL
         cell.font = HDR_FONT
-        cell.alignment = Alignment(vertical="center", wrap_text=True)
-
-    ws.append([])
-    ws.append(["How to read the ledger"])
-    ws[ws.max_row][0].font = Font(bold=True, size=12)
-    ws.append(["Provenance = WHO ran it.  Outcome = WHETHER it happened.",
-               "'MANUAL / DONE' therefore means a person had to do this step "
-               "and they did it. Read the 'What happened' column first."])
-    ws.append([])
-    ws.append(["Provenance legend"])
-    ws[ws.max_row][0].font = Font(bold=True, size=12)
-    for tag, meaning in (
-        (PIPELINE, "Runs inside `py -m app.main`. One command covers it."),
-        (SCRIPT, "A separate script you invoke yourself, by name."),
-        (MANUAL, "A person had to do this in erwin or PowerDesigner. "
-                 "erwin's OEM licence blocks headless automation."),
-        (NOT_IMPL, "Designed but absent from the code (Phases A and C)."),
-    ):
-        ws.append([tag, meaning])
-        ws[ws.max_row][0].fill = PROV_FILL[tag]
-    for i, w in enumerate([30, 8, 12, 11, 16, 18, 15, 12, 12, 15, 16, 10], start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
-
-    os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
-    wb.save(REPORT_PATH)
-
+    for row in ws.iter_rows(min_row=hdr + 1, min_col=3, max_col=3):
+        if row[0].value in STATUS_FILL:
+            row[0].fill = STATUS_FILL[row[0].value]
+    for row in ws.iter_rows(min_row=hdr + 1, min_col=12, max_col=12):
+        if isinstance(row[0].value, int) and row[0].value > 0:
+            row[0].fill = OUTCOME_FILL[FAILED]
+    style(ws, [30, 8, 10, 10, 22, 23, 14, 20, 14, 17, 17, 9])
 
 def append_ledger(scanned, run_ts, note):
     """Append-only history, so past state is never overwritten."""
@@ -1084,21 +1069,20 @@ def append_ledger(scanned, run_ts, note):
         for ctx, steps in scanned:
             fh.write(json.dumps({
                 "run": run_ts,
-                "note": note,
-                "model": ctx["base"],
-                "type": ctx["suffix"],
-                "validation": ctx["validation"],
+                KEY_NOTE: note,
+                "model": ctx[KEY_BASE],
+                "type": ctx[KEY_SUFFIX],
+                KEY_VALIDATION: ctx[KEY_VALIDATION],
                 "steps": [{k: s[k] for k in
-                           ("step", "phase", "provenance", "outcome",
-                            "evidence", "when")} for s in steps],
+                           (KEY_STEP, KEY_PHASE, KEY_PROVENANCE, KEY_OUTCOME,
+                            KEY_EVIDENCE, "when")} for s in steps],
             }, ensure_ascii=False) + "\n")
 
 
 # --------------------------------------------------------------------------
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(
-        description="Provenance audit: what was automated, scripted or manual.")
+    ap = argparse.ArgumentParser(description="Provenance audit: what was automated, scripted or manual.")
     ap.add_argument("--note", default="", help="stamp this run with a comment")
     args = ap.parse_args(argv)
 
@@ -1111,45 +1095,45 @@ def main(argv=None):
     scanned = [scan_model(sfx, p) for sfx, p in models]
     write_report(scanned, run_ts, args.note)
     append_ledger(scanned, run_ts, args.note)
+    
+    _print_audit_report(run_ts, scanned)
 
+def _print_audit_report(run_ts, scanned):
     print("=" * 78)
     print("MIGRATION PROVENANCE AUDIT   %s" % run_ts)
     print("=" * 78)
     for ctx, steps in scanned:
-        c = Counter((s["provenance"], s["outcome"]) for s in steps)
-        blockers = [s for s in steps if s["outcome"] in (PENDING, FAILED)]
-        v = ctx["validation"] or {}
-        print("\n  %s  (%s)" % (ctx["base"], ctx["suffix"]))
-        print("     validation      : %s %s%%"
-              % (v.get("status", "-"), v.get("fidelity", "-")))
-        print("     source content  :")
-        for kind in ctx["kinds"]:
-            pdk, erk = ctx["pd_inv"][kind], ctx["er_inv"][kind]
-            print("        %-13s PD %3d objects | Comment %3d -> Note %3d | "
-                  "Definition %3d -> Definition %3d"
-                  % (kind, pdk["total"], pdk["comment"], erk["note"],
-                     pdk["definition"], erk["definition"]))
-        print("     pipeline done   : %d" % c[(PIPELINE, DONE)])
-        print("     separate script : %d" % c[(SCRIPT, DONE)])
-        print("     manual done     : %d" % c[(MANUAL, DONE)])
-        print("     manual PENDING  : %d" % c[(MANUAL, PENDING)])
-        print("     not implemented : %d"
-              % sum(n for (p, _o), n in c.items() if p == NOT_IMPL))
-        if blockers:
-            print("     BLOCKERS:")
-            for s in blockers:
-                print("        [%s/%s] %s" % (s["provenance"], s["outcome"], s["step"]))
+        _print_model_audit(ctx, steps)
+        
     t = latest_timings()
     if t and t.get("scenarios"):
         print()
         for r in t["scenarios"]:
-            print("     %2d model(s) takes %.1f seconds"
-                  % (r.get("size", 0), r.get("end_to_end_s", 0)))
+            print("     %2d model(s) takes %.1f seconds" % (r.get("size", 0), r.get("end_to_end_s", 0)))
 
     print("\n  report  -> %s" % rel(REPORT_PATH))
-    print("  history -> %s  (append-only)" % rel(LEDGER_PATH))
-    return 0
+    print("  ledger  -> %s" % rel(LEDGER_PATH))
 
+def _print_model_audit(ctx, steps):
+    c = Counter((s[KEY_PROVENANCE], s[KEY_OUTCOME]) for s in steps)
+    blockers = [s for s in steps if s[KEY_OUTCOME] in (PENDING, FAILED)]
+    v = ctx[KEY_VALIDATION] or {}
+    print("\n  %s  (%s)" % (ctx[KEY_BASE], ctx[KEY_SUFFIX]))
+    print("     validation      : %s %s%%" % (v.get(KEY_STATUS, "-"), v.get("fidelity", "-")))
+    print("     source content  :")
+    for kind in ctx["kinds"]:
+        pdk, erk = ctx[KEY_PD_INV][kind], ctx["er_inv"][kind]
+        print("        %-13s PD %3d objects | Comment %3d -> Note %3d | "
+              "Definition %3d -> Definition %3d"
+              % (kind, pdk[KEY_TOTAL], pdk[KEY_COMMENT], erk[KEY_NOTE],
+                 pdk[KEY_DEFINITION], erk[KEY_DEFINITION]))
+    print("     pipeline done   : %d" % c[(PIPELINE, DONE)])
+    print("     separate script : %d" % c[(SCRIPT, DONE)])
+    print("     manual done     : %d" % c[(MANUAL, DONE)])
+    print("     manual PENDING  : %d" % c[(MANUAL, PENDING)])
+    print("     not implemented : %d" % sum(n for (p, _o), n in c.items() if p == NOT_IMPL))
+    if blockers:
+        print("     BLOCKERS:")
+        for s in blockers:
+            print("        [%s/%s] %s" % (s[KEY_PROVENANCE], s[KEY_OUTCOME], s[KEY_STEP]))
 
-if __name__ == "__main__":
-    sys.exit(main())

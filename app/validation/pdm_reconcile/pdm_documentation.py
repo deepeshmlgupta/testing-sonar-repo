@@ -162,6 +162,58 @@ def _pd_attr(elem: ET.Element, name: str) -> str:
     return ""
 
 
+
+def _pd_table_documentation(table: ET.Element) -> Optional[Tuple[str, Dict[str, Any]]]:
+    """Return the documentation record for one real PD table."""
+    if table.get("Ref"):
+        return None
+    name = _pd_attr(table, "Name")
+    code = (_pd_attr(table, "Code") or name).upper()
+    if not code:
+        return None
+    record = {
+        "name": name or code,
+        "code": code,
+        "comment": _pd_attr(table, "Comment"),
+        "description": _pd_attr(table, "Description"),
+        "annotation": _pd_attr(table, "Annotation"),
+    }
+    return code, record
+
+
+def _pd_column_documentation(
+    table_code: str, column: ET.Element
+) -> Optional[Tuple[Tuple[str, str], Dict[str, Any]]]:
+    """Return the documentation record for one real PD column."""
+    if column.get("Ref"):
+        return None
+    name = _pd_attr(column, "Name")
+    code = (_pd_attr(column, "Code") or name).upper()
+    if not code:
+        return None
+    record = {
+        "name": name or code,
+        "code": code,
+        "comment": _pd_attr(column, "Comment"),
+        "description": _pd_attr(column, "Description"),
+        "annotation": _pd_attr(column, "Annotation"),
+    }
+    return (table_code, code), record
+
+
+def _parse_pd_table(table: ET.Element, out: Dict[str, Any]) -> None:
+    parsed = _pd_table_documentation(table)
+    if parsed is None:
+        return
+    table_code, table_data = parsed
+    out["tables"][table_code] = table_data
+    for column in table.iter(_pd_tag("o:Column")):
+        parsed_column = _pd_column_documentation(table_code, column)
+        if parsed_column is not None:
+            key, column_data = parsed_column
+            out["columns"][key] = column_data
+
+
 def _parse_pd_documentation(path: str) -> Dict[str, Any]:
     """{'model': str, 'tables': {CODE: {...}}, 'columns': {(TBL, COL): {...}}}"""
     out: Dict[str, Any] = {"model": "", "tables": {}, "columns": {}}
@@ -176,33 +228,7 @@ def _parse_pd_documentation(path: str) -> Dict[str, Any]:
         out["model"] = _pd_attr(model_elem, "Name")
 
     for table in root.iter(_pd_tag("o:Table")):
-        if table.get("Ref"):
-            continue
-        name = _pd_attr(table, "Name")
-        code = (_pd_attr(table, "Code") or name).upper()
-        if not code:
-            continue
-        out["tables"][code] = {
-            "name": name or code,
-            "code": code,
-            "comment": _pd_attr(table, "Comment"),
-            "description": _pd_attr(table, "Description"),
-            "annotation": _pd_attr(table, "Annotation"),
-        }
-        for column in table.iter(_pd_tag("o:Column")):
-            if column.get("Ref"):
-                continue
-            col_name = _pd_attr(column, "Name")
-            col_code = (_pd_attr(column, "Code") or col_name).upper()
-            if not col_code:
-                continue
-            out["columns"][(code, col_code)] = {
-                "name": col_name or col_code,
-                "code": col_code,
-                "comment": _pd_attr(column, "Comment"),
-                "description": _pd_attr(column, "Description"),
-                "annotation": _pd_attr(column, "Annotation"),
-            }
+        _parse_pd_table(table, out)
     return out
 
 
@@ -219,23 +245,41 @@ def _props(elem: ET.Element) -> Optional[ET.Element]:
     return None
 
 
-def _erwin_val(elem: ET.Element, *names: str) -> str:
-    """Scalar from an XML attribute, a direct child, or the <XxxProps> wrapper."""
-    for name in names:
-        raw = elem.get(name)
-        if raw and raw.strip():
-            return raw.strip()
-    for name in names:
-        for child in list(elem):
-            if _local(child.tag) == name and child.text and child.text.strip():
-                return child.text.strip()
-    props = _props(elem)
-    if props is not None:
-        for name in names:
-            for child in list(props):
-                if _local(child.tag) == name and child.text and child.text.strip():
-                    return child.text.strip()
+def _first_value(values) -> str:
+    """Return the first non-empty stripped value."""
+    for value in values:
+        if value and value.strip():
+            return value.strip()
     return ""
+
+
+def _child_value(elem: ET.Element, name: str) -> str:
+    for child in list(elem):
+        if _local(child.tag) == name and child.text and child.text.strip():
+            return child.text.strip()
+    return ""
+
+
+def _erwin_val(elem: ET.Element, *names: str) -> str:
+    """Scalar from an XML attribute, direct child, or the <XxxProps> wrapper."""
+    value = _first_value(elem.get(name) for name in names)
+    if value:
+        return value
+
+    for name in names:
+        value = _child_value(elem, name)
+        if value:
+            return value
+
+    props = _props(elem)
+    if props is None:
+        return ""
+    for name in names:
+        value = _child_value(props, name)
+        if value:
+            return value
+    return ""
+
 
 
 def _erwin_note(elem: ET.Element) -> str:
@@ -253,6 +297,20 @@ def _erwin_note(elem: ET.Element) -> str:
     return ""
 
 
+def _extended_note_groups(container: ET.Element) -> List[str]:
+    texts: List[str] = []
+    for child in container:
+        if _local(child.tag) != "Extended_Notes_Groups":
+            continue
+        for note in child:
+            if _local(note.tag) != "Extended_Notes":
+                continue
+            text = _erwin_val(note, "Comment")
+            if text.strip():
+                texts.append(text.strip())
+    return texts
+
+
 def _erwin_extended_notes(elem: ET.Element) -> str:
     """
     Text of an object's Extended Notes, when the export carries any.
@@ -262,22 +320,76 @@ def _erwin_extended_notes(elem: ET.Element) -> str:
     as plain text, and an object may carry several.  Read from DIRECT children
     only, so reading an Entity never picks up an Attribute's Extended Notes.
     """
-    texts = []
     containers = [elem]
     props = _props(elem)
     if props is not None:
         containers.append(props)
+    texts = []
     for container in containers:
-        for child in container:
-            if _local(child.tag) != "Extended_Notes_Groups":
-                continue
-            for note in child:
-                if _local(note.tag) != "Extended_Notes":
-                    continue
-                text = _erwin_val(note, "Comment")
-                if text.strip():
-                    texts.append(text.strip())
+        texts.extend(_extended_note_groups(container))
     return "\n".join(texts)
+
+
+
+def _find_erwin_model(root: ET.Element) -> str:
+    for candidate in root.iter():
+        if _local(candidate.tag) == "Model" and candidate.get("id"):
+            return (candidate.get("name")
+                    or _erwin_val(candidate, "Name", "Model_Name"))
+    return ""
+
+
+def _erwin_column_data(attribute: ET.Element) -> Optional[Tuple[str, Dict[str, Any]]]:
+    """Build one erwin column record, or None for non-attributes."""
+    if _local(attribute.tag) != "Attribute" or not attribute.get("id"):
+        return None
+    name = _erwin_val(attribute, "Name") or attribute.get("name", "")
+    code = (_erwin_val(attribute, "Physical_Name") or name).upper()
+    if not code:
+        return None
+    note = _erwin_note(attribute)
+    return code, {
+        "name": name or code,
+        "code": code,
+        "definition": _erwin_val(attribute, "Definition"),
+        "comment": _erwin_val(attribute, "Comment"),
+        "note": note,
+        "extended_notes": _erwin_extended_notes(attribute),
+    }
+
+
+def _parse_erwin_entity(
+    entity: ET.Element, out: Dict[str, Any]
+) -> Optional[str]:
+    """Add one erwin entity and its attributes; return its table code."""
+    if _local(entity.tag) != "Entity" or not entity.get("id"):
+        return None
+    name = _erwin_val(entity, "Name") or entity.get("name", "")
+    code = (_erwin_val(entity, "Physical_Name") or name).upper()
+    if not code or code in out["tables"]:
+        return None
+
+    note = _erwin_note(entity)
+    if note:
+        out["has_notes"] = True
+    out["tables"][code] = {
+        "name": name or code,
+        "code": code,
+        "definition": _erwin_val(entity, "Definition"),
+        "comment": _erwin_val(entity, "Comment"),
+        "note": note,
+        "extended_notes": _erwin_extended_notes(entity),
+    }
+
+    for attribute in entity.iter():
+        parsed = _erwin_column_data(attribute)
+        if parsed is None:
+            continue
+        column_code, column_data = parsed
+        if column_data["note"]:
+            out["has_notes"] = True
+        out["columns"].setdefault((code, column_code), column_data)
+    return code
 
 
 def _parse_erwin_documentation(path: str) -> Dict[str, Any]:
@@ -290,52 +402,110 @@ def _parse_erwin_documentation(path: str) -> Dict[str, Any]:
         logger.warning("Cannot read documentation from %s: %s", path, exc)
         return out
 
-    for candidate in root.iter():
-        if _local(candidate.tag) == "Model" and candidate.get("id"):
-            out["model"] = (candidate.get("name")
-                            or _erwin_val(candidate, "Name", "Model_Name"))
-            break
-
+    out["model"] = _find_erwin_model(root)
     for entity in root.iter():
-        if _local(entity.tag) != "Entity" or not entity.get("id"):
-            continue
-        name = _erwin_val(entity, "Name") or entity.get("name", "")
-        code = (_erwin_val(entity, "Physical_Name") or name).upper()
-        if not code or code in out["tables"]:
-            continue
-        note = _erwin_note(entity)
-        if note:
-            out["has_notes"] = True
-        out["tables"][code] = {
-            "name": name or code,
-            "code": code,
-            "definition": _erwin_val(entity, "Definition"),
-            "comment": _erwin_val(entity, "Comment"),
-            "note": note,
-            "extended_notes": _erwin_extended_notes(entity),
-        }
-        for attribute in entity.iter():
-            if _local(attribute.tag) != "Attribute" or not attribute.get("id"):
-                continue
-            col_name = _erwin_val(attribute, "Name") or attribute.get("name", "")
-            col_code = (_erwin_val(attribute, "Physical_Name") or col_name).upper()
-            if not col_code:
-                continue
-            col_note = _erwin_note(attribute)
-            if col_note:
-                out["has_notes"] = True
-            out["columns"].setdefault((code, col_code), {
-                "name": col_name or col_code,
-                "code": col_code,
-                "definition": _erwin_val(attribute, "Definition"),
-                "comment": _erwin_val(attribute, "Comment"),
-                "note": col_note,
-                "extended_notes": _erwin_extended_notes(attribute),
-            })
+        _parse_erwin_entity(entity, out)
     return out
 
 
 # ─── PUBLIC API ───────────────────────────────────────────────────────────────
+
+def _pd_side_uses(pd_doc: Dict[str, Any], field: str) -> bool:
+    return (
+        any(_comparable(t.get(field, "")) for t in pd_doc["tables"].values())
+        or any(_comparable(c.get(field, "")) for c in pd_doc["columns"].values())
+    )
+
+
+def _emit_documentation_rows(
+    rows: List[DocumentationRow],
+    model: str,
+    object_type: str,
+    object_name: str,
+    object_code: str,
+    pd_object: Dict[str, Any],
+    erwin_object: Dict[str, Any],
+    use_description: bool,
+    use_annotation: bool,
+) -> None:
+    pd_comment = pd_object.get("comment", "")
+    pd_description = pd_object.get("description", "")
+    pd_annotation = pd_object.get("annotation", "")
+    er_definition = erwin_object.get("definition", "")
+    er_comment = erwin_object.get("comment", "")
+    er_extended_notes = erwin_object.get("extended_notes", "")
+
+    pairs = [
+        (COMMENT_TO_COMMENT, "SAP PD Comment", "erwin Comment",
+         pd_comment, er_comment),
+    ]
+    if use_description:
+        pairs.append((DESCRIPTION_TO_DEFINITION, "SAP PD Description",
+                      "erwin Definition", pd_description, er_definition))
+    if use_annotation:
+        pairs.append((ANNOTATION_TO_EXTENDED_NOTES, "SAP PD Annotation",
+                      "erwin Extended Notes", pd_annotation,
+                      er_extended_notes))
+
+    for mapping, source_field, target_field, source, target in pairs:
+        rows.append(_row(model, object_type, object_name, object_code,
+                         mapping, source_field, target_field, source, target))
+
+
+def _has_documentation(
+    pd_object: Dict[str, Any], erwin_object: Dict[str, Any]
+) -> bool:
+    values = (
+        pd_object.get("comment", ""), pd_object.get("description", ""),
+        pd_object.get("annotation", ""), erwin_object.get("definition", ""),
+        erwin_object.get("comment", ""), erwin_object.get("extended_notes", ""),
+    )
+    return any(_comparable(value) for value in values)
+
+
+def _build_table_rows(
+    rows: List[DocumentationRow],
+    model: str,
+    pd_doc: Dict[str, Any],
+    erwin_doc: Dict[str, Any],
+    use_description: bool,
+    use_annotation: bool,
+) -> None:
+    empty: Dict[str, Any] = {}
+    for code in sorted(set(pd_doc["tables"]) | set(erwin_doc["tables"])):
+        pd_table = pd_doc["tables"].get(code, empty)
+        er_table = erwin_doc["tables"].get(code, empty)
+        display = pd_table.get("name") or er_table.get("name") or code
+        _emit_documentation_rows(
+            rows, model, "TABLE", display, code, pd_table, er_table,
+            use_description, use_annotation,
+        )
+
+
+def _build_column_rows(
+    rows: List[DocumentationRow],
+    model: str,
+    pd_doc: Dict[str, Any],
+    erwin_doc: Dict[str, Any],
+    use_description: bool,
+    use_annotation: bool,
+) -> None:
+    empty: Dict[str, Any] = {}
+    for key in sorted(set(pd_doc["columns"]) | set(erwin_doc["columns"])):
+        table_code, column_code = key
+        pd_column = pd_doc["columns"].get(key, empty)
+        er_column = erwin_doc["columns"].get(key, empty)
+        if not _has_documentation(pd_column, er_column):
+            continue
+        display = (
+            f"{table_code}."
+            f"{pd_column.get('name') or er_column.get('name') or column_code}"
+        )
+        _emit_documentation_rows(
+            rows, model, "COLUMN", display, column_code,
+            pd_column, er_column, use_description, use_annotation,
+        )
+
 
 def build_rows(pd_path: str, erwin_path: str,
                model_name: str = "") -> List[DocumentationRow]:
@@ -359,72 +529,16 @@ def build_rows(pd_path: str, erwin_path: str,
     # them, so the sheet does not fill with BOTH_EMPTY rows for a sub-tab this
     # pair never populates. Comment → Comment is always reported: it is the
     # PDM Comment mapping and its absence would itself be the finding.
-    def _pd_side_uses(field: str) -> bool:
-        return (any(_comparable(t.get(field, "")) for t in pd_doc["tables"].values())
-                or any(_comparable(c.get(field, "")) for c in pd_doc["columns"].values()))
-
-    # Gated on the SAP PD side only, as before. erwin's Definition is filled by
-    # the importer from the PD Comment, so a model with no Descriptions at all
-    # would otherwise report every object as "Description missing in SAP PD" --
-    # 152 rows describing a mapping this model never uses.
-    use_description = _pd_side_uses("description")
-    use_annotation = _pd_side_uses("annotation")
+    use_description = _pd_side_uses(pd_doc, "description")
+    use_annotation = _pd_side_uses(pd_doc, "annotation")
 
     rows: List[DocumentationRow] = []
-
-    def emit(object_type: str, object_name: str, object_code: str,
-             pd_object: Dict[str, Any], erwin_object: Dict[str, Any]) -> None:
-        pd_comment = pd_object.get("comment", "")
-        pd_description = pd_object.get("description", "")
-        pd_annotation = pd_object.get("annotation", "")
-        er_definition = erwin_object.get("definition", "")
-        er_comment = erwin_object.get("comment", "")
-        er_extended_notes = erwin_object.get("extended_notes", "")
-
-        # PDM validates Comments straight against erwin's Comment field. There
-        # is no Comment→Note preprocessing step for physical models, so Note is
-        # not a carrier this mapping can be measured against.
-        pairs = [
-            (COMMENT_TO_COMMENT, "SAP PD Comment", "erwin Comment",
-             pd_comment, er_comment),
-        ]
-        if use_description:
-            pairs.append((DESCRIPTION_TO_DEFINITION, "SAP PD Description",
-                          "erwin Definition", pd_description, er_definition))
-        if use_annotation:
-            pairs.append((ANNOTATION_TO_EXTENDED_NOTES, "SAP PD Annotation",
-                          "erwin Extended Notes", pd_annotation,
-                          er_extended_notes))
-
-        for mapping, source_field, target_field, source, target in pairs:
-            rows.append(_row(model, object_type, object_name, object_code,
-                             mapping, source_field, target_field,
-                             source, target))
-
-    empty: Dict[str, Any] = {}
-
-    for code in sorted(set(pd_doc["tables"]) | set(erwin_doc["tables"])):
-        pd_table = pd_doc["tables"].get(code, empty)
-        er_table = erwin_doc["tables"].get(code, empty)
-        display = pd_table.get("name") or er_table.get("name") or code
-        emit("TABLE", display, code, pd_table, er_table)
-
-    for key in sorted(set(pd_doc["columns"]) | set(erwin_doc["columns"])):
-        table_code, column_code = key
-        pd_column = pd_doc["columns"].get(key, empty)
-        er_column = erwin_doc["columns"].get(key, empty)
-        # Columns with documentation on neither side would triple the sheet for
-        # no information, so they are left out; tables are always listed.
-        if not any(_comparable(value) for value in (
-                pd_column.get("comment", ""), pd_column.get("description", ""),
-                pd_column.get("annotation", ""),
-                er_column.get("definition", ""), er_column.get("comment", ""),
-                er_column.get("extended_notes", ""))):
-            continue
-        display = (f"{table_code}."
-                   f"{pd_column.get('name') or er_column.get('name') or column_code}")
-        emit("COLUMN", display, column_code, pd_column, er_column)
-
+    _build_table_rows(
+        rows, model, pd_doc, erwin_doc, use_description, use_annotation,
+    )
+    _build_column_rows(
+        rows, model, pd_doc, erwin_doc, use_description, use_annotation,
+    )
     return rows
 
 

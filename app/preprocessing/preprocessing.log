@@ -4283,3 +4283,744 @@ MIGRATION SUMMARY
        Attribute 'X_PACKAGE_ITEM.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NUMBER'
 
   Next: run `verify` to prove only Notes changed.
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v004\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION SUMMARY
+==========================================================================
+  LDM                 : C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin in            : C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml  (1852196 bytes)
+  erwin out           : C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml  (1861697 bytes)
+  newline mode        : escaped-lf
+  note author         : Migration_Bot
+
+  erwin objects       : 217  (Entity 30 / Attribute 187)
+  matched             : 212
+  updated (Note set)  : 22
+  skipped             : 190
+  unmatched           : 5
+       skipped: PD Comment empty                              190
+  unmatched objects (first 10):
+       Attribute 'COUNTRY.Distributor_Id'  physical='DISTRIBUTOR_ID'
+       Attribute 'DISTRIBUTOR.Customer_Master_ID'  physical='CSTMR_MSTR_ID'
+       Attribute 'LEAD_CAMPAIGN.Campaign_Source_Id'  physical='CAMPAIGN_SOURCE_ID'
+       Attribute 'LEAD_CAMPAIGN.Campaign_nAME'  physical='CAMPAIGN_'
+       Attribute 'LEAD_CAMPAIGN.Lead_Id'  physical='LEAD_ID'
+
+  Next: run `verify` to prove only Notes changed.
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v004\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION SUMMARY
+==========================================================================
+  LDM                 : C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin in            : C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\1_initial\xml\02_logistics_segment.xml  (12208676 bytes)
+  erwin out           : C:\Users\SrinivasaPesala\Desktop\migration-platform_v004\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml  (12232050 bytes)
+  newline mode        : escaped-lf
+  note author         : Migration_Bot
+
+  erwin objects       : 210  (Entity 195 / Attribute 15)
+  matched             : 195
+  updated (Note set)  : 48
+  skipped             : 147
+  unmatched           : 15
+       skipped: PD Comment empty                              147
+  unmatched objects (first 10):
+       Attribute 'X_CARGO.X_CARGO_ID'  physical='X_CARGO_ID'
+       Attribute 'X_CARGO.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NO'
+       Attribute 'X_CARGO.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_CARGO.ITEM_ID'  physical='ITEM_ID'
+       Attribute 'X_MATERIAL_MOVEMENT_REQUEST_LINE.X_CARGO_ID'  physical='X_CARGO_ID'
+       Attribute 'X_MATERIAL_MOVEMENT_REQUEST_LINE.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NO'
+       Attribute 'X_PACKAGE.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE.X_PACKAGE_ID/1'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE_ITEM.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE_ITEM.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NUMBER'
+
+  Next: run `verify` to prove only Notes changed.
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION SUMMARY
+==========================================================================
+  LDM                 : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin in            : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml  (1852196 bytes)
+  erwin out           : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml  (1861697 bytes)
+  newline mode        : escaped-lf
+  note author         : Migration_Bot
+
+  erwin objects       : 217  (Entity 30 / Attribute 187)
+  matched             : 212
+  updated (Note set)  : 22
+  skipped             : 190
+  unmatched           : 5
+       skipped: PD Comment empty                              190
+  unmatched objects (first 10):
+       Attribute 'COUNTRY.Distributor_Id'  physical='DISTRIBUTOR_ID'
+       Attribute 'DISTRIBUTOR.Customer_Master_ID'  physical='CSTMR_MSTR_ID'
+       Attribute 'LEAD_CAMPAIGN.Campaign_Source_Id'  physical='CAMPAIGN_SOURCE_ID'
+       Attribute 'LEAD_CAMPAIGN.Campaign_nAME'  physical='CAMPAIGN_'
+       Attribute 'LEAD_CAMPAIGN.Lead_Id'  physical='LEAD_ID'
+
+  Next: run `verify` to prove only Notes changed.
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION SUMMARY
+==========================================================================
+  LDM                 : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin in            : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml  (12208676 bytes)
+  erwin out           : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml  (12232050 bytes)
+  newline mode        : escaped-lf
+  note author         : Migration_Bot
+
+  erwin objects       : 210  (Entity 195 / Attribute 15)
+  matched             : 195
+  updated (Note set)  : 48
+  skipped             : 147
+  unmatched           : 15
+       skipped: PD Comment empty                              147
+  unmatched objects (first 10):
+       Attribute 'X_CARGO.X_CARGO_ID'  physical='X_CARGO_ID'
+       Attribute 'X_CARGO.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NO'
+       Attribute 'X_CARGO.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_CARGO.ITEM_ID'  physical='ITEM_ID'
+       Attribute 'X_MATERIAL_MOVEMENT_REQUEST_LINE.X_CARGO_ID'  physical='X_CARGO_ID'
+       Attribute 'X_MATERIAL_MOVEMENT_REQUEST_LINE.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NO'
+       Attribute 'X_PACKAGE.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE.X_PACKAGE_ID/1'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE_ITEM.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE_ITEM.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NUMBER'
+
+  Next: run `verify` to prove only Notes changed.
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION SUMMARY
+==========================================================================
+  LDM                 : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin in            : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml  (1852196 bytes)
+  erwin out           : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml  (1861697 bytes)
+  newline mode        : escaped-lf
+  note author         : Migration_Bot
+
+  erwin objects       : 217  (Entity 30 / Attribute 187)
+  matched             : 212
+  updated (Note set)  : 22
+  skipped             : 190
+  unmatched           : 5
+       skipped: PD Comment empty                              190
+  unmatched objects (first 10):
+       Attribute 'COUNTRY.Distributor_Id'  physical='DISTRIBUTOR_ID'
+       Attribute 'DISTRIBUTOR.Customer_Master_ID'  physical='CSTMR_MSTR_ID'
+       Attribute 'LEAD_CAMPAIGN.Campaign_Source_Id'  physical='CAMPAIGN_SOURCE_ID'
+       Attribute 'LEAD_CAMPAIGN.Campaign_nAME'  physical='CAMPAIGN_'
+       Attribute 'LEAD_CAMPAIGN.Lead_Id'  physical='LEAD_ID'
+
+  Next: run `verify` to prove only Notes changed.
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION SUMMARY
+==========================================================================
+  LDM                 : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin in            : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml  (12208676 bytes)
+  erwin out           : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml  (12232050 bytes)
+  newline mode        : escaped-lf
+  note author         : Migration_Bot
+
+  erwin objects       : 210  (Entity 195 / Attribute 15)
+  matched             : 195
+  updated (Note set)  : 48
+  skipped             : 147
+  unmatched           : 15
+       skipped: PD Comment empty                              147
+  unmatched objects (first 10):
+       Attribute 'X_CARGO.X_CARGO_ID'  physical='X_CARGO_ID'
+       Attribute 'X_CARGO.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NO'
+       Attribute 'X_CARGO.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_CARGO.ITEM_ID'  physical='ITEM_ID'
+       Attribute 'X_MATERIAL_MOVEMENT_REQUEST_LINE.X_CARGO_ID'  physical='X_CARGO_ID'
+       Attribute 'X_MATERIAL_MOVEMENT_REQUEST_LINE.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NO'
+       Attribute 'X_PACKAGE.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE.X_PACKAGE_ID/1'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE_ITEM.X_PACKAGE_ID'  physical='X_PACAKGE_ID'
+       Attribute 'X_PACKAGE_ITEM.X_SEQUENCE_NUMBER'  physical='X_SEQUENCE_NUMBER'
+
+  Next: run `verify` to prove only Notes changed.
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python c:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\SrinivasaPesala\Desktop\migration-platform_v005\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/ldm/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python /home/claude/merged/migration-platform_v008/app/preprocessing/scripts/pd_comment_to_erwin_note.py migrate --ldm /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm --erwin /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml --out /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : /home/claude/merged/migration-platform_v008/sappdmodels/cdm/02_logistics_segment.cdm
+  erwin XML               : /home/claude/merged/migration-platform_v008/erwinmodels/1_initial/xml/02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : /home/claude/merged/migration-platform_v008/erwinmodels/2_preprocessed/xml/02_logistics_segment.xml
+
+--- Output of python c:\Users\Shivansh\Downloads\migration-platform_v008\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python c:\Users\Shivansh\Downloads\migration-platform_v008\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python c:\Users\Shivansh\Downloads\migration-platform_v008\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python c:\Users\Shivansh\Downloads\migration-platform_v008\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\Shivansh\Downloads\migration-platform_v008\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\Shivansh\Downloads\migration-platform_v008\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml
+
+--- Output of python c:\Users\Shivansh\Downloads\migration-platform_4_sept_final\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm --erwin C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --out C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\sappdmodels\ldm\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.ldm
+  erwin XML               : C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\1_initial\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+  objects matched         : 212
+  objects skipped         : 190
+  objects unmatched       : 5
+  edits applied           : 22
+  output written to       : C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\2_preprocessed\xml\03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated.xml
+
+--- Output of python c:\Users\Shivansh\Downloads\migration-platform_4_sept_final\app\preprocessing\scripts\pd_comment_to_erwin_note.py migrate --ldm C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\sappdmodels\cdm\02_logistics_segment.cdm --erwin C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\1_initial\xml\02_logistics_segment.xml --out C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml --author Migration_Bot ---
+==========================================================================
+MIGRATION EXECUTION
+==========================================================================
+  SAP model               : C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\sappdmodels\cdm\02_logistics_segment.cdm
+  erwin XML               : C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\1_initial\xml\02_logistics_segment.xml
+  objects matched         : 195
+  objects skipped         : 147
+  objects unmatched       : 15
+  edits applied           : 48
+  output written to       : C:\Users\Shivansh\Downloads\migration-platform_4_sept_final\erwinmodels\2_preprocessed\xml\02_logistics_segment.xml

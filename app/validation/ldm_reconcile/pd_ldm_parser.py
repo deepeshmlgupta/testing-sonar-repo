@@ -2,7 +2,7 @@ import logging
 import re
 import xml.etree.ElementTree as ET  # nosec B405
 from defusedxml.ElementTree import parse as safe_parse, iterparse as safe_iterparse
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from .ldm_model import (Attribute, BusinessRule, Domain, Entity,
                        Identifier, Inheritance, LDMModel, Relationship,
@@ -122,6 +122,128 @@ _RTF_KNOWN_CONTROL_WORD = re.compile(
 _RTF_GENERIC_CONTROL_WORD = re.compile(r"\\([a-zA-Z]+)(-?\d+)?([ ])?")
 
 
+class _RtfState:
+    """Mutable cursor/output state for the RTF tokenizer walk."""
+    __slots__ = ("text", "n", "i", "out", "skip_stack")
+
+    def __init__(self, text: str):
+        self.text = text
+        self.n = len(text)
+        self.i = 0
+        self.out: list = []
+        self.skip_stack: list = [False]   # top-level body is never skipped
+
+    @property
+    def skipping(self) -> bool:
+        return any(self.skip_stack)
+
+    def emit(self, value: str) -> None:
+        if not self.skipping:
+            self.out.append(value)
+
+
+def _rtf_handle_escaped_literal(state: _RtfState, nxt: str) -> None:
+    """\\{  \\}  \\\\  -> literal brace/backslash."""
+    state.emit(nxt)
+    state.i += 2
+
+
+def _rtf_handle_hex_escape(state: _RtfState) -> None:
+    """\\'e9 -> decode one byte via cp1252 (RTF's default ANSI code page)."""
+    hex_pair = state.text[state.i + 2:state.i + 4]
+    state.i += 4
+    if state.skipping:
+        return
+    try:
+        state.out.append(bytes([int(hex_pair, 16)]).decode("cp1252", "ignore"))
+    except ValueError:
+        pass
+
+
+def _rtf_handle_unicode(state: _RtfState, param: Optional[str]) -> None:
+    """\\uN<fallback>: emit code point N, discard the one ANSI fallback char."""
+    try:
+        codepoint = int(param)
+        if codepoint < 0:
+            codepoint += 65536
+        state.emit(chr(codepoint))
+    except (ValueError, OverflowError):
+        pass
+    if state.i < state.n and state.text[state.i] not in "\\{}":
+        state.i += 1
+
+
+def _rtf_handle_control_word(state: _RtfState) -> bool:
+    """
+    Consume a control word at the cursor. Returns True when one was handled.
+    """
+    match = (_RTF_KNOWN_CONTROL_WORD.match(state.text, state.i)
+             or _RTF_GENERIC_CONTROL_WORD.match(state.text, state.i))
+    if not match:
+        return False
+
+    keyword = match.group(1)
+    param = match.group(2)
+    state.i = match.end()
+
+    if keyword == "u" and param is not None:
+        _rtf_handle_unicode(state, param)
+    elif keyword in ("par", "line"):
+        state.emit("\n")
+    elif keyword == "tab":
+        state.emit("\t")
+    elif keyword in _RTF_SKIP_DESTINATIONS:
+        state.skip_stack[-1] = True
+    # Every other control word (\rtf1, \ansi, \f0, \fs20, \pard, ...) is
+    # formatting noise: consumed, nothing emitted, nothing skipped.
+    return True
+
+
+def _rtf_handle_backslash(state: _RtfState) -> None:
+    """Dispatch the token following a backslash at the cursor."""
+    nxt = state.text[state.i + 1] if state.i + 1 < state.n else ""
+
+    if nxt in ("{", "}", "\\"):
+        _rtf_handle_escaped_literal(state, nxt)
+        return
+
+    if nxt == "'" and state.i + 3 < state.n:
+        _rtf_handle_hex_escape(state)
+        return
+
+    # Extended-destination marker: skip an unrecognised destination group,
+    # the safe default per the RTF spec so unknown destinations fail closed.
+    if nxt == "*":
+        state.skip_stack[-1] = True
+        state.i += 2
+        return
+
+    if _rtf_handle_control_word(state):
+        return
+
+    # Lone backslash that matched no known pattern -- drop it.
+    state.i += 1
+
+
+def _rtf_tokenize(state: _RtfState) -> None:
+    """Walk the RTF string once, filling state.out with visible text."""
+    while state.i < state.n:
+        ch = state.text[state.i]
+
+        if ch == "{":
+            state.skip_stack.append(False)
+            state.i += 1
+        elif ch == "}":
+            if len(state.skip_stack) > 1:
+                state.skip_stack.pop()
+            state.i += 1
+        elif ch == "\\":
+            _rtf_handle_backslash(state)
+        else:
+            state.emit(ch)
+            state.i += 1
+
+
 def _strip_rtf(text: str) -> str:
     """
     PowerDesigner's Comment/Description/Definition field is a rich-text
@@ -154,104 +276,10 @@ def _strip_rtf(text: str) -> str:
         return text.strip() if text else ""
 
     original_len = len(text)
-    out: list = []
-    skip_stack: list = [False]     # top-level document body is never skipped
-    i, n = 0, len(text)
+    state = _RtfState(text)
+    _rtf_tokenize(state)
 
-    while i < n:
-        ch = text[i]
-
-        if ch == "{":
-            skip_stack.append(False)
-            i += 1
-            continue
-
-        if ch == "}":
-            if len(skip_stack) > 1:
-                skip_stack.pop()
-            i += 1
-            continue
-
-        if ch == "\\":
-            nxt = text[i + 1] if i + 1 < n else ""
-
-            # Escaped literal brace / backslash.
-            if nxt in ("{", "}", "\\"):
-                if not any(skip_stack):
-                    out.append(nxt)
-                i += 2
-                continue
-
-            # Hex-escaped byte, e.g. \'e9 -> decode via the Windows ANSI
-            # code page RTF assumes by default (cp1252 covers the common
-            # Western-European accented characters PowerDesigner users hit).
-            if nxt == "'" and i + 3 < n:
-                hex_pair = text[i + 2:i + 4]
-                i += 4
-                if not any(skip_stack):
-                    try:
-                        out.append(bytes([int(hex_pair, 16)]).decode("cp1252", "ignore"))
-                    except ValueError:
-                        pass
-                continue
-
-            # Extended-destination marker: "if you don't recognise the
-            # keyword that follows, skip this whole group" -- the safe
-            # default per the RTF spec, applied generically so unrecognised
-            # destinations (which DO appear in real-world exports) fail
-            # closed (skipped) rather than open (leaked into the text).
-            if nxt == "*":
-                skip_stack[-1] = True
-                i += 2
-                continue
-
-            match = _RTF_KNOWN_CONTROL_WORD.match(text, i)
-            if match is None:
-                match = _RTF_GENERIC_CONTROL_WORD.match(text, i)
-            if match:
-                keyword = match.group(1)
-                param = match.group(2)
-                i = match.end()
-
-                if keyword == "u" and param is not None:
-                    # Unicode escape: \uN<fallback-char>. N is the real code
-                    # point; RTF always follows it with exactly one ANSI
-                    # fallback character (per the default \ucN count of 1)
-                    # that must be discarded, not emitted, or every Unicode
-                    # character would double up as itself plus a stray '?'.
-                    try:
-                        codepoint = int(param)
-                        if codepoint < 0:
-                            codepoint += 65536
-                        if not any(skip_stack):
-                            out.append(chr(codepoint))
-                    except (ValueError, OverflowError):
-                        pass
-                    if i < n and text[i] not in "\\{}":
-                        i += 1
-                elif keyword in ("par", "line"):
-                    if not any(skip_stack):
-                        out.append("\n")
-                elif keyword == "tab":
-                    if not any(skip_stack):
-                        out.append("\t")
-                elif keyword in _RTF_SKIP_DESTINATIONS:
-                    skip_stack[-1] = True
-                # Every other control word (\rtf1, \ansi, \deflang1033, \f0,
-                # \fs20, \lang9, \pard, \viewkind4, \uc1, ...) is formatting
-                # noise: consumed above, nothing emitted, nothing skipped.
-                continue
-
-            # Lone backslash that matched no known pattern -- drop it.
-            i += 1
-            continue
-
-        # Plain literal character.
-        if not any(skip_stack):
-            out.append(ch)
-        i += 1
-
-    result = "".join(out)
+    result = "".join(state.out)
     result = re.sub(r"[ \t]+", " ", result)
     result = re.sub(r"\n\s*\n+", "\n", result)
     result = result.strip()
@@ -275,7 +303,7 @@ def _strip_rtf(text: str) -> str:
     # destination -- that is the case worth warning about and falling back
     # for. Balanced braces with an empty result means the document genuinely
     # had no body text, and "" is the correct answer.
-    unbalanced = len(skip_stack) > 1
+    unbalanced = len(state.skip_stack) > 1
 
     if unbalanced:
         logger.warning(
@@ -284,7 +312,7 @@ def _strip_rtf(text: str) -> str:
             "value so a real definition cannot be silently discarded; the "
             "report will show raw RTF for this object. Please report the "
             "source text so the tokenizer can be extended to cover it.",
-            len(skip_stack) - 1, original_len,
+            len(state.skip_stack) - 1, original_len,
         )
         return text.strip()
 
@@ -423,6 +451,66 @@ def _parse_identifier(elem: ET.Element,
 
 # ─── ENTITIES ─────────────────────────────────────────────────────────────────
 
+def _parse_entity_attributes(elem: ET.Element, entity: Entity,
+                             domains_by_oid: Dict[str, Domain]) -> Dict[str, str]:
+    """Parse and append attributes; return an oid→code map for identifiers."""
+    attr_container = _first_child(elem, "Attributes")
+    attr_code_by_oid: Dict[str, str] = {}
+
+    for index, attr_elem in enumerate(_definitions(attr_container, "EntityAttribute"), start=1):
+        attribute = _parse_attribute(attr_elem, index, domains_by_oid)
+        if normalizers.is_excluded_attribute(attribute.name, attribute.code):
+            continue
+        entity.attributes.append(attribute)
+        if attribute.oid:
+            attr_code_by_oid[attribute.oid] = attribute.code
+    return attr_code_by_oid
+
+
+def _parse_entity_identifiers(elem: ET.Element, entity: Entity,
+                              attr_code_by_oid: Dict[str, str]) -> Dict[str, Identifier]:
+    ident_container = _first_child(elem, "Identifiers")
+    identifiers_by_oid: Dict[str, Identifier] = {}
+
+    for ident_elem in _definitions(ident_container, "Identifier"):
+        identifier = _parse_identifier(ident_elem, attr_code_by_oid)
+        entity.identifiers.append(identifier)
+        if identifier.oid:
+            identifiers_by_oid[identifier.oid] = identifier
+    return identifiers_by_oid
+
+
+def _resolve_primary_identifier(elem: ET.Element, entity: Entity,
+                                identifiers_by_oid: Dict[str, Identifier]) -> None:
+    # The primary identifier is a pointer (c:PrimaryIdentifier), not a flag on
+    # the identifier itself — confirmed present on every entity in the file.
+    primary_oid = _first_ref(elem, "PrimaryIdentifier", "Identifier")
+    if primary_oid and primary_oid in identifiers_by_oid:
+        identifiers_by_oid[primary_oid].is_primary = True
+    elif entity.identifiers:
+        _infer_primary_from_attributes(entity)
+
+
+def _infer_primary_from_attributes(entity: Entity) -> None:
+    primary_attrs = {a.code.upper() for a in entity.attributes if a.is_primary}
+    if not primary_attrs:
+        return
+    for identifier in entity.identifiers:
+        if {c.upper() for c in identifier.attributes} == primary_attrs:
+            identifier.is_primary = True
+            break
+
+
+def _mark_primary_attributes(entity: Entity) -> None:
+    primary = entity.primary_identifier
+    if not primary:
+        return
+    members = {c.upper() for c in primary.attributes}
+    for attribute in entity.attributes:
+        if attribute.code.upper() in members:
+            attribute.is_primary = True
+
+
 def _parse_entity(elem: ET.Element,
                   subject_area: str,
                   domains_by_oid: Dict[str, Domain]) -> Entity:
@@ -441,52 +529,78 @@ def _parse_entity(elem: ET.Element,
         subject_area = subject_area,
     )
 
-    # ── Attributes ───────────────────────────────────────────────────────────
-    attr_container = _first_child(elem, "Attributes")
-    attr_code_by_oid: Dict[str, str] = {}
-
-    for index, attr_elem in enumerate(_definitions(attr_container, "EntityAttribute"), start=1):
-        attribute = _parse_attribute(attr_elem, index, domains_by_oid)
-        if normalizers.is_excluded_attribute(attribute.name, attribute.code):
-            continue
-        entity.attributes.append(attribute)
-        if attribute.oid:
-            attr_code_by_oid[attribute.oid] = attribute.code
-
-    # ── Identifiers ──────────────────────────────────────────────────────────
-    ident_container = _first_child(elem, "Identifiers")
-    identifiers_by_oid: Dict[str, Identifier] = {}
-
-    for ident_elem in _definitions(ident_container, "Identifier"):
-        identifier = _parse_identifier(ident_elem, attr_code_by_oid)
-        entity.identifiers.append(identifier)
-        if identifier.oid:
-            identifiers_by_oid[identifier.oid] = identifier
-
-    # The primary identifier is a pointer (c:PrimaryIdentifier), not a flag on
-    # the identifier itself — confirmed present on every entity in the file.
-    primary_oid = _first_ref(elem, "PrimaryIdentifier", "Identifier")
-    if primary_oid and primary_oid in identifiers_by_oid:
-        identifiers_by_oid[primary_oid].is_primary = True
-    elif entity.identifiers:
-        primary_attrs = {a.code.upper() for a in entity.attributes if a.is_primary}
-        if primary_attrs:
-            for identifier in entity.identifiers:
-                if {c.upper() for c in identifier.attributes} == primary_attrs:
-                    identifier.is_primary = True
-                    break
-
-    primary = entity.primary_identifier
-    if primary:
-        members = {c.upper() for c in primary.attributes}
-        for attribute in entity.attributes:
-            if attribute.code.upper() in members:
-                attribute.is_primary = True
+    attr_code_by_oid = _parse_entity_attributes(elem, entity, domains_by_oid)
+    identifiers_by_oid = _parse_entity_identifiers(elem, entity, attr_code_by_oid)
+    _resolve_primary_identifier(elem, entity, identifiers_by_oid)
+    _mark_primary_attributes(entity)
 
     return entity
 
 
 # ─── RELATIONSHIPS ────────────────────────────────────────────────────────────
+
+def _build_relationship_end(elem: ET.Element, entity_code_by_oid: Dict[str, str],
+                            oid: str, role_attr: str, card_attr: str,
+                            mand_attr: str, default_many: bool) -> RelationshipEnd:
+    mandatory = _flag(elem, mand_attr)
+    end = RelationshipEnd(
+        entity      = entity_code_by_oid.get(oid, oid or "UNKNOWN"),
+        role        = _attr(elem, role_attr),
+        cardinality = normalize_cardinality(_attr(elem, card_attr), mandatory=mandatory),
+        mandatory   = mandatory,
+        dependent   = False,
+    )
+    if not end.cardinality:
+        end.cardinality = normalize_cardinality("", mandatory=mandatory, many=default_many)
+    return end
+
+
+def _resolve_parent_child_oids(elem: ET.Element, oid1: str, oid2: str,
+                               identifier_owner_by_oid: Dict[str, str]) -> Tuple[str, str]:
+    """Return (parent_entity_oid, child_entity_oid) or ('', '') when unknown."""
+    parent_ident_oid = _first_ref(elem, "ParentIdentifier", "Identifier")
+    parent_entity_oid = identifier_owner_by_oid.get(parent_ident_oid, "")
+    if parent_entity_oid == oid1:
+        return parent_entity_oid, oid2
+    if parent_entity_oid == oid2:
+        return parent_entity_oid, oid1
+    return parent_entity_oid, ""
+
+
+def _pk_codes_overlap(entities_by_oid: Dict[str, Entity],
+                      parent_entity_oid: str, child_entity_oid: str) -> bool:
+    """True when the child's PK shares any attribute code with the parent's PK."""
+    parent_entity = entities_by_oid.get(parent_entity_oid)
+    child_entity  = entities_by_oid.get(child_entity_oid)
+    parent_pk = parent_entity.primary_identifier if parent_entity else None
+    child_pk  = child_entity.primary_identifier if child_entity else None
+    if not (parent_pk and child_pk):
+        return False
+    parent_codes = {c.upper() for c in parent_pk.attributes}
+    child_codes  = {c.upper() for c in child_pk.attributes}
+    return bool(parent_codes & child_codes)
+
+
+def _apply_identifying(elem: ET.Element, oid1: str, oid2: str,
+                       end1: RelationshipEnd, end2: RelationshipEnd,
+                       entities_by_oid: Dict[str, Entity],
+                       identifier_owner_by_oid: Dict[str, str]) -> bool:
+    """
+    Decide whether the relationship is identifying and set the dependent flag on
+    the child end.  Returns the identifying verdict.
+    """
+    parent_entity_oid, child_entity_oid = _resolve_parent_child_oids(
+        elem, oid1, oid2, identifier_owner_by_oid)
+    if not (parent_entity_oid and child_entity_oid):
+        return False
+
+    identifying = _pk_codes_overlap(entities_by_oid, parent_entity_oid, child_entity_oid)
+    if child_entity_oid == oid1:
+        end1.dependent = identifying
+    else:
+        end2.dependent = identifying
+    return identifying
+
 
 def _parse_relationship(elem: ET.Element,
                         entity_code_by_oid: Dict[str, str],
@@ -515,58 +629,17 @@ def _parse_relationship(elem: ET.Element,
     oid1 = _first_ref(elem, "Object1", "Entity")
     oid2 = _first_ref(elem, "Object2", "Entity")
 
-    end1 = RelationshipEnd(
-        entity      = entity_code_by_oid.get(oid1, oid1 or "UNKNOWN"),
-        role        = _attr(elem, "Entity1ToEntity2Role"),
-        cardinality = normalize_cardinality(
-            _attr(elem, "Entity1ToEntity2RoleCardinality"),
-            mandatory = _flag(elem, "Entity1ToEntity2RoleMandatory"),
-        ),
-        mandatory   = _flag(elem, "Entity1ToEntity2RoleMandatory"),
-        dependent   = False,
-    )
+    end1 = _build_relationship_end(
+        elem, entity_code_by_oid, oid1, "Entity1ToEntity2Role",
+        "Entity1ToEntity2RoleCardinality", "Entity1ToEntity2RoleMandatory",
+        default_many=True)
+    end2 = _build_relationship_end(
+        elem, entity_code_by_oid, oid2, "Entity2ToEntity1Role",
+        "Entity2ToEntity1RoleCardinality", "Entity2ToEntity1RoleMandatory",
+        default_many=False)
 
-    end2 = RelationshipEnd(
-        entity      = entity_code_by_oid.get(oid2, oid2 or "UNKNOWN"),
-        role        = _attr(elem, "Entity2ToEntity1Role"),
-        cardinality = normalize_cardinality(
-            _attr(elem, "Entity2ToEntity1RoleCardinality"),
-            mandatory = _flag(elem, "Entity2ToEntity1RoleMandatory"),
-        ),
-        mandatory   = _flag(elem, "Entity2ToEntity1RoleMandatory"),
-        dependent   = False,
-    )
-
-    if not end1.cardinality:
-        end1.cardinality = normalize_cardinality("", mandatory=end1.mandatory, many=True)
-    if not end2.cardinality:
-        end2.cardinality = normalize_cardinality("", mandatory=end2.mandatory, many=False)
-
-    # ── Determine parent/child from ParentIdentifier ownership, then check
-    #    whether the child's own PK actually contains the parent's PK codes.
-    identifying = False
-    parent_ident_oid = _first_ref(elem, "ParentIdentifier", "Identifier")
-    parent_entity_oid = identifier_owner_by_oid.get(parent_ident_oid, "")
-    child_entity_oid = ""
-    if parent_entity_oid == oid1:
-        child_entity_oid = oid2
-    elif parent_entity_oid == oid2:
-        child_entity_oid = oid1
-
-    if parent_entity_oid and child_entity_oid:
-        parent_entity = entities_by_oid.get(parent_entity_oid)
-        child_entity  = entities_by_oid.get(child_entity_oid)
-        parent_pk = parent_entity.primary_identifier if parent_entity else None
-        child_pk  = child_entity.primary_identifier if child_entity else None
-        if parent_pk and child_pk:
-            parent_codes = {c.upper() for c in parent_pk.attributes}
-            child_codes  = {c.upper() for c in child_pk.attributes}
-            identifying = bool(parent_codes & child_codes)
-
-        if child_entity_oid == oid1:
-            end1.dependent = identifying
-        else:
-            end2.dependent = identifying
+    identifying = _apply_identifying(
+        elem, oid1, oid2, end1, end2, entities_by_oid, identifier_owner_by_oid)
 
     return Relationship(
         oid         = elem.get("Id", ""),
@@ -679,23 +752,16 @@ _SHORTCUT_TARGET_CLASSES = {
 _SHORTCUT_COLLECTION = "ExternalObjects"
 
 
-def _parse_shortcuts(model_elem: ET.Element, model) -> None:
+def _collect_shortcut_target_models(model_elem: ET.Element) -> Tuple[Dict[str, str], str]:
     """
-    Collect PowerDesigner's "List of Shortcuts" — references to objects OWNED
-    BY ANOTHER MODEL (a glossary category, an entity of a shared model).
+    Resolve shortcut owner models.  Returns (claimed_by_oid, fallback_model).
 
-    A model with no shortcuts yields an empty list, and the report then says
-    nothing about shortcuts at all — which is the correct answer for it.
+    PD resolves the "Target Model" column through the repository, which a
+    single file cannot do.  Two things are available here: shortcuts a
+    <o:TargetModel> block claims explicitly, and — failing that — the one
+    attached model that is not the .xem extension, which is the owner whenever
+    a model attaches a single shared model (the usual case).
     """
-    container = _first_child(model_elem, _SHORTCUT_COLLECTION)
-    if container is None:
-        return
-
-    # PD resolves the "Target Model" column through the repository, which a
-    # single file cannot do.  Two things are available here: shortcuts a
-    # <o:TargetModel> block claims explicitly, and — failing that — the one
-    # attached model that is not the .xem extension, which is the owner
-    # whenever a model attaches a single shared model (the usual case).
     claimed: Dict[str, str] = {}
     attached: List[str] = []
     for tm in _descendants(model_elem, "TargetModel"):
@@ -709,21 +775,171 @@ def _parse_shortcuts(model_elem: ET.Element, model) -> None:
             if oid:
                 claimed[oid] = tm_name
     fallback_model = attached[0] if len(attached) == 1 else ""
+    return claimed, fallback_model
+
+
+def _shortcut_row(elem: ET.Element, claimed: Dict[str, str],
+                  fallback_model: str) -> Dict[str, str]:
+    class_id = _attr(elem, "TargetClassID").upper()
+    return {
+        "name": _attr(elem, "Name"),
+        "code": _attr(elem, "Code") or _attr(elem, "Name"),
+        "type": _SHORTCUT_TARGET_CLASSES.get(class_id, "Object"),
+        "target_model": claimed.get(elem.get("Id", ""), fallback_model),
+        "target_package": _attr(elem, "TargetPackagePath"),
+        "target_stereotype": _attr(elem, "TargetStereotype"),
+    }
+
+
+def _parse_shortcuts(model_elem: ET.Element, model) -> None:
+    """
+    Collect PowerDesigner's "List of Shortcuts" — references to objects OWNED
+    BY ANOTHER MODEL (a glossary category, an entity of a shared model).
+
+    A model with no shortcuts yields an empty list, and the report then says
+    nothing about shortcuts at all — which is the correct answer for it.
+    """
+    container = _first_child(model_elem, _SHORTCUT_COLLECTION)
+    if container is None:
+        return
+
+    claimed, fallback_model = _collect_shortcut_target_models(model_elem)
 
     for elem in container:
         if elem.tag.rsplit("}", 1)[-1] != "Shortcut":
             continue
         if elem.get("Ref") is not None or not elem.get("Id"):
             continue
-        class_id = _attr(elem, "TargetClassID").upper()
-        model.shortcuts.append({
-            "name": _attr(elem, "Name"),
-            "code": _attr(elem, "Code") or _attr(elem, "Name"),
-            "type": _SHORTCUT_TARGET_CLASSES.get(class_id, "Object"),
-            "target_model": claimed.get(elem.get("Id", ""), fallback_model),
-            "target_package": _attr(elem, "TargetPackagePath"),
-            "target_stereotype": _attr(elem, "TargetStereotype"),
-        })
+        model.shortcuts.append(_shortcut_row(elem, claimed, fallback_model))
+
+
+def _parse_ldm_header(root: ET.Element, model_elem: ET.Element, model: LDMModel) -> None:
+    model.model_name = _attr(model_elem, "Name") or _attr(root, "Name")
+    model.model_code = _attr(model_elem, "Code") or model.model_name
+    declared_type = _attr(model_elem, "ModelType")
+    if declared_type:
+        model.model_type = declared_type
+
+
+def _parse_ldm_domains(model_elem: ET.Element, model: LDMModel,
+                       domains_by_oid: Dict[str, Domain]) -> None:
+    for elem in _descendants(model_elem, "Domain"):
+        if elem.get("Ref") is not None or not elem.get("Id"):
+            continue
+        domain = _parse_domain(elem)
+        domains_by_oid[domain.oid] = domain
+        key = (domain.code or domain.name).upper()
+        if key:
+            model.domains[key] = domain
+
+
+def _collect_entity_elements(root: ET.Element, model_elem: ET.Element,
+                             model: LDMModel,
+                             domains_by_oid: Dict[str, Domain]) -> List[tuple]:
+    """Gather (entity_elem, subject_area) pairs, with a non-standard fallback."""
+    entity_elements: List[tuple] = []
+    _walk_scope(model_elem, "", model, domains_by_oid, entity_elements)
+
+    if entity_elements:
+        return entity_elements
+
+    seen_ids = set()
+    for elem in _descendants(root, "Entity"):
+        if elem.get("Ref") is not None or not elem.get("Id"):
+            continue
+        if elem.get("Id") in seen_ids:
+            continue
+        seen_ids.add(elem.get("Id"))
+        entity_elements.append((elem, ""))
+    if entity_elements:
+        model.parse_warnings.append(
+            "Entities found outside the expected c:Entities collection — "
+            "file may be a non-standard export."
+        )
+    return entity_elements
+
+
+def _register_entity_lookups(entity: Entity,
+                             entity_code_by_oid: Dict[str, str],
+                             entities_by_oid: Dict[str, Entity],
+                             identifier_owner_by_oid: Dict[str, str]) -> None:
+    if not entity.oid:
+        return
+    entity_code_by_oid[entity.oid] = entity.code
+    entities_by_oid[entity.oid] = entity
+    for identifier in entity.identifiers:
+        if identifier.oid:
+            identifier_owner_by_oid[identifier.oid] = entity.oid
+
+
+def _parse_ldm_entities(entity_elements: List[tuple], model: LDMModel,
+                        domains_by_oid: Dict[str, Domain],
+                        entity_code_by_oid: Dict[str, str],
+                        entities_by_oid: Dict[str, Entity],
+                        identifier_owner_by_oid: Dict[str, str]) -> None:
+    seen_entity_ids: set = set()
+    for entity_elem, subject_area in entity_elements:
+        elem_id = entity_elem.get("Id")
+        if elem_id:
+            if elem_id in seen_entity_ids:
+                continue
+            seen_entity_ids.add(elem_id)
+
+        entity = _parse_entity(entity_elem, subject_area, domains_by_oid)
+        if normalizers.is_excluded_entity(entity.name, entity.code):
+            continue
+
+        model.add_entity(entity)
+        _register_entity_lookups(entity, entity_code_by_oid,
+                                 entities_by_oid, identifier_owner_by_oid)
+
+
+def _parse_ldm_relationships(model_elem: ET.Element, model: LDMModel,
+                             entity_code_by_oid: Dict[str, str],
+                             entities_by_oid: Dict[str, Entity],
+                             identifier_owner_by_oid: Dict[str, str]) -> None:
+    for elem in _descendants(model_elem, "Relationship"):
+        if elem.get("Ref") is not None or not elem.get("Id"):
+            continue
+        model.relationships.append(
+            _parse_relationship(elem, entity_code_by_oid, entities_by_oid,
+                               identifier_owner_by_oid)
+        )
+
+
+def _collect_inheritance_children(model_elem: ET.Element) -> Dict[str, List[str]]:
+    children_by_inheritance: Dict[str, List[str]] = {}
+    for link in _descendants(model_elem, "InheritanceLink"):
+        if link.get("Ref") is not None:
+            continue
+        owner = _first_ref(link, "Object1", "Inheritance")
+        child = _first_ref(link, "Object2", "Entity")
+        if owner and child:
+            children_by_inheritance.setdefault(owner, []).append(child)
+    return children_by_inheritance
+
+
+def _parse_ldm_inheritances(model_elem: ET.Element, model: LDMModel,
+                            entity_code_by_oid: Dict[str, str]) -> None:
+    children_by_inheritance = _collect_inheritance_children(model_elem)
+
+    for elem in _descendants(model_elem, "Inheritance"):
+        if elem.get("Ref") is not None or not elem.get("Id"):
+            continue
+        inheritance = _parse_inheritance(elem, entity_code_by_oid)
+        if not inheritance.children:
+            linked = children_by_inheritance.get(elem.get("Id", ""), [])
+            inheritance.children = [entity_code_by_oid.get(oid, oid) for oid in linked
+                                    if entity_code_by_oid.get(oid, oid) != inheritance.parent]
+        if inheritance.parent and inheritance.children:
+            model.inheritances.append(inheritance)
+
+
+def _parse_ldm_business_rules(model_elem: ET.Element, model: LDMModel) -> None:
+    for elem in _descendants(model_elem, "BusinessRule"):
+        if elem.get("Ref") is not None or not elem.get("Id"):
+            continue
+        model.business_rules.append(_parse_business_rule(elem))
 
 
 def parse_ldm(filepath: str) -> LDMModel:
@@ -747,110 +963,29 @@ def parse_ldm(filepath: str) -> LDMModel:
         model.parse_error = f"File read error: {exc}"
         return model
 
-    # ── Model header ─────────────────────────────────────────────────────────
     model_elements = [node for node in _descendants(root, "Model")
                       if node.get("Ref") is None and node.get("Id")]
     model_elem = model_elements[0] if model_elements else root
 
-    model.model_name = _attr(model_elem, "Name") or _attr(root, "Name")
-    model.model_code = _attr(model_elem, "Code") or model.model_name
-    declared_type = _attr(model_elem, "ModelType")
-    if declared_type:
-        model.model_type = declared_type
+    _parse_ldm_header(root, model_elem, model)
 
-    # ── Domains ──────────────────────────────────────────────────────────────
     domains_by_oid: Dict[str, Domain] = {}
-    for local_name in ("Domain",):
-        for elem in _descendants(model_elem, local_name):
-            if elem.get("Ref") is not None or not elem.get("Id"):
-                continue
-            domain = _parse_domain(elem)
-            domains_by_oid[domain.oid] = domain
-            key = (domain.code or domain.name).upper()
-            if key:
-                model.domains[key] = domain
+    _parse_ldm_domains(model_elem, model, domains_by_oid)
 
-    # ── Shortcuts (references to objects owned by other models) ──────────
     _parse_shortcuts(model_elem, model)
 
-    # ── Entities (including packages / subject areas) ────────────────────────
-    entity_elements: List[tuple] = []
-    _walk_scope(model_elem, "", model, domains_by_oid, entity_elements)
-
-    if not entity_elements:
-        seen_ids = set()
-        for elem in _descendants(root, "Entity"):
-            if elem.get("Ref") is not None or not elem.get("Id"):
-                continue
-            if elem.get("Id") in seen_ids:
-                continue
-            seen_ids.add(elem.get("Id"))
-            entity_elements.append((elem, ""))
-        if entity_elements:
-            model.parse_warnings.append(
-                "Entities found outside the expected c:Entities collection — "
-                "file may be a non-standard export."
-            )
+    entity_elements = _collect_entity_elements(root, model_elem, model, domains_by_oid)
 
     entity_code_by_oid: Dict[str, str] = {}
     entities_by_oid: Dict[str, Entity] = {}
     identifier_owner_by_oid: Dict[str, str] = {}
-    seen_entity_ids: set = set()
-    for entity_elem, subject_area in entity_elements:
-        elem_id = entity_elem.get("Id")
-        if elem_id:
-            if elem_id in seen_entity_ids:
-                continue
-            seen_entity_ids.add(elem_id)
+    _parse_ldm_entities(entity_elements, model, domains_by_oid,
+                        entity_code_by_oid, entities_by_oid, identifier_owner_by_oid)
 
-        entity = _parse_entity(entity_elem, subject_area, domains_by_oid)
-
-        if normalizers.is_excluded_entity(entity.name, entity.code):
-            continue
-
-        model.add_entity(entity)
-        if entity.oid:
-            entity_code_by_oid[entity.oid] = entity.code
-            entities_by_oid[entity.oid] = entity
-            for identifier in entity.identifiers:
-                if identifier.oid:
-                    identifier_owner_by_oid[identifier.oid] = entity.oid
-
-    # ── Relationships ────────────────────────────────────────────────────────
-    for elem in _descendants(model_elem, "Relationship"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
-            continue
-        model.relationships.append(
-            _parse_relationship(elem, entity_code_by_oid, entities_by_oid,
-                               identifier_owner_by_oid)
-        )
-
-    # ── Inheritances ─────────────────────────────────────────────────────────
-    children_by_inheritance: Dict[str, List[str]] = {}
-    for link in _descendants(model_elem, "InheritanceLink"):
-        if link.get("Ref") is not None:
-            continue
-        owner = _first_ref(link, "Object1", "Inheritance")
-        child = _first_ref(link, "Object2", "Entity")
-        if owner and child:
-            children_by_inheritance.setdefault(owner, []).append(child)
-
-    for elem in _descendants(model_elem, "Inheritance"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
-            continue
-        inheritance = _parse_inheritance(elem, entity_code_by_oid)
-        if not inheritance.children:
-            linked = children_by_inheritance.get(elem.get("Id", ""), [])
-            inheritance.children = [entity_code_by_oid.get(oid, oid) for oid in linked
-                                    if entity_code_by_oid.get(oid, oid) != inheritance.parent]
-        if inheritance.parent and inheritance.children:
-            model.inheritances.append(inheritance)
-
-    # ── Business rules ───────────────────────────────────────────────────────
-    for elem in _descendants(model_elem, "BusinessRule"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
-            continue
-        model.business_rules.append(_parse_business_rule(elem))
+    _parse_ldm_relationships(model_elem, model, entity_code_by_oid,
+                             entities_by_oid, identifier_owner_by_oid)
+    _parse_ldm_inheritances(model_elem, model, entity_code_by_oid)
+    _parse_ldm_business_rules(model_elem, model)
 
     logger.debug("Parsed %s -> %s", filepath, model.stats())
     return model

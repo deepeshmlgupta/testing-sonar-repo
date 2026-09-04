@@ -163,6 +163,125 @@ def _pairs_for(pd_object, erwin_object) -> List[tuple]:
     ]
 
 
+# ─── ENTITY PAIRING ───────────────────────────────────────────────────────────
+
+class _ErwinEntityPool:
+    """
+    erwin entities indexed by normalised name and code, handed out one-to-one.
+
+    Pairing must be one-to-one. Both models legitimately contain entities whose
+    name and code are crossed — e.g. one entity named 'UNIT_OF_MEASURE' with
+    code 'UNIT OF MEASURES', and a second named 'Unit Of Measure' with code
+    'UNIT_OF_MEASURE'. Every one of those values normalises to the same key, so
+    a dictionary that returns the same entity twice hands the documented twin to
+    both SAP PD entities. The undocumented one then reads as MISSING_IN_SAP_PD
+    against text that SAP PD does in fact carry — on its sibling.
+    """
+
+    def __init__(self, erwin_entities: List):
+        self.by_name: Dict[str, List] = {}
+        self.by_code: Dict[str, List] = {}
+        self.claimed = set()
+        for entity in erwin_entities:
+            if entity.name:
+                self.by_name.setdefault(
+                    normalizers.normalize_name(entity.name), []).append(entity)
+            if entity.code:
+                self.by_code.setdefault(
+                    normalizers.normalize_name(entity.code), []).append(entity)
+
+    def take(self, key: str):
+        """First erwin entity under `key` that no SAP PD entity has claimed yet."""
+        if not key:
+            return None
+        for bucket in (self.by_name.get(key), self.by_code.get(key)):
+            for candidate in bucket or ():
+                if id(candidate) not in self.claimed:
+                    return candidate
+        return None
+
+    def claim(self, entity) -> None:
+        self.claimed.add(id(entity))
+
+    def is_claimed(self, entity) -> bool:
+        return id(entity) in self.claimed
+
+
+def _match_erwin_entity(pd_entity, entity_pairs, pool: _ErwinEntityPool):
+    """
+    The erwin entity for one SAP PD entity: the comparator's pairing first,
+    then normalised name, then normalised code — the comparator's own bases.
+    """
+    erwin_entity = None
+    if entity_pairs and pd_entity.name in entity_pairs:
+        erwin_entity = pool.take(
+            normalizers.normalize_name(entity_pairs[pd_entity.name]))
+    if erwin_entity is None and pd_entity.name:
+        erwin_entity = pool.take(normalizers.normalize_name(pd_entity.name))
+    if erwin_entity is None and pd_entity.code:
+        erwin_entity = pool.take(normalizers.normalize_name(pd_entity.code))
+    return erwin_entity
+
+
+def _index_attributes(erwin_entity) -> Dict[str, object]:
+    """erwin attributes by normalised name and code; empty when no entity matched."""
+    erwin_attrs: Dict[str, object] = {}
+    if erwin_entity is None:
+        return erwin_attrs
+    for attribute in getattr(erwin_entity, "attributes", []) or []:
+        if attribute.name:
+            erwin_attrs.setdefault(
+                normalizers.normalize_name(attribute.name), attribute)
+        if attribute.code:
+            erwin_attrs.setdefault(
+                normalizers.normalize_name(attribute.code), attribute)
+    return erwin_attrs
+
+
+# ─── ROW BUILDERS ─────────────────────────────────────────────────────────────
+
+def _entity_rows(model_name: str, pd_entity, erwin_entity) -> List[DocumentationRow]:
+    return [
+        _row(model_name, "ENTITY", pd_entity.name, pd_entity.code,
+             mapping, src_field, tgt_field, src, tgt)
+        for mapping, src_field, tgt_field, src, tgt in _pairs_for(pd_entity, erwin_entity)
+    ]
+
+
+def _attribute_rows(model_name: str, pd_entity, erwin_entity) -> List[DocumentationRow]:
+    """Rows for every attribute of one SAP PD entity against its erwin twin."""
+    erwin_attrs = _index_attributes(erwin_entity)
+    rows: List[DocumentationRow] = []
+    for pd_attribute in getattr(pd_entity, "attributes", []) or []:
+        erwin_attribute = (
+            erwin_attrs.get(normalizers.normalize_name(pd_attribute.name or ""))
+            or erwin_attrs.get(normalizers.normalize_name(pd_attribute.code or ""))
+        )
+        label = f"{pd_entity.name}.{pd_attribute.name or pd_attribute.code}"
+        for mapping, src_field, tgt_field, src, tgt in _pairs_for(
+                pd_attribute, erwin_attribute):
+            rows.append(_row(model_name, "ATTRIBUTE", label,
+                             pd_attribute.code, mapping, src_field,
+                             tgt_field, src, tgt))
+    return rows
+
+
+def _erwin_only_rows(model_name: str, erwin_entities: List,
+                     pool: _ErwinEntityPool) -> List[DocumentationRow]:
+    """erwin-only entities: documentation added downstream of SAP PD."""
+    rows: List[DocumentationRow] = []
+    for erwin_entity in erwin_entities:
+        if pool.is_claimed(erwin_entity):
+            continue
+        for mapping, src_field, tgt_field, _src, tgt in _pairs_for(None, erwin_entity):
+            if not (tgt or "").strip():
+                continue
+            rows.append(_row(model_name, "ENTITY", erwin_entity.name,
+                             erwin_entity.code, mapping, src_field, tgt_field,
+                             "", tgt))
+    return rows
+
+
 # ─── PUBLIC API ───────────────────────────────────────────────────────────────
 
 def build_rows(pd_model, erwin_model,
@@ -181,94 +300,16 @@ def build_rows(pd_model, erwin_model,
 
     pd_entities = _entity_list(pd_model)
     erwin_entities = _entity_list(erwin_model)
-
-    erwin_by_name = {}
-    erwin_by_code = {}
-    for entity in erwin_entities:
-        if entity.name:
-            erwin_by_name.setdefault(
-                normalizers.normalize_name(entity.name), []).append(entity)
-        if entity.code:
-            erwin_by_code.setdefault(
-                normalizers.normalize_name(entity.code), []).append(entity)
-
-    matched_erwin = set()
-
-    def _take(key):
-        """
-        First erwin entity under `key` that no SAP PD entity has claimed yet.
-
-        Pairing must be one-to-one. Both models legitimately contain entities
-        whose name and code are crossed — e.g. one entity named
-        'UNIT_OF_MEASURE' with code 'UNIT OF MEASURES', and a second named
-        'Unit Of Measure' with code 'UNIT_OF_MEASURE'. Every one of those
-        values normalises to the same key, so a dictionary that returns the
-        same entity twice hands the documented twin to both SAP PD entities.
-        The undocumented one then reads as MISSING_IN_SAP_PD against text that
-        SAP PD does in fact carry — on its sibling.
-        """
-        if not key:
-            return None
-        for bucket in (erwin_by_name.get(key), erwin_by_code.get(key)):
-            for candidate in bucket or ():
-                if id(candidate) not in matched_erwin:
-                    return candidate
-        return None
+    pool = _ErwinEntityPool(erwin_entities)
 
     for pd_entity in pd_entities:
-        erwin_entity = None
-        if entity_pairs and pd_entity.name in entity_pairs:
-            erwin_entity = _take(
-                normalizers.normalize_name(entity_pairs[pd_entity.name]))
-        if erwin_entity is None and pd_entity.name:
-            erwin_entity = _take(normalizers.normalize_name(pd_entity.name))
-        if erwin_entity is None and pd_entity.code:
-            erwin_entity = _take(normalizers.normalize_name(pd_entity.code))
-
+        erwin_entity = _match_erwin_entity(pd_entity, entity_pairs, pool)
         if erwin_entity is not None:
-            matched_erwin.add(id(erwin_entity))
+            pool.claim(erwin_entity)
+        rows.extend(_entity_rows(model_name, pd_entity, erwin_entity))
+        rows.extend(_attribute_rows(model_name, pd_entity, erwin_entity))
 
-        for mapping, src_field, tgt_field, src, tgt in _pairs_for(pd_entity, erwin_entity):
-            rows.append(_row(model_name, "ENTITY", pd_entity.name,
-                             pd_entity.code, mapping, src_field, tgt_field,
-                             src, tgt))
-
-        # ── Attributes of this entity ────────────────────────────────────────
-        if erwin_entity is not None:
-            erwin_attrs = {}
-            for attribute in getattr(erwin_entity, "attributes", []) or []:
-                if attribute.name:
-                    erwin_attrs.setdefault(
-                        normalizers.normalize_name(attribute.name), attribute)
-                if attribute.code:
-                    erwin_attrs.setdefault(
-                        normalizers.normalize_name(attribute.code), attribute)
-        else:
-            erwin_attrs = {}
-
-        for pd_attribute in getattr(pd_entity, "attributes", []) or []:
-            erwin_attribute = (
-                erwin_attrs.get(normalizers.normalize_name(pd_attribute.name or ""))
-                or erwin_attrs.get(normalizers.normalize_name(pd_attribute.code or ""))
-            )
-            label = f"{pd_entity.name}.{pd_attribute.name or pd_attribute.code}"
-            for mapping, src_field, tgt_field, src, tgt in _pairs_for(
-                    pd_attribute, erwin_attribute):
-                rows.append(_row(model_name, "ATTRIBUTE", label,
-                                 pd_attribute.code, mapping, src_field,
-                                 tgt_field, src, tgt))
-
-    # ── erwin-only entities: documentation added downstream of SAP PD ────────
-    for erwin_entity in erwin_entities:
-        if id(erwin_entity) in matched_erwin:
-            continue
-        for mapping, src_field, tgt_field, _src, tgt in _pairs_for(None, erwin_entity):
-            if not (tgt or "").strip():
-                continue
-            rows.append(_row(model_name, "ENTITY", erwin_entity.name,
-                             erwin_entity.code, mapping, src_field, tgt_field,
-                             "", tgt))
-
+    rows.extend(_erwin_only_rows(model_name, erwin_entities, pool))
     return rows
 
 
