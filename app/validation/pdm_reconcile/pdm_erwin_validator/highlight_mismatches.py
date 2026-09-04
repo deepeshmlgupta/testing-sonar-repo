@@ -163,87 +163,119 @@ def _note(cell, text):
 
 # ─── 1. SUMMARY SHEET ───────────────────────────────────────────────────────────
 
+def _format_summary_issue(cell, header, n, model_name):
+    """Highlight one non-zero summary counter and attach its review note."""
+    fill, _level, phrase = SUMMARY_RULES[header]
+    cell.fill = fill
+    cell.font = Font(bold=True, color=C_WHITE if fill is FILL_RED else C_BLACK)
+    cell.alignment = CENTER
+    msg = phrase.format(n=int(n))
+    if model_name:
+        msg += (
+            f"\nOpen the FINDINGS / MANUAL_REVIEW sheet and filter "
+            f"Model = '{model_name}' to see exactly which."
+        )
+    _note(cell, msg)
+
+
+def _process_summary_rule_cells(ws, row, rule_cols, model_name):
+    """Process all mismatch counters for one SUMMARY row."""
+    parts = []
+    for header, col in rule_cols.items():
+        cell = ws.cell(row=row, column=col)
+        n = _num(cell.value)
+        if n <= 0:
+            continue
+        _format_summary_issue(cell, header, n, model_name)
+        parts.append(SUMMARY_SHORT[header].format(n=int(n)))
+    return parts
+
+
+def _set_summary_verdict(ws, row, verdict_col, parts):
+    """Write the human-readable Manual Check verdict."""
+    vcell = ws.cell(row=row, column=verdict_col)
+    vcell.border = BORDER
+    vcell.alignment = LEFT
+    if parts:
+        vcell.value = "REVIEW → " + ", ".join(parts)
+        vcell.fill = FILL_AMBER
+        vcell.font = Font(bold=True, color=C_BLACK)
+        return True
+    vcell.value = "OK — full match"
+    vcell.font = Font(bold=True, color=C_OKTEXT)
+    return False
+
+
+def _flag_summary_status(ws, row, status_col):
+    """Add a note to a non-PASS status cell."""
+    if not status_col:
+        return
+    cell = ws.cell(row=row, column=status_col)
+    value = cell.value
+    if isinstance(value, str) and value.strip().upper() not in ("PASS", ""):
+        _note(
+            cell,
+            f"Status = {value}. See the Manual Check column for a summary "
+            f"and the MANUAL_REVIEW sheet for line-by-line detail.",
+        )
+
+
+def _is_summary_tail(ws, row, model_col):
+    """Return True when the SUMMARY row is the total/blank tail."""
+    first = ws.cell(row=row, column=1).value
+    model_name = ws.cell(row=row, column=model_col).value if model_col else None
+    if isinstance(first, str) and first.strip().upper() == "TOTAL":
+        return True
+    return first is None and model_name is None
+
+
+def _extend_summary_filter(ws, verdict_col, end_row):
+    """Extend the existing SUMMARY autofilter through Manual Check."""
+    if not ws.auto_filter.ref:
+        return
+    try:
+        last = get_column_letter(verdict_col)
+        top_left = ws.auto_filter.ref.split(":")[0]
+        ws.auto_filter.ref = f"{top_left}:{last}{end_row}"
+    except Exception:  # nosec B110
+        pass
+
+
 def _process_summary(ws):
     """Highlight mismatch cells, add notes, and append a Manual Check verdict."""
-    header_row, headers = _find_header_row(ws, list(SUMMARY_RULES) + ["Status", "PD File"])
+    header_row, headers = _find_header_row(
+        ws, list(SUMMARY_RULES) + ["Status", "PD File"]
+    )
     if not header_row:
         logger.warning("SUMMARY: could not locate a header row; skipping.")
         return 0
 
-    model_col  = _col_by_name(headers, "PD File", "CDM File", "Model")
+    model_col = _col_by_name(headers, "PD File", "CDM File", "Model")
     status_col = _col_by_name(headers, "Status")
-    review_col = _col_by_name(headers, "Review?")
-
-    # rule columns actually present in this report
     rule_cols = {h: headers[h] for h in SUMMARY_RULES if h in headers}
 
-    # append a "Manual Check" verdict column
     verdict_col = ws.max_column + 1
     hdr = ws.cell(row=header_row, column=verdict_col, value="Manual Check")
-    hdr.font, hdr.fill, hdr.alignment, hdr.border = HEADER_FONT, HEADER_FILL, CENTER, BORDER
+    hdr.font, hdr.fill, hdr.alignment, hdr.border = (
+        HEADER_FONT, HEADER_FILL, CENTER, BORDER
+    )
     ws.column_dimensions[get_column_letter(verdict_col)].width = 42
 
     flagged_rows = 0
     row = header_row + 1
     while row <= ws.max_row:
-        # stop at the TOTAL / blank tail
-        first = ws.cell(row=row, column=1).value
-        model_name = ws.cell(row=row, column=model_col).value if model_col else None
-        if isinstance(first, str) and first.strip().upper() == "TOTAL":
+        if _is_summary_tail(ws, row, model_col):
             break
-        if first is None and model_name is None:
-            row += 1
-            continue
-
-        parts = []           # for the verdict string
-        row_has_issue = False
-
-        for header, col in rule_cols.items():
-            cell = ws.cell(row=row, column=col)
-            n = _num(cell.value)
-            if n > 0:
-                fill, _level, phrase = SUMMARY_RULES[header]
-                cell.fill = fill
-                cell.font = Font(bold=True,
-                                 color=C_WHITE if fill is FILL_RED else C_BLACK)
-                cell.alignment = CENTER
-                msg = phrase.format(n=int(n))
-                if model_name:
-                    msg += (f"\nOpen the FINDINGS / MANUAL_REVIEW sheet and filter "
-                            f"Model = '{model_name}' to see exactly which.")
-                _note(cell, msg)
-                parts.append(SUMMARY_SHORT[header].format(n=int(n)))
-                row_has_issue = True
-
-        # verdict cell
-        vcell = ws.cell(row=row, column=verdict_col)
-        vcell.border = BORDER
-        vcell.alignment = LEFT
-        if row_has_issue:
-            vcell.value = "REVIEW → " + ", ".join(parts)
-            vcell.fill  = FILL_AMBER
-            vcell.font  = Font(bold=True, color=C_BLACK)
+        model_name = (
+            ws.cell(row=row, column=model_col).value if model_col else None
+        )
+        parts = _process_summary_rule_cells(ws, row, rule_cols, model_name)
+        if _set_summary_verdict(ws, row, verdict_col, parts):
             flagged_rows += 1
-        else:
-            vcell.value = "OK — full match"
-            vcell.font  = Font(bold=True, color=C_OKTEXT)
-
-        # extra emphasis on a non-PASS status cell
-        if status_col:
-            st = ws.cell(row=row, column=status_col)
-            if isinstance(st.value, str) and st.value.strip().upper() not in ("PASS", ""):
-                _note(st, f"Status = {st.value}. See the Manual Check column for a summary "
-                          f"and the MANUAL_REVIEW sheet for line-by-line detail.")
+        _flag_summary_status(ws, row, status_col)
         row += 1
 
-    # keep the filter spanning the new column
-    if ws.auto_filter.ref:
-        last = get_column_letter(verdict_col)
-        try:
-            top_left = ws.auto_filter.ref.split(":")[0]
-            ws.auto_filter.ref = f"{top_left}:{last}{row - 1}"
-        except Exception:  # nosec B110
-            pass
+    _extend_summary_filter(ws, verdict_col, row - 1)
     return flagged_rows
 
 
@@ -261,6 +293,104 @@ MISMATCH_LABEL = {
 }
 
 
+def _finding_columns(headers):
+    """Resolve FINDINGS columns from their header names."""
+    return {
+        "model": _col_by_name(headers, "Model"),
+        "status": _col_by_name(headers, "Status"),
+        "fidelity": _col_by_name(headers, "Fidelity %"),
+        "category": _col_by_name(headers, "Category"),
+        "severity": _col_by_name(headers, "Severity"),
+        "table": _col_by_name(headers, "Table", "Object"),
+        "column": _col_by_name(headers, "Column", "Member"),
+        "message": _col_by_name(headers, "Message"),
+        "pd": _col_by_name(headers, "PD Value", "PowerDesigner Value"),
+        "ew": _col_by_name(headers, "ERwin Value", "erwin Value"),
+    }
+
+
+def _shift_column(column, insert_at):
+    """Shift a column index after inserting a new column."""
+    return column + 1 if column is not None and column >= insert_at else column
+
+
+def _shift_finding_columns(columns, insert_at):
+    """Apply the FINDINGS column insertion offset."""
+    return {
+        name: _shift_column(column, insert_at)
+        for name, column in columns.items()
+    }
+
+
+def _read_finding_cell(ws, row, column):
+    """Read a FINDINGS cell, returning None for an unavailable column."""
+    return ws.cell(row=row, column=column).value if column else None
+
+
+def _finding_severity(ws, row, columns):
+    """Read and normalize a finding severity."""
+    value = _read_finding_cell(ws, row, columns["severity"])
+    return value.strip().upper() if isinstance(value, str) else value
+
+
+def _style_match_marker(ws, row, insert_at, severity):
+    """Create and style the inserted Match? marker."""
+    mark = ws.cell(row=row, column=insert_at, value="MISMATCH")
+    mark.font = Font(
+        bold=True,
+        color=C_WHITE if severity == "CRITICAL" else C_BLACK,
+    )
+    mark.fill = (
+        FILL_RED
+        if severity == "CRITICAL"
+        else FILL_AMBER
+        if severity == "WARNING"
+        else FILL_BLUE
+    )
+    mark.alignment = CENTER
+    mark.border = BORDER
+
+
+def _style_finding_message(ws, row, columns, severity):
+    """Tint critical/warning message text."""
+    if not columns["message"] or severity not in ("CRITICAL", "WARNING"):
+        return
+    cell = ws.cell(row=row, column=columns["message"])
+    cell.font = Font(
+        bold=severity == "CRITICAL",
+        color=C_RED if severity == "CRITICAL" else "FFBF8F00",
+    )
+
+
+def _finding_row(ws, row, columns):
+    """Convert one FINDINGS row into the normalized review structure."""
+    return {
+        "model": _read_finding_cell(ws, row, columns["model"]),
+        "status": _read_finding_cell(ws, row, columns["status"]),
+        "fidelity": _read_finding_cell(ws, row, columns["fidelity"]),
+        "category": _read_finding_cell(ws, row, columns["category"]),
+        "severity": _finding_severity(ws, row, columns),
+        "table": _read_finding_cell(ws, row, columns["table"]),
+        "column": _read_finding_cell(ws, row, columns["column"]),
+        "message": _read_finding_cell(ws, row, columns["message"]),
+        "pd": _read_finding_cell(ws, row, columns["pd"]),
+        "ew": _read_finding_cell(ws, row, columns["ew"]),
+    }
+
+
+def _extend_findings_filter(ws, header_row):
+    """Extend FINDINGS autofilter across the inserted Match? column."""
+    if not ws.auto_filter.ref:
+        return
+    try:
+        last = get_column_letter(ws.max_column)
+        end_row = ws.auto_filter.ref.split(":")[-1]
+        end_row = "".join(ch for ch in end_row if ch.isdigit())
+        ws.auto_filter.ref = f"A{header_row}:{last}{end_row}"
+    except Exception:  # nosec B110
+        pass
+
+
 def _process_findings(ws):
     """Mark every finding row as a MISMATCH and tint the message; return the rows."""
     header_row, headers = _find_header_row(ws, ["Message", "Severity", "Category"])
@@ -268,67 +398,31 @@ def _process_findings(ws):
         logger.warning("FINDINGS: could not locate a header row; skipping.")
         return []
 
-    c_model = _col_by_name(headers, "Model")
-    c_stat  = _col_by_name(headers, "Status")
-    c_fid   = _col_by_name(headers, "Fidelity %")
-    c_cat   = _col_by_name(headers, "Category")
-    c_sev   = _col_by_name(headers, "Severity")
-    c_tbl   = _col_by_name(headers, "Table", "Object")
-    c_col   = _col_by_name(headers, "Column", "Member")
-    c_msg   = _col_by_name(headers, "Message")
-    c_pd    = _col_by_name(headers, "PD Value", "PowerDesigner Value")
-    c_ew    = _col_by_name(headers, "ERwin Value", "erwin Value")
-
-    # insert a "Match?" column right after Severity (or at the front if not found)
-    insert_at = (c_sev + 1) if c_sev else 1
+    columns = _finding_columns(headers)
+    severity_col = columns["severity"]
+    insert_at = severity_col + 1 if severity_col else 1
     ws.insert_cols(insert_at)
-    # any column indices at/after the insert point shift right by one
-    shift = lambda c: (c + 1) if (c is not None and c >= insert_at) else c
-    c_model, c_stat, c_fid, c_cat, c_sev = map(shift, (c_model, c_stat, c_fid, c_cat, c_sev))
-    c_tbl, c_col, c_msg, c_pd, c_ew      = map(shift, (c_tbl, c_col, c_msg, c_pd, c_ew))
+    columns = _shift_finding_columns(columns, insert_at)
 
     hdr = ws.cell(row=header_row, column=insert_at, value="Match?")
-    hdr.font, hdr.fill, hdr.alignment, hdr.border = HEADER_FONT, HEADER_FILL, CENTER, BORDER
+    hdr.font, hdr.fill, hdr.alignment, hdr.border = (
+        HEADER_FONT, HEADER_FILL, CENTER, BORDER
+    )
     ws.column_dimensions[get_column_letter(insert_at)].width = 12
-
-    def read(row, col):
-        return ws.cell(row=row, column=col).value if col else None
 
     rows = []
     for row in range(header_row + 1, ws.max_row + 1):
-        if read(row, c_msg) is None and read(row, c_cat) is None:
+        if (
+            _read_finding_cell(ws, row, columns["message"]) is None
+            and _read_finding_cell(ws, row, columns["category"]) is None
+        ):
             continue
-        sev = (read(row, c_sev) or "").strip().upper() if isinstance(read(row, c_sev), str) else read(row, c_sev)
+        severity = _finding_severity(ws, row, columns)
+        _style_match_marker(ws, row, insert_at, severity)
+        _style_finding_message(ws, row, columns, severity)
+        rows.append(_finding_row(ws, row, columns))
 
-        mark = ws.cell(row=row, column=insert_at, value="MISMATCH")
-        mark.font = Font(bold=True, color=C_WHITE if sev == "CRITICAL" else C_BLACK)
-        mark.fill = FILL_RED if sev == "CRITICAL" else (FILL_AMBER if sev == "WARNING" else FILL_BLUE)
-        mark.alignment = CENTER
-        mark.border = BORDER
-
-        # tint the message so it stands out when scanning
-        if c_msg:
-            mcell = ws.cell(row=row, column=c_msg)
-            if sev in ("CRITICAL", "WARNING"):
-                mcell.font = Font(bold=(sev == "CRITICAL"),
-                                  color=C_RED if sev == "CRITICAL" else "FFBF8F00")
-
-        rows.append({
-            "model": read(row, c_model), "status": read(row, c_stat),
-            "fidelity": read(row, c_fid), "category": read(row, c_cat),
-            "severity": sev, "table": read(row, c_tbl), "column": read(row, c_col),
-            "message": read(row, c_msg), "pd": read(row, c_pd), "ew": read(row, c_ew),
-        })
-
-    # keep the filter spanning the new column
-    if ws.auto_filter.ref:
-        try:
-            last = get_column_letter(ws.max_column)
-            end_row = ws.auto_filter.ref.split(":")[-1]
-            end_row = "".join(ch for ch in end_row if ch.isdigit())
-            ws.auto_filter.ref = f"A{header_row}:{last}{end_row}"
-        except Exception:  # nosec B110
-            pass
+    _extend_findings_filter(ws, header_row)
     return rows
 
 
@@ -341,62 +435,112 @@ MANUAL_HEADERS = [
 ]
 
 
+def _manual_review_rows(findings, include_info):
+    """Filter and sort findings that require manual review."""
+    keep = ("CRITICAL", "WARNING") + (("INFO",) if include_info else ())
+    order = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
+    rows = [f for f in findings if (f["severity"] or "INFO") in keep]
+    rows.sort(
+        key=lambda f: (
+            str(f["model"] or ""),
+            order.get(f["severity"], 3),
+            str(f["category"] or ""),
+        )
+    )
+    return rows
+
+
+def _manual_review_text(finding):
+    """Build the ready-to-read manual review sentence."""
+    table = finding["table"] or ""
+    column = finding["column"] or ""
+    where = ".".join(x for x in (table, column) if x) or "(model level)"
+    msg = finding["message"] or MISMATCH_LABEL.get(
+        finding["category"], "Difference"
+    )
+    pd_value = "" if finding["pd"] in (None, "—") else finding["pd"]
+    erwin_value = "" if finding["ew"] in (None, "—") else finding["ew"]
+
+    detail = ""
+    if pd_value or erwin_value:
+        detail = (
+            f"  [PD: {pd_value or '(none)'}  vs  "
+            f"ERwin: {erwin_value or '(none)'}]"
+        )
+    return f"{where} — {msg}.{detail}  → Verify manually in the model."
+
+
+def _write_manual_review_row(ws, row, index, finding):
+    """Write and style one MANUAL_REVIEW row."""
+    values = [
+        index,
+        finding["model"],
+        finding["status"],
+        finding["fidelity"],
+        finding["severity"],
+        MISMATCH_LABEL.get(finding["category"], finding["category"]),
+        finding["table"],
+        finding["column"],
+        _manual_review_text(finding),
+        finding["pd"],
+        finding["ew"],
+    ]
+    for col, value in enumerate(values, start=1):
+        cell = ws.cell(row=row, column=col, value=value)
+        cell.alignment, cell.border = LEFT, BORDER
+
+    sev_cell = ws.cell(row=row, column=5)
+    severity = finding["severity"]
+    sev_cell.fill = (
+        FILL_RED
+        if severity == "CRITICAL"
+        else FILL_AMBER
+        if severity == "WARNING"
+        else FILL_BLUE
+    )
+    sev_cell.font = Font(
+        bold=True,
+        color=C_WHITE if severity in ("CRITICAL", "INFO") else C_BLACK,
+    )
+    sev_cell.alignment = CENTER
+
+
+def _style_manual_review_sheet(ws):
+    """Apply widths and filtering to MANUAL_REVIEW."""
+    widths = [6, 30, 8, 10, 10, 22, 26, 22, 80, 26, 26]
+    for i, width in enumerate(widths, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = width
+    ws.auto_filter.ref = (
+        f"A1:{get_column_letter(len(MANUAL_HEADERS))}{max(ws.max_row, 1)}"
+    )
+
+
 def _build_manual_review(wb, findings, include_info=False):
     """Create a single flat sheet of only the mismatches, with a review sentence."""
     if "MANUAL_REVIEW" in wb.sheetnames:
         del wb["MANUAL_REVIEW"]
-    ws = wb.create_sheet("MANUAL_REVIEW", index=1)   # right after SUMMARY
+    ws = wb.create_sheet("MANUAL_REVIEW", index=1)
     ws.freeze_panes = "A2"
 
-    for col, val in enumerate(MANUAL_HEADERS, start=1):
-        cell = ws.cell(row=1, column=col, value=val)
-        cell.font, cell.fill, cell.alignment, cell.border = HEADER_FONT, HEADER_FILL, CENTER, BORDER
+    for col, value in enumerate(MANUAL_HEADERS, start=1):
+        cell = ws.cell(row=1, column=col, value=value)
+        cell.font, cell.fill, cell.alignment, cell.border = (
+            HEADER_FONT, HEADER_FILL, CENTER, BORDER
+        )
 
-    keep = ("CRITICAL", "WARNING") + (("INFO",) if include_info else ())
-    order = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
-    rows = [f for f in findings if (f["severity"] or "INFO") in keep]
-    rows.sort(key=lambda f: (str(f["model"] or ""),
-                             order.get(f["severity"], 3),
-                             str(f["category"] or "")))
+    rows = _manual_review_rows(findings, include_info)
+    for index, finding in enumerate(rows, start=1):
+        _write_manual_review_row(ws, index + 1, index, finding)
 
-    r = 2
-    for i, f in enumerate(rows, start=1):
-        table  = f["table"] or ""
-        column = f["column"] or ""
-        where  = ".".join(x for x in (table, column) if x) or "(model level)"
-        msg    = f["message"] or MISMATCH_LABEL.get(f["category"], "Difference")
-        pd_v   = "" if f["pd"] in (None, "—") else f["pd"]
-        ew_v   = "" if f["ew"] in (None, "—") else f["ew"]
-        detail = ""
-        if pd_v or ew_v:
-            detail = f"  [PD: {pd_v or '(none)'}  vs  ERwin: {ew_v or '(none)'}]"
-        review = f"{where} — {msg}.{detail}  → Verify manually in the model."
-
-        values = [
-            i, f["model"], f["status"], f["fidelity"], f["severity"],
-            MISMATCH_LABEL.get(f["category"], f["category"]),
-            table, column, review, f["pd"], f["ew"],
-        ]
-        for col, val in enumerate(values, start=1):
-            cell = ws.cell(row=r, column=col, value=val)
-            cell.alignment, cell.border = LEFT, BORDER
-        # colour the severity cell
-        sev_cell = ws.cell(row=r, column=5)
-        sev_cell.fill = (FILL_RED if f["severity"] == "CRITICAL"
-                         else FILL_AMBER if f["severity"] == "WARNING" else FILL_BLUE)
-        sev_cell.font = Font(bold=True,
-                             color=C_WHITE if f["severity"] in ("CRITICAL", "INFO") else C_BLACK)
-        sev_cell.alignment = CENTER
-        r += 1
-
-    if r == 2:   # nothing to review
-        cell = ws.cell(row=2, column=1, value="No CRITICAL or WARNING mismatches found — all models match.")
+    if not rows:
+        cell = ws.cell(
+            row=2,
+            column=1,
+            value="No CRITICAL or WARNING mismatches found — all models match.",
+        )
         cell.font = Font(bold=True, color=C_OKTEXT)
 
-    widths = [6, 30, 8, 10, 10, 22, 26, 22, 80, 26, 26]
-    for i, w in enumerate(widths, start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
-    ws.auto_filter.ref = f"A1:{get_column_letter(len(MANUAL_HEADERS))}{max(r - 1, 1)}"
+    _style_manual_review_sheet(ws)
     return len(rows)
 
 

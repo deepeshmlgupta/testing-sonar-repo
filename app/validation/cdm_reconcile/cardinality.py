@@ -106,6 +106,49 @@ DEGREE_MANY_MANY = "M:N"
 
 # ─── NORMALISATION ────────────────────────────────────────────────────────────
 
+def _compact_token(token: str) -> str:
+    """
+    Tolerate "0 , n" / "0-n" / "(0,n)" and similar hand-edited spellings.
+
+    The hyphen is a RANGE separator only between two tokens ("0-n"); a leading
+    "-" is a sign.  Blanket-replacing it turned erwin's "-3" into ",3", which
+    the positional parser then read as low="" high="3" -> "0,1".
+    """
+    compact = re.sub(r"[\s()\[\]]", "", token)
+    compact = re.sub(r"(?<=[0-9A-Za-z*])-(?=[0-9A-Za-z*])", ",", compact)
+    return compact.replace("..", ",")
+
+
+def _numeric_pair(compact: str) -> str:
+    """
+    Positional low,high parsing for genuinely numeric spellings ("0,n", "1,*").
+
+    Returns a canonical form, or "" when the token is not a two-part pair
+    carrying at least one digit or star.
+    """
+    parts = compact.split(",")
+    if len(parts) != 2 or not re.search(r"[\d*]", compact):
+        return ""
+    low, high = parts[0], parts[1]
+    low_token  = "1" if low in ("1", "one") else "0"
+    high_token = "n" if high in ("n", "m", "*", "many", "more") else "1"
+    candidate = f"{low_token},{high_token}"
+    return candidate if candidate in _VALID else ""
+
+
+def _from_flags(mandatory, many) -> str:
+    """
+    Fallback for erwin exports that carry only boolean-ish flags
+    (Nulls_Allowed, Relationship_Type) rather than a phrase.  "" when neither
+    flag was supplied, so nothing is invented.
+    """
+    if mandatory is None and many is None:
+        return ""
+    low_token  = "1" if mandatory else "0"
+    high_token = "n" if many else "1"
+    return f"{low_token},{high_token}"
+
+
 def normalize_cardinality(raw: str,
                           mandatory: bool = None,
                           many: bool = None) -> str:
@@ -126,22 +169,15 @@ def normalize_cardinality(raw: str,
     if exact:
         return ONE_ONE if exact.group(1) == "1" else ONE_MANY
 
-    # Tolerate "0 , n" / "0-n" / "(0,n)" and similar hand-edited spellings
-    # Tolerate "0 , n" / "0-n" / "(0,n)" and similar hand-edited spellings.
-    # The hyphen is a RANGE separator only between two tokens ("0-n"); a leading
-    # "-" is a sign.  Blanket-replacing it turned erwin's "-3" into ",3", which
-    # the positional parser below then read as low="" high="3" -> "0,1".
-    compact = re.sub(r"[\s()\[\]]", "", token)
-    compact = re.sub(r"(?<=[0-9A-Za-z*])-(?=[0-9A-Za-z*])", ",", compact)
-    compact = compact.replace("..", ",")
+    compact = _compact_token(token)
     if compact in _CARDINALITY_ALIASES:
         return _CARDINALITY_ALIASES[compact]
 
     # ── Verbal phrases BEFORE numeric-pair parsing ───────────────────────────
     # erwin stores cardinality as an English display phrase ("Zero, One or
     # More"), which is itself comma-bearing.  Handing such a phrase to the
-    # positional low,high parser below silently yields a *valid-looking* but
-    # wrong pair ("zero,one or more" -> low="zero", high="oneormore" -> 0,1),
+    # positional low,high parser silently yields a *valid-looking* but wrong
+    # pair ("zero,one or more" -> low="zero", high="oneormore" -> 0,1),
     # collapsing an unbounded end to at-most-one.  So interpret the words
     # semantically first and only fall through to positional parsing for
     # genuinely numeric spellings.
@@ -149,21 +185,11 @@ def normalize_cardinality(raw: str,
     if phrase:
         return phrase
 
-    parts = compact.split(",")
-    if len(parts) == 2 and re.search(r"[\d*]", compact):
-        low, high = parts[0], parts[1]
-        low_token  = "1" if low in ("1", "one") else "0"
-        high_token = "n" if high in ("n", "m", "*", "many", "more") else "1"
-        candidate = f"{low_token},{high_token}"
-        if candidate in _VALID:
-            return candidate
+    pair = _numeric_pair(compact)
+    if pair:
+        return pair
 
-    if mandatory is None and many is None:
-        return ""
-
-    low_token  = "1" if mandatory else "0"
-    high_token = "n" if many else "1"
-    return f"{low_token},{high_token}"
+    return _from_flags(mandatory, many)
 
 
 def is_mandatory(cardinality: str) -> bool:

@@ -209,6 +209,54 @@ def write_reconciliation(ws, rows):
 # ---------------------------------------------------------------------------
 # Sheet 2: UDP Definition
 # ---------------------------------------------------------------------------
+RECON_SHEET_REF = "'Value Reconciliation'"
+
+
+def _dictionary_actions(results) -> dict[str, list]:
+    """Per-owner dictionary outcomes from erwin_load.py, collapsed onto their UDP."""
+    actions: dict[str, list] = {}
+    if results:
+        for entry in results.get("dictionary", []):
+            actions.setdefault(str(entry.get("udp", "")), []).append(entry)
+    return actions
+
+
+def _definition_owners_and_action(entries: list, results) -> tuple[str, str]:
+    """What erwin did with this UDP's definitions, and for which owner types."""
+    if entries:
+        owners = ", ".join(sorted({str(e.get("owner", "")) for e in entries}))
+        action = "; ".join(
+            f"{e.get('action', 'unknown').title()} ({e.get('owner', '')})"
+            + (f" - {e.get('error')}" if e.get("error") else "")
+            for e in entries
+        )
+        return owners, action
+    return "Entity, Model", ("Not Recorded" if not results else "Not Created")
+
+
+def _definition_formulas(row_no: int) -> tuple[str, str, str]:
+    """Live counts over the Value Reconciliation sheet for the UDP on `row_no`."""
+    expected = f"=COUNTIF({RECON_SHEET_REF}!$C:$C,$A{row_no})"
+    applied = (f"=COUNTIFS({RECON_SHEET_REF}!$C:$C,$A{row_no},"
+               f"{RECON_SHEET_REF}!$H:$H,\"Applied*\")")
+    verified = (f"=COUNTIFS({RECON_SHEET_REF}!$C:$C,$A{row_no},"
+                f"{RECON_SHEET_REF}!$I:$I,\"Match\")")
+    return expected, applied, verified
+
+
+def _definition_status(name: str, entries: list, results, used_udps: set,
+                       value_list: list) -> str:
+    if not entries and results:
+        return "NOT CREATED - definition missing in erwin dictionary"
+    if any(e.get("action") == "failed" for e in entries):
+        return "FAILED - erwin rejected the definition"
+    if name not in used_udps:
+        return "Defined - no source values to migrate"
+    if value_list:
+        return "Defined as List - observed values only, confirm against BIM-core.xem"
+    return "Defined"
+
+
 def write_definitions(ws, schema, results, recon_rows):
     header_row(ws, [
         "UDP Name", "Inferred Type", "Length", "Value List (Observed)", "Source Path",
@@ -218,46 +266,18 @@ def write_definitions(ws, schema, results, recon_rows):
     ])
     set_widths(ws, [30, 13, 9, 44, 30, 14, 16, 38, 16, 30, 15, 15, 15, 34])
 
-    # Collapse the per-owner dictionary outcomes onto their UDP.
-    actions: dict[str, list] = {}
-    if results:
-        for entry in results.get("dictionary", []):
-            actions.setdefault(str(entry.get("udp", "")), []).append(entry)
-
+    actions = _dictionary_actions(results)
     used_udps = {row["udp"] for row in recon_rows}
 
     for prop in schema:
         name = str(prop.get("udp", ""))
         entries = actions.get(name, [])
-        if entries:
-            owners = ", ".join(sorted({str(e.get("owner", "")) for e in entries}))
-            action = "; ".join(
-                f"{e.get('action', 'unknown').title()} ({e.get('owner', '')})"
-                + (f" - {e.get('error')}" if e.get("error") else "")
-                for e in entries
-            )
-        else:
-            owners = "Entity, Model"
-            action = "Not Recorded" if not results else "Not Created"
+        owners, action = _definition_owners_and_action(entries, results)
 
         value_list = prop.get("value_list") or []
         row_no = ws.max_row + 1
-        expected = f"=COUNTIF('Value Reconciliation'!$C:$C,$A{row_no})"
-        applied = (f"=COUNTIFS('Value Reconciliation'!$C:$C,$A{row_no},"
-                   f"'Value Reconciliation'!$H:$H,\"Applied*\")")
-        verified = (f"=COUNTIFS('Value Reconciliation'!$C:$C,$A{row_no},"
-                    f"'Value Reconciliation'!$I:$I,\"Match\")")
-
-        if not entries and results:
-            status = "NOT CREATED - definition missing in erwin dictionary"
-        elif any(e.get("action") == "failed" for e in entries):
-            status = "FAILED - erwin rejected the definition"
-        elif name not in used_udps:
-            status = "Defined - no source values to migrate"
-        elif value_list:
-            status = "Defined as List - observed values only, confirm against BIM-core.xem"
-        else:
-            status = "Defined"
+        expected, applied, verified = _definition_formulas(row_no)
+        status = _definition_status(name, entries, results, used_udps, value_list)
 
         ws.append([
             clean(name), clean(prop.get("type", "")), prop.get("length") or "",
@@ -273,15 +293,13 @@ def write_definitions(ws, schema, results, recon_rows):
 # ---------------------------------------------------------------------------
 # Sheet 4: Exceptions
 # ---------------------------------------------------------------------------
-def write_exceptions(ws, recon_rows, schema, results, classification, entities):
-    header_row(ws, [
-        "Severity", "Category", "Entity", "UDP", "Detail", "Recommended Action",
-    ])
-    set_widths(ws, [12, 30, 34, 28, 62, 54])
+SEVERITY_ORDER = {"High": 0, "Medium": 1, "Low": 2, "Informational": 3}
+EXCEPTION_CAP = 100   # examples kept per (severity, category) before summarising
 
+
+def _definition_failures(results) -> list:
+    """1. Definitions erwin refused."""
     rows = []
-
-    # 1. Definitions erwin refused.
     for entry in (results or {}).get("dictionary", []):
         if entry.get("action") == "failed":
             rows.append(["High", "UDP definition failed", "", entry.get("udp", ""),
@@ -289,77 +307,119 @@ def write_exceptions(ws, recon_rows, schema, results, classification, entities):
                          or "erwin rejected the definition.",
                          "Re-run injection with the erwin UI open, then confirm the UDP "
                          "appears under Model > UDPs."])
+    return rows
 
-    # 2. Values erwin did not accept, or accepted then changed.
+
+def _value_exception(row: dict):
+    """The exception row for one reconciliation outcome, or None if it is fine."""
+    if row["status"] == ST_NO_ENTITY:
+        return ["High", "Entity not found in erwin", row["entity_name"], row["udp"],
+                "The source entity has no match in the target .erwin model, so this "
+                "value was not migrated.",
+                "Confirm the entity survived the erwin bridge import, or that the "
+                "entity name matches between the two models."]
+    if row["status"] == ST_REJECTED:
+        return ["High", "Property rejected by erwin", row["entity_name"], row["udp"],
+                clean(row["note"]) or "erwin did not accept any known property "
+                                      "name format for this UDP.",
+                "Check the UDP exists in the erwin dictionary for this owner type "
+                "(Entity vs Model)."]
+    if row["status"] == ST_ALTERED:
+        return ["High", "Value altered on write", row["entity_name"], row["udp"],
+                f"Source: {clean(row['source_value'])[:180]} | "
+                f"erwin returned: {clean(row['target_value'])[:180]}",
+                "Usually a List UDP rejecting a value outside its permitted list. "
+                "Widen the list or correct the source value."]
+    if row["status"] == ST_NOT_RUN:
+        return ["Medium", "Not verified", row["entity_name"], row["udp"],
+                "No injection result was recorded for this value.",
+                "Re-run batch_run.py so the report is built from a live "
+                "injection result."]
+    return None
+
+
+def _value_exceptions(recon_rows: list) -> list:
+    """2. Values erwin did not accept, or accepted then changed."""
+    rows = []
     for row in recon_rows:
-        if row["status"] == ST_NO_ENTITY:
-            rows.append(["High", "Entity not found in erwin", row["entity_name"], row["udp"],
-                         "The source entity has no match in the target .erwin model, so this "
-                         "value was not migrated.",
-                         "Confirm the entity survived the erwin bridge import, or that the "
-                         "entity name matches between the two models."])
-        elif row["status"] == ST_REJECTED:
-            rows.append(["High", "Property rejected by erwin", row["entity_name"], row["udp"],
-                         clean(row["note"]) or "erwin did not accept any known property "
-                                               "name format for this UDP.",
-                         "Check the UDP exists in the erwin dictionary for this owner type "
-                         "(Entity vs Model)."])
-        elif row["status"] == ST_ALTERED:
-            rows.append(["High", "Value altered on write", row["entity_name"], row["udp"],
-                         f"Source: {clean(row['source_value'])[:180]} | "
-                         f"erwin returned: {clean(row['target_value'])[:180]}",
-                         "Usually a List UDP rejecting a value outside its permitted list. "
-                         "Widen the list or correct the source value."])
-        elif row["status"] == ST_NOT_RUN:
-            rows.append(["Medium", "Not verified", row["entity_name"], row["udp"],
-                         "No injection result was recorded for this value.",
-                         "Re-run batch_run.py so the report is built from a live "
-                         "injection result."])
+        exception = _value_exception(row)
+        if exception is not None:
+            rows.append(exception)
+    return rows
 
-    # 3. Source-side data quality that limits what can be reconciled later.
+
+def _source_value_exception(row: dict):
+    """The source-quality row for one reconciliation outcome, or None."""
+    if row["udp"] == "PD_ObjectID" and not str(row["source_value"]).strip():
+        return ["Medium", "Missing PowerDesigner ObjectID", row["entity_name"], "PD_ObjectID",
+                "The source entity carries no ObjectID, so there is no permanent "
+                "join key for a future re-run or reconciliation.",
+                "Confirm with the Shell data architect whether the PD extract "
+                "should be re-taken with ObjectIDs included."]
+    if not str(row["source_value"]).strip():
+        return ["Low", "Empty source value", row["entity_name"], row["udp"],
+                "The property exists on the source entity but holds no value.",
+                "No action if the property is genuinely blank in PowerDesigner."]
+    return None
+
+
+def _source_quality_exceptions(recon_rows: list, entities) -> list:
+    """3. Source-side data quality that limits what can be reconciled later."""
+    rows = []
     for row in recon_rows:
-        if row["udp"] == "PD_ObjectID" and not str(row["source_value"]).strip():
-            rows.append(["Medium", "Missing PowerDesigner ObjectID", row["entity_name"], "PD_ObjectID",
-                         "The source entity carries no ObjectID, so there is no permanent "
-                         "join key for a future re-run or reconciliation.",
-                         "Confirm with the Shell data architect whether the PD extract "
-                         "should be re-taken with ObjectIDs included."])
-        elif not str(row["source_value"]).strip():
-            rows.append(["Low", "Empty source value", row["entity_name"], row["udp"],
-                         "The property exists on the source entity but holds no value.",
-                         "No action if the property is genuinely blank in PowerDesigner."])
-
+        exception = _source_value_exception(row)
+        if exception is not None:
+            rows.append(exception)
     for entity in entities or []:
         if not str(entity.get("name", "")).strip():
             rows.append(["Medium", "Unnamed source entity", clean(entity.get("code", "")), "",
                          "The source entity has no name, so its values are written against "
                          "the model root instead of an entity.",
                          "Name the entity in PowerDesigner and re-extract."])
+    return rows
 
-    # 4. Inferred value lists are observed, not authoritative.
+
+def _inferred_list_exceptions(schema: list) -> list:
+    """4. Inferred value lists are observed, not authoritative."""
+    rows = []
     for prop in schema:
         if prop.get("value_list"):
             rows.append(["Low", "Inferred value list", "", prop.get("udp", ""),
                          "The permitted values were inferred from observed data, not from "
                          "BIM-core.xem. Observed is not the same as permitted.",
                          "Confirm the list against BIM-core.xem before sign-off."])
+    return rows
 
-    # 5. Constructs the SOW says the bridge cannot carry.
+
+def _not_recoverable(disposition: str) -> bool:
+    upper = disposition.upper()
+    return "NOT RECOVERABLE" in upper or "OUT OF SCOPE" in upper
+
+
+def _bridge_exceptions(classification) -> list:
+    """5. Constructs the SOW says the bridge cannot carry."""
+    rows = []
     for item in (classification or {}).get("non_equivalence_register", []):
         disposition = str(item.get("disposition", ""))
-        if "NOT RECOVERABLE" in disposition.upper() or "OUT OF SCOPE" in disposition.upper():
+        if _not_recoverable(disposition):
             rows.append(["Informational", "Not carried by the erwin bridge", "",
                          clean(item.get("construct", "")),
                          f"{clean(item.get('volume', ''))} - {clean(item.get('bridge', ''))}",
                          clean(disposition)])
+    return rows
 
-    order = {"High": 0, "Medium": 1, "Low": 2, "Informational": 3}
-    rows.sort(key=lambda r: (order.get(r[0], 9), r[1], str(r[2])))
 
-    # A category with thousands of identical rows buries the ones that matter.
-    # Keep the first CAP as examples and summarise the remainder; the full
-    # detail is still on the Value Reconciliation sheet.
-    cap = 100
+def _exception_sort_key(row: list):
+    return (SEVERITY_ORDER.get(row[0], 9), row[1], str(row[2]))
+
+
+def _cap_categories(rows: list, cap: int) -> list:
+    """
+    Keep the first `cap` rows of each (severity, category) as examples and add
+    one summary row for the remainder. A category with thousands of identical
+    rows buries the ones that matter; the full detail is still on the Value
+    Reconciliation sheet.
+    """
     capped, counts = [], {}
     for row in rows:
         key = (row[0], row[1])
@@ -371,8 +431,24 @@ def write_exceptions(ws, recon_rows, schema, results, classification, entities):
             capped.append([severity, category, "", "",
                            f"{total} rows in this category; the first {cap} are listed above.",
                            "Filter the Value Reconciliation sheet for the full list."])
-    rows = capped
-    rows.sort(key=lambda r: (order.get(r[0], 9), r[1], str(r[2])))
+    return capped
+
+
+def write_exceptions(ws, recon_rows, schema, results, classification, entities):
+    header_row(ws, [
+        "Severity", "Category", "Entity", "UDP", "Detail", "Recommended Action",
+    ])
+    set_widths(ws, [12, 30, 34, 28, 62, 54])
+
+    rows = (_definition_failures(results)
+            + _value_exceptions(recon_rows)
+            + _source_quality_exceptions(recon_rows, entities)
+            + _inferred_list_exceptions(schema)
+            + _bridge_exceptions(classification))
+    rows.sort(key=_exception_sort_key)
+
+    rows = _cap_categories(rows, EXCEPTION_CAP)
+    rows.sort(key=_exception_sort_key)
 
     if not rows:
         rows = [["Informational", "No exceptions", "", "",
@@ -500,6 +576,38 @@ def write_summary(ws, ctx):
 
 
 # ---------------------------------------------------------------------------
+def _classification_context(classification: dict, sap_model, counts: dict) -> dict:
+    """Summary facts that come from the source model's classification."""
+    signals = classification.get("signals", {}) or {}
+    return {
+        "sap_model": sap_model or classification.get("model", "n/a"),
+        "pd_version": classification.get("pd_version", "n/a"),
+        "extraction_id": classification.get("extraction_id", "n/a"),
+        "band": classification.get("band", "n/a"),
+        "band_label": classification.get("band_label", "n/a"),
+        "automation_range": " to ".join(
+            f"{v}%" for v in classification.get("sow_automation_range", [])) or "n/a",
+        "entities_source": signals.get("entities", counts.get("Entity", "n/a")),
+        "attributes_source": signals.get("attributes",
+                                         counts.get("EntityAttribute", "n/a")),
+        "ext_properties": signals.get("extension_properties", "n/a"),
+        "ext_values": signals.get("extension_values", "n/a"),
+    }
+
+
+def _injection_context(results, erwin_out, recon_rows: list) -> dict:
+    """Summary facts that come from what the injector actually did."""
+    recorded = results or {}
+    return {
+        "erwin_out": erwin_out or "n/a",
+        "entities_target": recorded.get("entities_in_erwin", "Not recorded"),
+        "results": results,
+        "injection_state": "Yes" if results else "No - report built from source data only",
+        "session_note": recorded.get("session", "Not recorded"),
+        "recon_last_row": len(recon_rows) + 1,
+    }
+
+
 def build_report(model_name, manifest, schema, results, classification,
                  counts, entities, sap_model, erwin_out, outdir: Path) -> Path:
     recon_rows = build_reconciliation(manifest, results)
@@ -518,29 +626,12 @@ def build_report(model_name, manifest, schema, results, classification,
     write_definitions(ws_defs, schema, results, recon_rows)
     write_exceptions(ws_exc, recon_rows, schema, results, classification, entities)
 
-    signals = (classification or {}).get("signals", {}) or {}
     ctx = {
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "model_name": model_name,
-        "sap_model": sap_model or (classification or {}).get("model", "n/a"),
-        "erwin_out": erwin_out or "n/a",
-        "pd_version": (classification or {}).get("pd_version", "n/a"),
-        "extraction_id": (classification or {}).get("extraction_id", "n/a"),
-        "band": (classification or {}).get("band", "n/a"),
-        "band_label": (classification or {}).get("band_label", "n/a"),
-        "automation_range": " to ".join(
-            f"{v}%" for v in (classification or {}).get("sow_automation_range", [])) or "n/a",
-        "entities_source": signals.get("entities", (counts or {}).get("Entity", "n/a")),
-        "attributes_source": signals.get("attributes",
-                                         (counts or {}).get("EntityAttribute", "n/a")),
-        "ext_properties": signals.get("extension_properties", "n/a"),
-        "ext_values": signals.get("extension_values", "n/a"),
-        "entities_target": (results or {}).get("entities_in_erwin", "Not recorded"),
-        "results": results,
-        "injection_state": "Yes" if results else "No - report built from source data only",
-        "session_note": (results or {}).get("session", "Not recorded"),
-        "recon_last_row": len(recon_rows) + 1,
     }
+    ctx.update(_classification_context(classification or {}, sap_model, counts or {}))
+    ctx.update(_injection_context(results, erwin_out, recon_rows))
     write_summary(ws_summary, ctx)
 
     outdir.mkdir(parents=True, exist_ok=True)

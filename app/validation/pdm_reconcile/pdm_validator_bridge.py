@@ -83,46 +83,58 @@ def _module_belongs_to_validator(module) -> bool:
         return False
 
 
+def _import_validator_modules(before):
+    """Import validator modules and collect validator-local dependencies."""
+    modules = {name: importlib.import_module(name) for name in _OWNED_NAMES}
+    for name in set(sys.modules) - before:
+        module = sys.modules.get(name)
+        if module is not None and _module_belongs_to_validator(module):
+            modules.setdefault(name, module)
+    return modules
+
+
+def _publish_validator_aliases():
+    """Keep validator modules reachable under the private namespace."""
+    for name, module in list(sys.modules.items()):
+        if name in _OWNED_NAMES and module is not None:
+            if _module_belongs_to_validator(module):
+                sys.modules[f"{_ALIAS_PREFIX}.{name}"] = module
+
+
+def _restore_shadowed_modules(shadowed, before, saved_path):
+    """Restore the interpreter state that existed before the isolated import."""
+    for name, previous in shadowed.items():
+        if previous is not None:
+            sys.modules[name] = previous
+        else:
+            sys.modules.pop(name, None)
+
+    for name in set(sys.modules) - before:
+        module = sys.modules.get(name)
+        if module is not None and _module_belongs_to_validator(module):
+            sys.modules.pop(name, None)
+
+    sys.path[:] = saved_path
+
+
 def _load_isolated():
     """Import the validator's modules without disturbing the LDM ones."""
     if not os.path.isdir(VALIDATOR_DIR):
         raise ImportError(f"PDM validator folder not found: {VALIDATOR_DIR}")
 
     saved_path = list(sys.path)
-    # Hide any same-named modules (the LDM tool's) for the duration of the import.
     shadowed = {name: sys.modules.pop(name, None) for name in _OWNED_NAMES}
     before = set(sys.modules)
 
     sys.path.insert(0, VALIDATOR_DIR)
     try:
-        modules = {name: importlib.import_module(name) for name in _OWNED_NAMES}
-
-        # Anything else the validator pulled in from its own folder gets aliased
-        # too, so nothing is left dangling under a bare top-level name.
-        for name in set(sys.modules) - before:
-            module = sys.modules.get(name)
-            if module is not None and _module_belongs_to_validator(module):
-                modules.setdefault(name, module)
+        modules = _import_validator_modules(before)
     finally:
-        # Publish under a private namespace so the objects stay reachable...
-        for name, module in list(sys.modules.items()):
-            if name in _OWNED_NAMES and module is not None and _module_belongs_to_validator(module):
-                sys.modules[f"{_ALIAS_PREFIX}.{name}"] = module
-        # ...then restore the interpreter to exactly how we found it.
-        for name, previous in shadowed.items():
-            if previous is not None:
-                sys.modules[name] = previous
-            else:
-                sys.modules.pop(name, None)
-        for name in set(sys.modules) - before:
-            module = sys.modules.get(name)
-            if module is not None and _module_belongs_to_validator(module):
-                sys.modules.pop(name, None)
-        sys.path[:] = saved_path
+        _publish_validator_aliases()
+        _restore_shadowed_modules(shadowed, before, saved_path)
 
     logger.info("Loaded PDM validator from %s", VALIDATOR_DIR)
     return modules
-
 
 def load():
     """Load (once) and return the validator's modules as a dict."""

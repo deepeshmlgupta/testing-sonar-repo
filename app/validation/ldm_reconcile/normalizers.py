@@ -137,8 +137,8 @@ _TYPE_FAMILIES = {
 
 # PowerDesigner writes some conceptual types with the length glued on: "VA20",
 # "A10", "DC18,2".  Split the alphabetic prefix from the numeric tail.
-_GLUED_TYPE = re.compile(r"^([A-Za-z_ ]+?)\s*(\d+(?:\s*,\s*\d+)?)$")
-_PARENS     = re.compile(r"^([A-Za-z0-9_ ]+?)\s*\(\s*([^)]*)\s*\)$")
+_GLUED_TYPE = re.compile(r"^([A-Za-z_]+(?:[ \t]+[A-Za-z_]+)*)\s*(\d+(?:\s*,\s*\d+)?)$")
+_PARENS     = re.compile(r"^([A-Za-z0-9_]+(?:[ \t]+[A-Za-z0-9_]+)*)\s*\(\s*([^)]*)\s*\)$")
 
 _NAME_NOISE = re.compile(r"[^0-9a-zA-Z]+")
 _CAMEL_SPLIT = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")

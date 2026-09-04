@@ -170,25 +170,7 @@ def _strip_rtf_for_report(value: str) -> str:
     if not value or "\\rtf" not in value[:20]:
         return (value or "").strip()
 
-    text = value
-    # Drop font/colour/stylesheet tables wholesale — they carry no prose.
-    for table in (r"\fonttbl", r"\colortbl", r"\stylesheet", r"\*\generator"):
-        start = text.find(table)
-        while start != -1:
-            depth, index = 0, text.rfind("{", 0, start)
-            if index == -1:
-                break
-            cursor = index
-            while cursor < len(text):
-                if text[cursor] == "{":
-                    depth += 1
-                elif text[cursor] == "}":
-                    depth -= 1
-                    if depth == 0:
-                        break
-                cursor += 1
-            text = text[:index] + text[cursor + 1:]
-            start = text.find(table)
+    text = _strip_rtf_tables(value)
 
     text = re.sub(r"\\par[d]?\b", "\n", text)      # paragraph breaks
     text = re.sub(r"\\tab\b", "\t", text)
@@ -200,6 +182,34 @@ def _strip_rtf_for_report(value: str) -> str:
     text = text.replace("{", "").replace("}", "")
     text = re.sub(r"[ \t]+", " ", text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
+def _rtf_group_end(text: str, index: int) -> int:
+    """Position of the '}' closing the RTF group that opens at `index`."""
+    depth, cursor = 0, index
+    while cursor < len(text):
+        if text[cursor] == "{":
+            depth += 1
+        elif text[cursor] == "}":
+            depth -= 1
+            if depth == 0:
+                break
+        cursor += 1
+    return cursor
+
+
+def _strip_rtf_tables(text: str) -> str:
+    """Drop font/colour/stylesheet tables wholesale — they carry no prose."""
+    for table in (r"\fonttbl", r"\colortbl", r"\stylesheet", r"\*\generator"):
+        start = text.find(table)
+        while start != -1:
+            index = text.rfind("{", 0, start)
+            if index == -1:
+                break
+            cursor = _rtf_group_end(text, index)
+            text = text[:index] + text[cursor + 1:]
+            start = text.find(table)
+    return text
 
 
 # ─── DOMAINS & DATA ITEMS ─────────────────────────────────────────────────────
@@ -233,19 +243,10 @@ def _parse_data_item(elem: ET.Element) -> Dict[str, str]:
 
 # ─── ATTRIBUTES ───────────────────────────────────────────────────────────────
 
-def _parse_attribute(elem: ET.Element,
-                     order: int,
-                     domains_by_oid: Dict[str, Domain],
-                     data_items_by_oid: Dict[str, Dict[str, str]]) -> Attribute:
-    name = _attr(elem, "Name")
-    code = _attr(elem, "Code")
-
-    data_type = _attr(elem, "DataType")
-    length    = _attr(elem, "Length")
-    precision = _attr(elem, "Precision")
-    definition = _description(elem)
-
-    # ── Resolve the type through Domain, then Data Item ───────────────────────
+def _resolve_attribute_domain(elem: ET.Element,
+                              domains_by_oid: Dict[str, Domain],
+                              data_type: str, length: str, precision: str) -> tuple:
+    """Borrow the type from the attribute's Domain; returns (domain_name, data_type, length, precision)."""
     domain_name = ""
     domain_oid = _first_ref(elem, "Domain", "Domain") or _first_ref(elem, "Domain", "PhysicalDomain")
     if domain_oid and domain_oid in domains_by_oid:
@@ -255,7 +256,17 @@ def _parse_attribute(elem: ET.Element,
             data_type = domain.data_type
             length    = length    or domain.length
             precision = precision or domain.precision
+    return domain_name, data_type, length, precision
 
+
+def _resolve_attribute_data_item(elem: ET.Element,
+                                 data_items_by_oid: Dict[str, Dict[str, str]],
+                                 name: str, code: str, data_type: str,
+                                 length: str, precision: str, definition: str) -> tuple:
+    """
+    Borrow name / code / type / definition from the attribute's Data Item;
+    returns (data_item_name, name, code, data_type, length, precision, definition).
+    """
     data_item_name = ""
     item_oid = _first_ref(elem, "DataItem", "DataItem")
     if item_oid and item_oid in data_items_by_oid:
@@ -276,6 +287,28 @@ def _parse_attribute(elem: ET.Element,
             precision = precision or item["precision"]
         if not definition:
             definition = item["definition"]
+    return data_item_name, name, code, data_type, length, precision, definition
+
+
+def _parse_attribute(elem: ET.Element,
+                     order: int,
+                     domains_by_oid: Dict[str, Domain],
+                     data_items_by_oid: Dict[str, Dict[str, str]]) -> Attribute:
+    name = _attr(elem, "Name")
+    code = _attr(elem, "Code")
+
+    data_type = _attr(elem, "DataType")
+    length    = _attr(elem, "Length")
+    precision = _attr(elem, "Precision")
+    definition = _description(elem)
+
+    # ── Resolve the type through Domain, then Data Item ───────────────────────
+    domain_name, data_type, length, precision = _resolve_attribute_domain(
+        elem, domains_by_oid, data_type, length, precision)
+
+    (data_item_name, name, code,
+     data_type, length, precision, definition) = _resolve_attribute_data_item(
+        elem, data_items_by_oid, name, code, data_type, length, precision, definition)
 
     # Final fallback: whichever of name/code did resolve, use it for the other
     # if it's still empty (mirrors the entity/relationship-level convention
@@ -350,6 +383,20 @@ def _parse_entity(elem: ET.Element,
     )
 
     # ── Attributes ───────────────────────────────────────────────────────────
+    attr_code_by_oid = _collect_entity_attributes(entity, elem, domains_by_oid, data_items_by_oid)
+
+    # ── Identifiers ──────────────────────────────────────────────────────────
+    identifiers_by_oid = _collect_entity_identifiers(entity, elem, attr_code_by_oid)
+    _resolve_primary_identifier(entity, elem, identifiers_by_oid)
+    _mark_primary_attributes(entity)
+
+    return entity
+
+
+def _collect_entity_attributes(entity: Entity, elem: ET.Element,
+                               domains_by_oid: Dict[str, Domain],
+                               data_items_by_oid: Dict[str, Dict[str, str]]) -> Dict[str, str]:
+    """Parse the entity's attributes; returns the attribute oid → code map."""
     attr_container = _first_child(elem, "Attributes")
     attr_code_by_oid: Dict[str, str] = {}
 
@@ -360,8 +407,12 @@ def _parse_entity(elem: ET.Element,
         entity.attributes.append(attribute)
         if attribute.oid:
             attr_code_by_oid[attribute.oid] = attribute.code
+    return attr_code_by_oid
 
-    # ── Identifiers ──────────────────────────────────────────────────────────
+
+def _collect_entity_identifiers(entity: Entity, elem: ET.Element,
+                                attr_code_by_oid: Dict[str, str]) -> Dict[str, Identifier]:
+    """Parse the entity's identifiers; returns the identifier oid → Identifier map."""
     ident_container = _first_child(elem, "Identifiers")
     identifiers_by_oid: Dict[str, Identifier] = {}
 
@@ -370,29 +421,37 @@ def _parse_entity(elem: ET.Element,
         entity.identifiers.append(identifier)
         if identifier.oid:
             identifiers_by_oid[identifier.oid] = identifier
+    return identifiers_by_oid
 
+
+def _flag_primary_by_attributes(entity: Entity) -> None:
+    """Fall back to the PrimaryIdentifier flag carried on the attributes."""
+    primary_attrs = {a.code.upper() for a in entity.attributes if a.is_primary}
+    if primary_attrs:
+        for identifier in entity.identifiers:
+            if {c.upper() for c in identifier.attributes} == primary_attrs:
+                identifier.is_primary = True
+                break
+
+
+def _resolve_primary_identifier(entity: Entity, elem: ET.Element,
+                                identifiers_by_oid: Dict[str, Identifier]) -> None:
     # The primary identifier is a pointer, not a flag on the identifier itself.
     primary_oid = _first_ref(elem, "PrimaryIdentifier", "Identifier")
     if primary_oid and primary_oid in identifiers_by_oid:
         identifiers_by_oid[primary_oid].is_primary = True
     elif entity.identifiers:
-        # Fall back to the PrimaryIdentifier flag carried on the attributes.
-        primary_attrs = {a.code.upper() for a in entity.attributes if a.is_primary}
-        if primary_attrs:
-            for identifier in entity.identifiers:
-                if {c.upper() for c in identifier.attributes} == primary_attrs:
-                    identifier.is_primary = True
-                    break
+        _flag_primary_by_attributes(entity)
 
-    # Keep the attribute-level primary flag consistent with the identifier.
+
+def _mark_primary_attributes(entity: Entity) -> None:
+    """Keep the attribute-level primary flag consistent with the identifier."""
     primary = entity.primary_identifier
     if primary:
         members = {c.upper() for c in primary.attributes}
         for attribute in entity.attributes:
             if attribute.code.upper() in members:
                 attribute.is_primary = True
-
-    return entity
 
 
 # ─── RELATIONSHIPS ────────────────────────────────────────────────────────────
@@ -626,11 +685,26 @@ def _parse_shortcuts(model_elem: ET.Element, model) -> None:
     if container is None:
         return
 
-    # PD resolves the "Target Model" column through the repository, which a
-    # single file cannot do.  Two things are available here: shortcuts a
-    # <o:TargetModel> block claims explicitly, and — failing that — the one
-    # attached model that is not the .xem extension, which is the owner
-    # whenever a model attaches a single shared model (the usual case).
+    claimed, fallback_model = _shortcut_target_models(model_elem)
+
+    for elem in container:
+        if elem.tag.rsplit("}", 1)[-1] != "Shortcut":
+            continue
+        if elem.get("Ref") is not None or not elem.get("Id"):
+            continue
+        model.shortcuts.append(_shortcut_record(elem, claimed, fallback_model))
+
+
+def _shortcut_target_models(model_elem: ET.Element) -> tuple:
+    """
+    Owner model per shortcut, as (claimed, fallback_model).
+
+    PD resolves the "Target Model" column through the repository, which a
+    single file cannot do.  Two things are available here: shortcuts a
+    <o:TargetModel> block claims explicitly, and — failing that — the one
+    attached model that is not the .xem extension, which is the owner
+    whenever a model attaches a single shared model (the usual case).
+    """
     claimed: Dict[str, str] = {}
     attached: List[str] = []
     for tm in _descendants(model_elem, "TargetModel"):
@@ -644,21 +718,20 @@ def _parse_shortcuts(model_elem: ET.Element, model) -> None:
             if oid:
                 claimed[oid] = tm_name
     fallback_model = attached[0] if len(attached) == 1 else ""
+    return claimed, fallback_model
 
-    for elem in container:
-        if elem.tag.rsplit("}", 1)[-1] != "Shortcut":
-            continue
-        if elem.get("Ref") is not None or not elem.get("Id"):
-            continue
-        class_id = _attr(elem, "TargetClassID").upper()
-        model.shortcuts.append({
-            "name": _attr(elem, "Name"),
-            "code": _attr(elem, "Code") or _attr(elem, "Name"),
-            "type": _SHORTCUT_TARGET_CLASSES.get(class_id, "Object"),
-            "target_model": claimed.get(elem.get("Id", ""), fallback_model),
-            "target_package": _attr(elem, "TargetPackagePath"),
-            "target_stereotype": _attr(elem, "TargetStereotype"),
-        })
+
+def _shortcut_record(elem: ET.Element, claimed: Dict[str, str],
+                     fallback_model: str) -> Dict[str, str]:
+    class_id = _attr(elem, "TargetClassID").upper()
+    return {
+        "name": _attr(elem, "Name"),
+        "code": _attr(elem, "Code") or _attr(elem, "Name"),
+        "type": _SHORTCUT_TARGET_CLASSES.get(class_id, "Object"),
+        "target_model": claimed.get(elem.get("Id", ""), fallback_model),
+        "target_package": _attr(elem, "TargetPackagePath"),
+        "target_stereotype": _attr(elem, "TargetStereotype"),
+    }
 
 
 def parse_cdm(filepath: str) -> CDMModel:
@@ -671,84 +744,166 @@ def parse_cdm(filepath: str) -> CDMModel:
     model = CDMModel(source_file=filepath, source_tool="PowerDesigner",
                      model_type="Conceptual")
 
-    try:
-        root = safe_parse(filepath).getroot()
-    except ET.ParseError as exc:
-        logger.error("XML parse error in %s: %s", filepath, exc)
-        model.parse_error = f"XML parse error: {exc}"
-        return model
-    except OSError as exc:
-        logger.error("Cannot read %s: %s", filepath, exc)
-        model.parse_error = f"File read error: {exc}"
+    root = _read_root(model, filepath)
+    if root is None:
         return model
 
     # ── Model header ─────────────────────────────────────────────────────────
+    model_elem = _model_element(root)
+    _parse_model_header(model, model_elem, root)
+
+    # ── Domains and Data Items (resolved before attributes need them) ────────
+    domains_by_oid    = _parse_domains(model, model_elem)
+    data_items_by_oid = _parse_data_items(model, model_elem)
+
+    # ── Shortcuts (references to objects owned by other models) ──────────
+    _parse_shortcuts(model_elem, model)
+
+    # ── Entities (including packages / subject areas) ────────────────────────
+    entity_elements = _collect_entity_elements(root, model_elem, model,
+                                               domains_by_oid, data_items_by_oid)
+    entity_code_by_oid, association_code_by_oid = _parse_entities(
+        model, entity_elements, domains_by_oid, data_items_by_oid)
+
+    # Associations may also be referenced as entities by relationships.
+    entity_code_by_oid.update(association_code_by_oid)
+
+    # ── Relationships ────────────────────────────────────────────────────────
+    _parse_relationships(model, model_elem, entity_code_by_oid, association_code_by_oid)
+
+    # ── Inheritances ─────────────────────────────────────────────────────────
+    _parse_inheritances(model, model_elem, entity_code_by_oid)
+
+    # ── Business rules ───────────────────────────────────────────────────────
+    _parse_business_rules(model, model_elem)
+
+    logger.debug("Parsed %s → %s", filepath, model.stats())
+    return model
+
+
+def _read_root(model: CDMModel, filepath: str) -> Optional[ET.Element]:
+    """Root element of the file, or None with the failure recorded on `model`."""
+    try:
+        return safe_parse(filepath).getroot()
+    except ET.ParseError as exc:
+        logger.error("XML parse error in %s: %s", filepath, exc)
+        model.parse_error = f"XML parse error: {exc}"
+        return None
+    except OSError as exc:
+        logger.error("Cannot read %s: %s", filepath, exc)
+        model.parse_error = f"File read error: {exc}"
+        return None
+
+
+def _is_definition(elem: ET.Element) -> bool:
+    """True for an <o:Xxx Id="…"> definition, False for a <o:Xxx Ref="…"/> pointer."""
+    return elem.get("Ref") is None and bool(elem.get("Id"))
+
+
+def _model_element(root: ET.Element) -> ET.Element:
+    """The <o:Model> definition, falling back to the document root."""
     model_elements = [node for node in _descendants(root, "Model")
                       if node.get("Ref") is None and node.get("Id")]
-    model_elem = model_elements[0] if model_elements else root
+    return model_elements[0] if model_elements else root
 
+
+def _parse_model_header(model: CDMModel, model_elem: ET.Element, root: ET.Element) -> None:
     model.model_name = _attr(model_elem, "Name") or _attr(root, "Name")
     model.model_code = _attr(model_elem, "Code") or model.model_name
     declared_type = _attr(model_elem, "ModelType")
     if declared_type:
         model.model_type = declared_type
 
-    # ── Domains and Data Items (resolved before attributes need them) ────────
+
+def _parse_domains(model: CDMModel, model_elem: ET.Element) -> Dict[str, Domain]:
+    """Parse every domain onto `model`; returns the domain oid → Domain map."""
     domains_by_oid: Dict[str, Domain] = {}
     for local_name in ("Domain", "PhysicalDomain"):
         for elem in _descendants(model_elem, local_name):
-            if elem.get("Ref") is not None or not elem.get("Id"):
+            if not _is_definition(elem):
                 continue
             domain = _parse_domain(elem)
             domains_by_oid[domain.oid] = domain
             key = (domain.code or domain.name).upper()
             if key:
                 model.domains[key] = domain
+    return domains_by_oid
 
+
+def _parse_data_items(model: CDMModel, model_elem: ET.Element) -> Dict[str, Dict[str, str]]:
+    """Parse every data item; returns the data-item oid → record map."""
     data_items_by_oid: Dict[str, Dict[str, str]] = {}
     for elem in _descendants(model_elem, "DataItem"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
+        if not _is_definition(elem):
             continue
         data_items_by_oid[elem.get("Id", "")] = _parse_data_item(elem)
     # Kept on the model so the comparator can account for PD's
     # "List of Data Items" one-for-one in the FINDINGS sheet.
     model.data_items = dict(data_items_by_oid)
+    return data_items_by_oid
 
-    # ── Shortcuts (references to objects owned by other models) ──────────
-    _parse_shortcuts(model_elem, model)
 
-    # ── Entities (including packages / subject areas) ────────────────────────
+def _fallback_entity_elements(root: ET.Element) -> List[tuple]:
+    """Safety net: a non-standard nesting must not cost us the whole model."""
+    entity_elements: List[tuple] = []
+    seen_ids = set()
+    for elem in _descendants(root, "Entity"):
+        if not _is_definition(elem):
+            continue
+        if elem.get("Id") in seen_ids:
+            continue
+        seen_ids.add(elem.get("Id"))
+        entity_elements.append((elem, ""))
+    return entity_elements
+
+
+def _collect_entity_elements(root: ET.Element, model_elem: ET.Element, model: CDMModel,
+                             domains_by_oid: Dict[str, Domain],
+                             data_items_by_oid: Dict[str, Dict[str, str]]) -> List[tuple]:
+    """Every (entity element, subject area) pair, walking packages first."""
     entity_elements: List[tuple] = []
     _walk_scope(model_elem, "", model, domains_by_oid, data_items_by_oid, entity_elements)
 
-    # Safety net: a non-standard nesting must not cost us the whole model.
     if not entity_elements:
-        seen_ids = set()
-        for elem in _descendants(root, "Entity"):
-            if elem.get("Ref") is not None or not elem.get("Id"):
-                continue
-            if elem.get("Id") in seen_ids:
-                continue
-            seen_ids.add(elem.get("Id"))
-            entity_elements.append((elem, ""))
+        entity_elements = _fallback_entity_elements(root)
         if entity_elements:
             model.parse_warnings.append(
                 "Entities found outside the expected c:Entities collection — "
                 "file may be a non-standard export."
             )
+    return entity_elements
 
+
+def _register_entity_code(entity: Entity, is_association: bool,
+                          entity_code_by_oid: Dict[str, str],
+                          association_code_by_oid: Dict[str, str]) -> None:
+    if entity.oid:
+        if is_association:
+            association_code_by_oid[entity.oid] = entity.code
+        else:
+            entity_code_by_oid[entity.oid] = entity.code
+
+
+def _parse_entities(model: CDMModel, entity_elements: List[tuple],
+                    domains_by_oid: Dict[str, Domain],
+                    data_items_by_oid: Dict[str, Dict[str, str]]) -> tuple:
+    """
+    Parse every collected entity onto `model`; returns
+    (entity_code_by_oid, association_code_by_oid).
+
+    A real PowerDesigner CDM can list the same physical entity under more
+    than one scope — e.g. once in the model-level Entities collection and
+    again inside a package's own Entities collection — as two full <o:Entity
+    Id="oXXX"> definitions sharing the same Id, not a Ref pointer (those are
+    already filtered out by _definitions()). Left unguarded, that produces
+    two separate Entity objects for one physical entity, which add_entity()
+    then treats as a genuine code collision (storing the second as
+    "EMPLOYEE#2") — a false duplicate that gets independently validated and
+    reported twice. Keep only the first occurrence of each Id.
+    """
     entity_code_by_oid: Dict[str, str] = {}
     association_code_by_oid: Dict[str, str] = {}
 
-    # A real PowerDesigner CDM can list the same physical entity under more
-    # than one scope — e.g. once in the model-level Entities collection and
-    # again inside a package's own Entities collection — as two full <o:Entity
-    # Id="oXXX"> definitions sharing the same Id, not a Ref pointer (those are
-    # already filtered out by _definitions()). Left unguarded, that produces
-    # two separate Entity objects for one physical entity, which add_entity()
-    # then treats as a genuine code collision (storing the second as
-    # "EMPLOYEE#2") — a false duplicate that gets independently validated and
-    # reported twice. Keep only the first occurrence of each Id.
     seen_entity_ids: set = set()
     for entity_elem, subject_area in entity_elements:
         elem_id = entity_elem.get("Id")
@@ -766,18 +921,17 @@ def parse_cdm(filepath: str) -> CDMModel:
             continue
 
         model.add_entity(entity)
-        if entity.oid:
-            if is_association:
-                association_code_by_oid[entity.oid] = entity.code
-            else:
-                entity_code_by_oid[entity.oid] = entity.code
+        _register_entity_code(entity, is_association,
+                              entity_code_by_oid, association_code_by_oid)
 
-    # Associations may also be referenced as entities by relationships.
-    entity_code_by_oid.update(association_code_by_oid)
+    return entity_code_by_oid, association_code_by_oid
 
-    # ── Relationships ────────────────────────────────────────────────────────
+
+def _parse_relationships(model: CDMModel, model_elem: ET.Element,
+                         entity_code_by_oid: Dict[str, str],
+                         association_code_by_oid: Dict[str, str]) -> None:
     for elem in _descendants(model_elem, "Relationship"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
+        if not _is_definition(elem):
             continue
         model.relationships.append(_parse_relationship(elem, entity_code_by_oid))
 
@@ -785,13 +939,18 @@ def parse_cdm(filepath: str) -> CDMModel:
         _parse_association_links(model_elem, entity_code_by_oid, association_code_by_oid)
     )
 
-    # ── Inheritances ─────────────────────────────────────────────────────────
-    # PowerDesigner does NOT nest the subtypes inside <o:Inheritance>.  The
-    # parent sits in <c:ParentEntity>, while each child lives in a SEPARATE
-    # sibling <o:InheritanceLink> whose <c:Object1> points back at the
-    # inheritance and whose <c:Object2> points at the subtype entity.  Indexing
-    # those links model-wide is the only way to recover the children; looking
-    # for them as descendants finds nothing and silently drops every hierarchy.
+
+def _index_inheritance_children(model_elem: ET.Element) -> Dict[str, List[str]]:
+    """
+    Subtype entity oids per inheritance oid.
+
+    PowerDesigner does NOT nest the subtypes inside <o:Inheritance>.  The
+    parent sits in <c:ParentEntity>, while each child lives in a SEPARATE
+    sibling <o:InheritanceLink> whose <c:Object1> points back at the
+    inheritance and whose <c:Object2> points at the subtype entity.  Indexing
+    those links model-wide is the only way to recover the children; looking
+    for them as descendants finds nothing and silently drops every hierarchy.
+    """
     children_by_inheritance: Dict[str, List[str]] = {}
     for link in _descendants(model_elem, "InheritanceLink"):
         if link.get("Ref") is not None:
@@ -800,9 +959,15 @@ def parse_cdm(filepath: str) -> CDMModel:
         child = _first_ref(link, "Object2", "Entity")
         if owner and child:
             children_by_inheritance.setdefault(owner, []).append(child)
+    return children_by_inheritance
+
+
+def _parse_inheritances(model: CDMModel, model_elem: ET.Element,
+                        entity_code_by_oid: Dict[str, str]) -> None:
+    children_by_inheritance = _index_inheritance_children(model_elem)
 
     for elem in _descendants(model_elem, "Inheritance"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
+        if not _is_definition(elem):
             continue
         inheritance = _parse_inheritance(elem, entity_code_by_oid)
         if not inheritance.children:
@@ -812,11 +977,9 @@ def parse_cdm(filepath: str) -> CDMModel:
         if inheritance.parent and inheritance.children:
             model.inheritances.append(inheritance)
 
-    # ── Business rules ───────────────────────────────────────────────────────
+
+def _parse_business_rules(model: CDMModel, model_elem: ET.Element) -> None:
     for elem in _descendants(model_elem, "BusinessRule"):
-        if elem.get("Ref") is not None or not elem.get("Id"):
+        if not _is_definition(elem):
             continue
         model.business_rules.append(_parse_business_rule(elem))
-
-    logger.debug("Parsed %s → %s", filepath, model.stats())
-    return model

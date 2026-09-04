@@ -159,6 +159,60 @@ def build_slot_map(schema: list) -> dict:
 
 # ─── binary backend ───────────────────────────────────────────────────────────
 
+def _name_anchors(data: bytes) -> list:
+    """Object name records in file order, as (offset, name) ownership anchors."""
+    anchors = []
+    cursor = 0
+    while True:
+        cursor = data.find(_NAME_SIG, cursor)
+        if cursor < 0:
+            break
+        text, _ = _read_prefixed(data, cursor + len(_NAME_SIG))
+        if text is not None:
+            anchors.append((cursor, text))
+        cursor += len(_NAME_SIG)
+    return anchors
+
+
+def _owner_at(anchors: list, anchor_offsets: list, position: int) -> str:
+    """The object a value at `position` belongs to: the nearest preceding name record."""
+    index = bisect.bisect_right(anchor_offsets, position) - 1
+    return anchors[index][1] if index >= 0 else ""
+
+
+def _decode_values(data: bytes, anchors: list, slot_map: dict,
+                   result: Readback) -> tuple[int, set]:
+    """
+    Decode every UDP value record into `result`.
+
+    Returns (decoded, unmapped): how many value records were read, and the slot
+    ids the schema does not account for.
+    """
+    anchor_offsets = [offset for offset, _ in anchors]
+    decoded = 0
+    unmapped = set()
+    for match in _UDP_RE.finditer(data):
+        slot = struct.unpack("<H", match.group(1))[0]
+        text, _ = _read_prefixed(data, match.end())
+        if text is None:
+            continue
+        decoded += 1
+
+        mapped = slot_map.get(slot)
+        if mapped is None:
+            unmapped.add(slot)
+            continue
+        udp_name, owner_type = mapped
+
+        owner = _owner_at(anchors, anchor_offsets, match.start())
+        key = (owner.strip().lower(), udp_name)
+        result.values[key] = text
+        result.owners.setdefault(owner.strip().lower(), owner)
+        if owner_type == "Model" and not result.model_root_name:
+            result.model_root_name = owner
+    return decoded, unmapped
+
+
 def read_binary(model_path, schema: list, expected: dict | None = None) -> Readback:
     """
     Decode UDP values straight out of a saved `.erwin` file.
@@ -178,17 +232,7 @@ def read_binary(model_path, schema: list, expected: dict | None = None) -> Readb
     data = path.read_bytes()
 
     # 1. Object name records, in file order, as ownership anchors.
-    anchors = []
-    cursor = 0
-    while True:
-        cursor = data.find(_NAME_SIG, cursor)
-        if cursor < 0:
-            break
-        text, _ = _read_prefixed(data, cursor + len(_NAME_SIG))
-        if text is not None:
-            anchors.append((cursor, text))
-        cursor += len(_NAME_SIG)
-
+    anchors = _name_anchors(data)
     if not anchors:
         result.method = "unavailable"
         result.messages.append(
@@ -196,33 +240,8 @@ def read_binary(model_path, schema: list, expected: dict | None = None) -> Readb
             "layout this decoder understands. Use the COM backend.")
         return result
 
-    anchor_offsets = [offset for offset, _ in anchors]
-
-    # 2. UDP value records.
-    slot_map = build_slot_map(schema)
-    decoded = 0
-    unmapped = set()
-    for match in _UDP_RE.finditer(data):
-        slot = struct.unpack("<H", match.group(1))[0]
-        text, _ = _read_prefixed(data, match.end())
-        if text is None:
-            continue
-        decoded += 1
-
-        mapped = slot_map.get(slot)
-        if mapped is None:
-            unmapped.add(slot)
-            continue
-        udp_name, owner_type = mapped
-
-        # 3. Owner = nearest preceding name record.
-        index = bisect.bisect_right(anchor_offsets, match.start()) - 1
-        owner = anchors[index][1] if index >= 0 else ""
-        key = (owner.strip().lower(), udp_name)
-        result.values[key] = text
-        result.owners.setdefault(owner.strip().lower(), owner)
-        if owner_type == "Model" and not result.model_root_name:
-            result.model_root_name = owner
+    # 2. UDP value records, each owned by the nearest preceding name record.
+    decoded, unmapped = _decode_values(data, anchors, build_slot_map(schema), result)
 
     result.unmapped_slots = sorted(unmapped)
     if unmapped:
@@ -286,6 +305,77 @@ def _self_test(result: Readback, decoded: int, expected: dict | None) -> None:
 
 # ─── COM backend ──────────────────────────────────────────────────────────────
 
+_SCAPI_CLSID = "{6774E2C3-06E9-4943-A8D4-E3007AB1F42E}"
+_UNRESOLVED = object()   # no candidate property name resolved on the object
+
+
+def _win32_client():
+    """win32com.client when pywin32 is usable, else (None, reason)."""
+    try:
+        import pythoncom  # noqa: F401
+        import win32com.client
+    except ImportError as exc:
+        return None, str(exc)
+    return win32com.client, ""
+
+
+def _connect_scapi(client):
+    """Attach to a running erwin if there is one, otherwise start it."""
+    try:
+        return client.GetActiveObject(_SCAPI_CLSID)
+    except Exception:
+        return client.Dispatch(_SCAPI_CLSID)
+
+
+def _root_name(root, fallback: str) -> str:
+    try:
+        return str(root.Name)
+    except Exception:
+        return fallback
+
+
+def _resolve_udp_value(properties, owner_type: str, udp: str):
+    """
+    The value erwin holds for `udp`, or _UNRESOLVED.
+
+    The definition is named "<Owner>.Logical.<udp>", and erwin also accepts the
+    bare name on the instance. Each is tried because which one resolves depends
+    on how the UDP was defined; the first that resolves is the answer, even when
+    that answer is None.
+    """
+    for candidate in (f"{owner_type}.Logical.{udp}", udp, f"Udp.{udp}"):
+        try:
+            return properties(candidate).Value
+        except Exception:  # nosec B112
+            continue
+    return _UNRESOLVED
+
+
+def _read_object_udps(obj, owner_label: str, owner_type: str,
+                      udp_names: list, result: Readback) -> None:
+    """Record every non-empty UDP value one erwin object holds."""
+    properties = obj.Properties
+    for udp in udp_names:
+        value = _resolve_udp_value(properties, owner_type, udp)
+        if value is _UNRESOLVED or value is None:
+            continue
+        text = str(value)
+        if text:
+            key = (owner_label.strip().lower(), udp)
+            result.values[key] = text
+            result.owners.setdefault(owner_label.strip().lower(), owner_label)
+
+
+def _close_quietly(session, scapi, persistence_unit) -> None:
+    """Release the erwin session and model; failures here must not mask the read."""
+    for closer in (lambda: session.Close(),
+                   lambda: scapi.PersistenceUnits.Remove(persistence_unit)):
+        try:
+            closer()
+        except Exception:  # nosec B110
+            pass
+
+
 def read_com(model_path, schema: list, expected: dict | None = None) -> Readback:
     """
     Read UDP values from a saved model through erwin's SCAPI.
@@ -295,13 +385,11 @@ def read_com(model_path, schema: list, expected: dict | None = None) -> Readback
     session that wrote the values.
     """
     result = Readback(model_path=str(model_path), method="com")
-    try:
-        import pythoncom  # noqa: F401
-        import win32com.client
-    except ImportError as exc:
+    client, error = _win32_client()
+    if client is None:
         result.method = "unavailable"
         result.messages.append(
-            f"pywin32 is not installed, so erwin cannot be queried ({exc}). "
+            f"pywin32 is not installed, so erwin cannot be queried ({error}). "
             f"Use --readback binary for an offline cross-check.")
         return result
 
@@ -311,14 +399,9 @@ def read_com(model_path, schema: list, expected: dict | None = None) -> Readback
         result.messages.append(f"erwin model not found: {path}")
         return result
 
-    clsid = "{6774E2C3-06E9-4943-A8D4-E3007AB1F42E}"
     scapi = session = persistence_unit = None
     try:
-        try:
-            scapi = win32com.client.GetActiveObject(clsid)
-        except Exception:
-            scapi = win32com.client.Dispatch(clsid)
-
+        scapi = _connect_scapi(client)
         persistence_unit = scapi.PersistenceUnits.Add(str(path.resolve()))
         session = scapi.Sessions.Add()
         session.Open(persistence_unit)
@@ -326,38 +409,13 @@ def read_com(model_path, schema: list, expected: dict | None = None) -> Readback
 
         udp_names = [str(p.get("udp", "")) for p in schema if p.get("udp")]
 
-        def read_object(obj, owner_label, owner_type):
-            properties = obj.Properties
-            for udp in udp_names:
-                # The definition is named "<Owner>.Logical.<udp>", and erwin also
-                # accepts the bare name on the instance. Both are tried because
-                # which one resolves depends on how the UDP was defined.
-                for candidate in (f"{owner_type}.Logical.{udp}", udp,
-                                  f"Udp.{udp}"):
-                    try:
-                        value = properties(candidate).Value
-                    except Exception:  # nosec B112
-                        continue
-                    if value is None:
-                        break
-                    text = str(value)
-                    if text:
-                        key = (owner_label.strip().lower(), udp)
-                        result.values[key] = text
-                        result.owners.setdefault(owner_label.strip().lower(),
-                                                 owner_label)
-                    break
-
         root = model_objects.Root
-        try:
-            root_name = str(root.Name)
-        except Exception:
-            root_name = path.stem
+        root_name = _root_name(root, path.stem)
         result.model_root_name = root_name
-        read_object(root, root_name, "Model")
+        _read_object_udps(root, root_name, "Model", udp_names, result)
 
         for entity in model_objects.Collect(root, "Entity"):
-            read_object(entity, str(entity.Name), "Entity")
+            _read_object_udps(entity, str(entity.Name), "Entity", udp_names, result)
 
         result.messages.append(
             f"Read {len(result.values)} UDP value(s) from erwin via SCAPI.")
@@ -365,12 +423,7 @@ def read_com(model_path, schema: list, expected: dict | None = None) -> Readback
         result.method = "unavailable"
         result.messages.append(f"erwin could not be queried over COM: {exc}")
     finally:
-        for closer in (lambda: session.Close(),
-                       lambda: scapi.PersistenceUnits.Remove(persistence_unit)):
-            try:
-                closer()
-            except Exception:  # nosec B110
-                pass
+        _close_quietly(session, scapi, persistence_unit)
     return result
 
 

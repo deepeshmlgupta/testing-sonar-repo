@@ -1,0 +1,26 @@
+name: SonarQube Scan
+
+on:
+  push:
+
+jobs:
+  sonarqube-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: sqa_218787f25c64b8879a86508dea8758c5fdf4fb03
+          SONAR_HOST_URL: http://20.244.11.16:9000/
+        with:
+          args: >
+            -Dsonar.projectKey=testing-sonar-repo
+            -Dsonar.projectName=testing-sonar-repo
+            -Dsonar.sources=.
+            -Dsonar.exclusions=**/__pycache__/**,**/*.pyc,**/output_*/**,**/output_excel_reports/**,**/output_jsons/**,.pytest_cache/**
+            -Dsonar.python.version=3.13

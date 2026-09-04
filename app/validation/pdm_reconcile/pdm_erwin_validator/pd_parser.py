@@ -21,6 +21,9 @@ from typing import Dict, Any, List, Optional
 logger = logging.getLogger(__name__)
 
 # XML namespaces used in PDM files
+OBJECT_TABLE = "o:Table"
+OBJECT_COLUMN = "o:Column"
+
 NS = {
     "o": "object",
     "a": "attribute",
@@ -119,7 +122,7 @@ def _parse_key(key_elem: ET.Element, id_map: Dict[str, ET.Element]) -> Dict[str,
     is_unique = _attr(key_elem, "UniqueConstraint") in ("1", "true", "True")
 
     col_codes: List[str] = []
-    for ref in key_elem.iter(_ns("o:Column")):
+    for ref in key_elem.iter(_ns(OBJECT_COLUMN)):
         ref_id = ref.get("Ref")
         if ref_id and ref_id in id_map:
             col_codes.append(_get_code(id_map[ref_id]))
@@ -142,7 +145,7 @@ def _parse_index(idx_elem: ET.Element, id_map: Dict[str, ET.Element]) -> Dict[st
     # Two possible structures in different PD versions; dedupe so a column that
     # appears under both <c:Column> and a nested ref is not counted twice.
     for ic in idx_elem.iter(_ns("o:IndexColumn")):
-        for ref in ic.iter(_ns("o:Column")):
+        for ref in ic.iter(_ns(OBJECT_COLUMN)):
             ref_id = ref.get("Ref")
             if ref_id and ref_id in id_map and ref_id not in seen:
                 seen.add(ref_id)
@@ -170,7 +173,7 @@ def _parse_table(tbl_elem: ET.Element, id_map: Dict[str, ET.Element]) -> Dict[st
     col_id_to_code: Dict[str, str] = {}
 
     # Columns
-    for col in tbl_elem.iter(_ns("o:Column")):
+    for col in tbl_elem.iter(_ns(OBJECT_COLUMN)):
         if col.get("Ref"):   # skip cross-references
             continue
         parsed = _parse_column(col)
@@ -217,71 +220,74 @@ def _parse_table(tbl_elem: ET.Element, id_map: Dict[str, ET.Element]) -> Dict[st
     }
 
 
-def _parse_reference(ref_elem: ET.Element,
-                     id_map: Dict[str, ET.Element],
-                     tbl_id_to_code: Dict[str, str]) -> Dict[str, Any]:
-    """Parse a foreign-key Reference element."""
-    # Parent table
-    parent_ref = None
-    for pt in ref_elem.iter(_ns("o:Table")):
-        r = pt.get("Ref")
-        if r:
-            parent_ref = r
-            break
-
-    # Child table
-    child_ref = None
-    # The child table is in c:ChildTable
-    child_container = ref_elem.find(f".//{_ns('o:Table')}")
-    # We need both parent and child — iterate carefully
-    parent_table_code = tbl_id_to_code.get(parent_ref, parent_ref or "")
-
-    # Better approach: find parent via c:ParentTable, child via c:ChildTable
-    def _first_table_ref(container_tag: str) -> Optional[str]:
-        container = ref_elem.find(f"{_ns(container_tag)}")
-        if container is None:
-            return None
-        tbl = container.find(_ns("o:Table"))
-        if tbl is not None:
-            return tbl.get("Ref")
+def _first_table_ref(ref_elem: ET.Element, container_tag: str) -> Optional[str]:
+    """Return the referenced table ID from a parent/child table container."""
+    container = ref_elem.find(_ns(container_tag))
+    if container is None:
         return None
+    table = container.find(_ns(OBJECT_TABLE))
+    return table.get("Ref") if table is not None else None
 
-    parent_id = _first_table_ref("c:ParentTable")
-    child_id  = _first_table_ref("c:ChildTable")
 
+def _table_codes(
+    ref_elem: ET.Element,
+    tbl_id_to_code: Dict[str, str],
+) -> tuple:
+    """Resolve parent and child table references to physical table codes."""
+    parent_id = _first_table_ref(ref_elem, "c:ParentTable")
+    child_id = _first_table_ref(ref_elem, "c:ChildTable")
     parent_code = tbl_id_to_code.get(parent_id, parent_id or "UNKNOWN")
-    child_code  = tbl_id_to_code.get(child_id,  child_id  or "UNKNOWN")
+    child_code = tbl_id_to_code.get(child_id, child_id or "UNKNOWN")
+    return parent_code, child_code
 
-    # Column joins
-    join_cols: List[Dict] = []
+
+def _column_code(ref_id: Optional[str], id_map: Dict[str, ET.Element]) -> str:
+    """Resolve a PowerDesigner column reference to its physical code."""
+    if ref_id and ref_id in id_map:
+        return _get_code(id_map[ref_id])
+    return ref_id or ""
+
+
+def _split_join_columns(
+    join: ET.Element,
+) -> tuple:
+    """Return the first two column reference IDs from a ReferenceJoin."""
+    refs = [
+        obj.get("Ref")
+        for obj in join.findall(f".//{_ns(OBJECT_COLUMN)}")
+        if obj.get("Ref") is not None
+    ]
+    return (refs[0] if refs else None, refs[1] if len(refs) > 1 else None)
+
+
+def _parse_reference_joins(
+    ref_elem: ET.Element,
+    id_map: Dict[str, ET.Element],
+) -> List[Dict[str, str]]:
+    """Parse all column joins in a foreign-key reference."""
+    join_cols: List[Dict[str, str]] = []
     for join in ref_elem.iter(_ns("o:ReferenceJoin")):
-        p_col_ref = None
-        c_col_ref = None
-        for obj in join.findall(f".//{_ns('o:Column')}"):
-            ref_id = obj.get("Ref")
-            if ref_id is None:
-                continue
-            if p_col_ref is None:
-                p_col_ref = ref_id
-            else:
-                c_col_ref = ref_id
-
-        def _code_from_ref(ref_id):
-            if ref_id and ref_id in id_map:
-                return _get_code(id_map[ref_id])
-            return ref_id or ""
-
+        parent_ref, child_ref = _split_join_columns(join)
         join_cols.append({
-            "parent_col": _code_from_ref(p_col_ref),
-            "child_col":  _code_from_ref(c_col_ref),
+            "parent_col": _column_code(parent_ref, id_map),
+            "child_col": _column_code(child_ref, id_map),
         })
+    return join_cols
 
+
+def _parse_reference(
+    ref_elem: ET.Element,
+    id_map: Dict[str, ET.Element],
+    tbl_id_to_code: Dict[str, str],
+) -> Dict[str, Any]:
+    """Parse a foreign-key Reference element."""
+    parent_code, child_code = _table_codes(ref_elem, tbl_id_to_code)
     return {
-        "name":         _get_name(ref_elem),
-        "code":         _get_code(ref_elem),
+        "name": _get_name(ref_elem),
+        "code": _get_code(ref_elem),
         "parent_table": parent_code,
-        "child_table":  child_code,
-        "join_columns": join_cols,
+        "child_table": child_code,
+        "join_columns": _parse_reference_joins(ref_elem, id_map),
     }
 
 
@@ -334,7 +340,7 @@ def parse_pdm(filepath: str) -> Dict[str, Any]:
     # definition, record the collision, and let the comparator report it.
     duplicate_tables: Dict[str, int] = {}
 
-    for tbl in root.iter(_ns("o:Table")):
+    for tbl in root.iter(_ns(OBJECT_TABLE)):
         if tbl.get("Ref"):
             continue
         parsed_tbl = _parse_table(tbl, id_map)

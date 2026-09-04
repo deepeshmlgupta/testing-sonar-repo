@@ -105,25 +105,15 @@ def load_model(scapi, is_visible, xml_path=None):
 
 
 def main():
-    # Setup the command line options you can type
     ap = argparse.ArgumentParser(description="Inject custom properties into an erwin model.")
     ap.add_argument("--xml", help="Path to the erwin XML model to load. If left blank, uses the active open model.")
     ap.add_argument("--manifest", default="erwin_input/property_manifest.json", help="Path to the data file (property_manifest.json)")
     ap.add_argument("--schema", default="erwin_input/udp_schema.json", help="Path to the rules file (udp_schema.json)")
     ap.add_argument("--out_erwin", help="Optional path to Save As an .erwin file.")
     ap.add_argument("--out_xml", help="Optional path to Save As an .xml file.")
-    ap.add_argument("--results_json", help="Optional path to write the injection results, "
-                                          "used to build the Excel migration report.")
-    ap.add_argument("--udp_name_style", default="qualified",
-                    choices=["qualified", "bare"],
-                    help="How UDP definitions are named in the erwin dictionary. "
-                         "'qualified' uses <Owner>.Logical.<name> (current behaviour, "
-                         "proven to store values correctly). 'bare' uses <name> and "
-                         "relies on tag_Udp_Owner_Type alone - try this if UDPs store "
-                         "values but do not appear where expected in the erwin UI.")
-    ap.add_argument("--no_verify", dest="verify", action="store_false",
-                    help="Skip re-opening the saved model to verify that UDP values "
-                         "actually persisted to disk.")
+    ap.add_argument("--results_json", help="Optional path to write the injection results.")
+    ap.add_argument("--udp_name_style", default="qualified", choices=["qualified", "bare"], help="How UDP definitions are named in the erwin dictionary.")
+    ap.add_argument("--no_verify", dest="verify", action="store_false", help="Skip re-opening the saved model to verify.")
     args = ap.parse_args()
 
     manifest_path = Path(args.manifest)
@@ -131,393 +121,42 @@ def main():
         print(f"Error: Data file {manifest_path} was not found.")
         sys.exit(1)
 
-    # ---------------------------------------------------------------------
-    # STEP 1: LOAD DATA
-    # ---------------------------------------------------------------------
-    # print(f"Loading data from {manifest_path}...")
     manifest = json.loads(manifest_path.read_text())
-
-    # Records of what erwin actually did, consumed by udp_report.py.
     started = datetime.now()
     dictionary_log = []
     value_log = []
 
-    # ---------------------------------------------------------------------
-    # STEP 2: CONNECT TO ERWIN
-    # ---------------------------------------------------------------------
-    # Connect to erwin and load the file
     scapi, is_visible = connect_scapi()
     model = load_model(scapi, is_visible, args.xml)
 
     try:
         session = None
+        trans_id = None
         schema_path = Path(args.schema)
         
-        # ---------------------------------------------------------------------
-        # STEP 3: SETUP THE DICTIONARY (SO PROPERTIES SHOW IN UI)
-        # ---------------------------------------------------------------------
-        if schema_path.exists():
-            # print(f"Loading property definitions from {schema_path}...")
-            schema = json.loads(schema_path.read_text())
-            
-            # print("Opening the erwin dictionary to update property definitions...")
-            session_m1 = scapi.Sessions.Add()
-            # The '1' below tells erwin we are editing the Dictionary/Metadata, not the actual data
-            session_m1.Open(model, 1, 0) 
-            trans_m1 = session_m1.BeginTransaction()
-            
-            try:
-                m1_objects = session_m1.ModelObjects
-                # Gather all existing custom properties so we don't duplicate them
-                existing_udps = m1_objects.Collect(m1_objects.Root, "Property_Type")
-                existing_names = {}
-                for u in existing_udps:
-                    full_name = u.Properties("Name").Value
-                    if full_name:
-                        existing_names[full_name.lower()] = u
-                
-                created_count = 0
-                updated_count = 0
-                
-                # Loop through each property rule from the JSON file
-                for prop in schema:
-                    name = prop.get("udp")
-                    if not name:
-                        continue
-                        
-                    # Check if this property should be a Drop-Down List (6) or plain Text (2)
-                    is_list = str(prop.get("type", "")).strip().lower() == "list"
-                    ptype = 6 if is_list else 2
-                    
-                    # Create the property for both Entities and the overall Model
-                    for owner in ["Entity", "Model"]:
-                        # The dictionary entry name. "qualified" embeds the owner in
-                        # the name as well as setting tag_Udp_Owner_Type; that is how
-                        # this tool has always worked and it does store values
-                        # correctly. "bare" leaves the owner to the tag alone.
-                        if args.udp_name_style == "bare":
-                            full_name = name
-                        else:
-                            full_name = f"{owner}.Logical.{name}"
-                        already_exists = full_name.lower() in existing_names
-                        
-                        # Record every attempt so the Excel report can show which
-                        # definitions erwin really accepted.
-                        record = {
-                            "udp": name,
-                            "owner": owner,
-                            "full_name": full_name,
-                            "erwin_type": "List" if is_list else "Text",
-                            "value_list": ",".join(prop.get("value_list") or []),
-                            "action": "failed",
-                            "error": "",
-                        }
-                        dictionary_log.append(record)
-                        
-                        try:
-                            if already_exists:
-                                # The property already exists, let's update it
-                                target_udp = existing_names[full_name.lower()]
-                                target_udp.Properties("tag_Udp_Data_Type").Value = ptype
-                                try:
-                                    # Ensure all the hidden switches are turned on so it is visible in the UI
-                                    target_udp.Properties("tag_Udp_Owner_Type").Value = owner
-                                    target_udp.Properties("tag_Is_Logical").Value = True
-                                    target_udp.Properties("tag_Is_Physical").Value = True
-                                    target_udp.Properties("tag_Is_Locally_Defined").Value = True # This means "User-Defined"
-                                    target_udp.Properties("tag_Is_Scalar").Value = True
-                                    target_udp.Properties("tag_Is_Prefetch").Value = True
-                                except Exception:  # nosec B110
-                                    pass
-                                
-                                # If it's a Drop-Down list, add the comma-separated options
-                                if ptype == 6 and "value_list" in prop:
-                                    try:
-                                        list_str = ",".join(prop["value_list"])
-                                        target_udp.Properties("tag_Udp_Values_List").Value = list_str
-                                    except Exception:  # nosec B110
-                                        pass
-                                record["action"] = "updated"
-                                updated_count += 1
-                            else:
-                                # The property does not exist, let's create a brand new one
-                                new_udp = m1_objects.Add("Property_Type")
-                                new_udp.Properties("Name").Value = full_name
-                                new_udp.Properties("tag_Udp_Owner_Type").Value = owner
-                                new_udp.Properties("tag_Udp_Data_Type").Value = ptype
-                                try:
-                                    # Turn on all the UI visibility switches
-                                    new_udp.Properties("tag_Is_Logical").Value = True
-                                    new_udp.Properties("tag_Is_Physical").Value = True
-                                    new_udp.Properties("tag_Is_Locally_Defined").Value = True
-                                    new_udp.Properties("tag_Is_Scalar").Value = True
-                                    new_udp.Properties("tag_Is_Prefetch").Value = True
-                                except Exception:  # nosec B110
-                                    pass
-                                    
-                                # If it's a Drop-Down list, add the comma-separated options
-                                if ptype == 6 and "value_list" in prop:
-                                    try:
-                                        list_str = ",".join(prop["value_list"])
-                                        new_udp.Properties("tag_Udp_Values_List").Value = list_str
-                                    except Exception:  # nosec B110
-                                        pass
-                                record["action"] = "created"
-                                created_count += 1
-                        except Exception as exc:
-                            # One rejected definition should not abandon the rest.
-                            record["error"] = str(exc)[:300]
-                            print(f"       Warning: could not define {full_name}: {exc}")
-                
-                # Save all the dictionary changes we just made
-                if created_count > 0 or updated_count > 0:
-                    session_m1.CommitTransaction(trans_m1)
-                    print(f"       Dictionary updated ({created_count//2} UDPs applied to both Entities & Attributes = {created_count} total).")
-                else:
-                    session_m1.RollbackTransaction(trans_m1)
-                    
-            except Exception as e:
-                print(f"Warning: Failed to create properties in the dictionary: {e}")
-                session_m1.RollbackTransaction(trans_m1)
-            finally:
-                session_m1.Close()
-        else:
-            print(f"Notice: Rules file not found at {schema_path}. Skipping the dictionary setup step.")
-            schema = []
-
-        # ---------------------------------------------------------------------
-        # STEP 4: INJECT DATA INTO THE MODEL
-        # ---------------------------------------------------------------------
-        # print("Opening session to inject data...")
+        schema = _setup_dictionary(scapi, model, schema_path, args, dictionary_log)
+        
         session = scapi.Sessions.Add()
         session.Open(model)
-        
-        # Start a single transaction so erwin doesn't slow down saving every single row
         trans_id = session.BeginTransaction()
         
-        model_objects = session.ModelObjects
-        # Get all the tables (Entities) in the file at once
-        entity_collection = model_objects.Collect(model_objects.Root, "Entity")
+        entities_by_name, counts = _inject_data(session, manifest, value_log)
+        updates_applied, verified, altered, skipped = counts
         
-        # Save them in a fast dictionary (hashmap) so we can look them up instantly by name
-        entities_by_name = {}
-        for ent in entity_collection:
-            entities_by_name[ent.Name.lower()] = ent
-
-        updates_applied = 0
-        skipped = 0
-        verified = 0
-        altered = 0
-        
-        # Occurrence counter keeps duplicate (entity, udp, source_path) rows
-        # distinct, so the report can join each result back to its source row.
-        occurrences = {}
-        
-        # print("Injecting values...")
-        for row in manifest:
-            entity_name = row.get("entity_name", "")
-            udp_name = row.get("udp", "")
-            val = row.get("value", "")
-            source_path = row.get("source_path", "")
-            
-            if not udp_name:
-                continue
-
-            occ_key = (entity_name.lower(), udp_name, source_path)
-            occurrence = occurrences.get(occ_key, 0)
-            occurrences[occ_key] = occurrence + 1
-            
-            result = {
-                "entity_name": entity_name,
-                "pd_object_id": row.get("pd_object_id", ""),
-                "udp": udp_name,
-                "source_path": source_path,
-                "occurrence": occurrence,
-                "source_value": str(val),
-                "target_value": "",
-                "applied_to": "Model Root" if not entity_name else "Entity",
-                "property_format": "",
-                "status": ST_REJECTED,
-                "note": "",
-            }
-            value_log.append(result)
-
-            # Figure out if we are updating the overall Model, or a specific Table (Entity)
-            if not entity_name:
-                target_obj = model_objects.Root
-            else:
-                target_obj = entities_by_name.get(entity_name.lower())
-
-            if not target_obj:
-                # The table doesn't exist in the file - record it, don't guess
-                result["status"] = ST_NO_ENTITY
-                result["note"] = "No entity of this name exists in the target erwin model."
-                skipped += 1
-                continue
-
-            properties = target_obj.Properties
-            success = False
-            
-            # erwin's internal engine is very picky about naming formats. We try multiple until one sticks.
-            formats = [udp_name, f"Udp.{udp_name}", f"Entity.Logical.{udp_name}", f"Entity.Physical.{udp_name}", f"Model.Logical.{udp_name}"]
-            
-            for fmt in formats:
-                try:
-                    prop = properties(fmt)
-                    prop.Value = str(val)
-                    success = True
-                    result["property_format"] = fmt
-                    
-                    # Read the value straight back out of erwin. This is the
-                    # only way to know erwin kept what we sent - a List UDP
-                    # silently drops a value outside its permitted list.
-                    try:
-                        readback = prop.Value
-                        readback = "" if readback is None else str(readback)
-                        result["target_value"] = readback
-                        if readback == str(val):
-                            result["status"] = ST_VERIFIED
-                            # Clear any error left by an earlier format attempt.
-                            result["note"] = ""
-                            verified += 1
-                        else:
-                            result["status"] = ST_ALTERED
-                            result["note"] = "erwin stored a different value than the one sent."
-                            altered += 1
-                    except Exception as exc:
-                        result["status"] = ST_UNVERIFIED
-                        result["note"] = f"Value written but could not be read back: {str(exc)[:150]}"
-                    break # Stop trying formats once we succeed
-                except Exception as exc:
-                    result["note"] = str(exc)[:200]
-            
-            if not success:
-                # erwin rejected the property (e.g. trying to add a table property to a model)
-                result["status"] = ST_REJECTED
-                result["note"] = ("erwin accepted none of the known property name formats "
-                                  "for this UDP on this object.")
-                skipped += 1
-            else:
-                updates_applied += 1
-
-        print(f"       Successfully injected {updates_applied} values "
-              f"({verified} verified by read-back, {altered} altered by erwin, {skipped} skipped).")
-        
-        # ---------------------------------------------------------------------
-        # STEP 5: SAVE & CLOSE
-        # ---------------------------------------------------------------------
-        # print("Saving all changes...")
         session.CommitTransaction(trans_id)
         
-        pu_item = scapi.PersistenceUnits.Item(model.ObjectId)
+        _save_model(scapi, model, args, is_visible)
         
-        if args.out_erwin:
-            # print(f"Saving As .erwin: {args.out_erwin}")
-            if os.path.exists(args.out_erwin):
-                try:
-                    os.remove(args.out_erwin)
-                except PermissionError:
-                    raise PermissionError(f"Cannot overwrite {args.out_erwin} because it is currently open or locked. Please close it in erwin Data Modeler and try again!")
-            pu_item.Save(args.out_erwin)
-            
-        if args.out_xml:
-            if is_visible:
-                # print(f"Saving As .xml: {args.out_xml}")
-                pu_item.Save(str(Path(args.out_xml).resolve()))
-            else:
-                print(f"CRITICAL WARNING: Cannot Save As .xml because the erwin UI is hidden! Skipping XML export to prevent crashing!")
-            
-        if not args.out_erwin and not args.out_xml and args.xml:
-            # Overwrite the original file with all our new data
-            pu_item.Save()
-            # print("File overwritten successfully.")
-            
-        # ---------------------------------------------------------------------
-        # STEP 6: RECORD THE RESULTS (input for the Excel migration report)
-        # ---------------------------------------------------------------------
-        # ---------------------------------------------------------------------
-        # STEP 5b: VERIFY THE SAVED FILE
-        # The read-back inside the injection loop proves the session accepted a
-        # value. It cannot prove the value survived being written to disk,
-        # because at that point nothing had been. Re-reading the saved model
-        # closes that gap - it is what turns "injected" into "verified".
-        # ---------------------------------------------------------------------
-        persisted = {"attempted": False, "method": "", "reliable": None,
-                     "values_found": 0, "confirmed": 0, "not_persisted": 0,
-                     "messages": []}
-        saved_model = args.out_erwin or args.out_xml or args.xml
-        if args.verify and udp_readback is not None and saved_model and schema:
-            persisted["attempted"] = True
-            try:
-                expected = udp_readback.expected_from_manifest(
-                    manifest, Path(saved_model).stem)
-                back = udp_readback.read_udps(saved_model, schema, "binary", expected)
-                persisted["method"] = back.method
-                persisted["reliable"] = back.reliable
-                persisted["values_found"] = len(back.values)
-                persisted["messages"] = list(back.messages)
-                if back.reliable:
-                    root = back.model_root_name or Path(saved_model).stem
-                    for item in value_log:
-                        owner = item["entity_name"].strip() or root
-                        on_disk = back.get(owner, item["udp"])
-                        item["persisted_value"] = "" if on_disk is None else on_disk
-                        if not str(item["source_value"]).strip():
-                            item["persisted"] = "blank source"
-                        elif on_disk is None:
-                            item["persisted"] = "no"
-                            persisted["not_persisted"] += 1
-                        elif str(on_disk) == str(item["source_value"]):
-                            item["persisted"] = "yes"
-                            persisted["confirmed"] += 1
-                        else:
-                            item["persisted"] = "altered"
-                            persisted["not_persisted"] += 1
-                    print("       Post-save verification: "
-                          f"{persisted['confirmed']} value(s) confirmed in the "
-                          f"saved file, {persisted['not_persisted']} not.")
-                else:
-                    print("       Post-save verification inconclusive: the saved "
-                          "file could not be decoded reliably. Run udp_compare.py "
-                          "--method com for an authoritative check.")
-            except Exception as exc:
-                persisted["messages"].append(str(exc)[:300])
-                print(f"       Notice: post-save verification failed: {exc}")
+        persisted = _verify_saved_model(args, manifest, schema, value_log)
+        
+        _record_results(args, is_visible, started, entities_by_name, counts, persisted, dictionary_log, value_log)
 
-        if args.results_json:
-            results = {
-                "model_name": Path(args.xml).stem if args.xml else "",
-                "erwin_source": str(args.xml) if args.xml else "",
-                "erwin_output": args.out_erwin or args.out_xml or (str(args.xml) if args.xml else ""),
-                "session": "Attached to the open erwin UI" if is_visible else "Background erwin process",
-                "started": started.strftime("%Y-%m-%d %H:%M:%S"),
-                "finished": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "entities_in_erwin": len(entities_by_name),
-                "totals": {
-                    "applied": updates_applied,
-                    "verified": verified,
-                    "altered": altered,
-                    "skipped": skipped,
-                },
-                "udp_name_style": args.udp_name_style,
-                "post_save_verification": persisted,
-                "dictionary": dictionary_log,
-                "values": value_log,
-            }
-            try:
-                results_path = Path(args.results_json)
-                results_path.parent.mkdir(parents=True, exist_ok=True)
-                results_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
-            except Exception as exc:
-                print(f"Warning: could not write the injection results file: {exc}")
-            
-        # print("Finished.")
     except Exception as e:
         print(f"An error occurred during injection: {e}")
         print("Canceling all changes to prevent corrupting your file...")
         import traceback
         traceback.print_exc()
-        if session:
+        if session and trans_id is not None:
             try:
                 session.RollbackTransaction(trans_id)
             except Exception:  # nosec B110
@@ -529,7 +168,315 @@ def main():
                 session.Close()
             except Exception:  # nosec B110
                 pass
-        # print("Finished.")
+
+def _setup_dictionary(scapi, model, schema_path, args, dictionary_log):
+    if not schema_path.exists():
+        print(f"Notice: Rules file not found at {schema_path}. Skipping the dictionary setup step.")
+        return []
+
+    schema = json.loads(schema_path.read_text())
+    session_m1 = scapi.Sessions.Add()
+    session_m1.Open(model, 1, 0) 
+    trans_m1 = session_m1.BeginTransaction()
+    
+    try:
+        m1_objects = session_m1.ModelObjects
+        existing_udps = m1_objects.Collect(m1_objects.Root, "Property_Type")
+        existing_names = {}
+        for u in existing_udps:
+            full_name = u.Properties("Name").Value
+            if full_name:
+                existing_names[full_name.lower()] = u
+        
+        created_count = 0
+        updated_count = 0
+        
+        for prop in schema:
+            c, u = _apply_dictionary_property(m1_objects, prop, existing_names, args.udp_name_style, dictionary_log)
+            created_count += c
+            updated_count += u
+        
+        if created_count > 0 or updated_count > 0:
+            session_m1.CommitTransaction(trans_m1)
+            print(f"       Dictionary updated ({created_count//2} UDPs applied to both Entities & Attributes = {created_count} total).")
+        else:
+            session_m1.RollbackTransaction(trans_m1)
+            
+    except Exception as e:
+        print(f"Warning: Failed to create properties in the dictionary: {e}")
+        session_m1.RollbackTransaction(trans_m1)
+    finally:
+        session_m1.Close()
+        
+    return schema
+
+def _apply_dictionary_property(m1_objects, prop, existing_names, udp_name_style, dictionary_log):
+    name = prop.get("udp")
+    if not name:
+        return 0, 0
+        
+    is_list = str(prop.get("type", "")).strip().lower() == "list"
+    ptype = 6 if is_list else 2
+    c_count = 0
+    u_count = 0
+    
+    for owner in ["Entity", "Model"]:
+        full_name = name if udp_name_style == "bare" else f"{owner}.Logical.{name}"
+        already_exists = full_name.lower() in existing_names
+        
+        record = {
+            "udp": name,
+            "owner": owner,
+            "full_name": full_name,
+            "erwin_type": "List" if is_list else "Text",
+            "value_list": ",".join(prop.get("value_list") or []),
+            "action": "failed",
+            "error": "",
+        }
+        dictionary_log.append(record)
+        
+        try:
+            if already_exists:
+                _update_existing_udp(existing_names[full_name.lower()], ptype, owner, prop)
+                record["action"] = "updated"
+                u_count += 1
+            else:
+                _create_new_udp(m1_objects, full_name, ptype, owner, prop)
+                record["action"] = "created"
+                c_count += 1
+        except Exception as exc:
+            record["error"] = str(exc)[:300]
+            print(f"       Warning: could not define {full_name}: {exc}")
+            
+    return c_count, u_count
+
+def _update_existing_udp(target_udp, ptype, owner, prop):
+    target_udp.Properties("tag_Udp_Data_Type").Value = ptype
+    try:
+        target_udp.Properties("tag_Udp_Owner_Type").Value = owner
+        target_udp.Properties("tag_Is_Logical").Value = True
+        target_udp.Properties("tag_Is_Physical").Value = True
+        target_udp.Properties("tag_Is_Locally_Defined").Value = True
+        target_udp.Properties("tag_Is_Scalar").Value = True
+        target_udp.Properties("tag_Is_Prefetch").Value = True
+    except Exception:  # nosec B110
+        pass
+    if ptype == 6 and "value_list" in prop:
+        try:
+            target_udp.Properties("tag_Udp_Values_List").Value = ",".join(prop["value_list"])
+        except Exception:  # nosec B110
+            pass
+
+def _create_new_udp(m1_objects, full_name, ptype, owner, prop):
+    new_udp = m1_objects.Add("Property_Type")
+    new_udp.Properties("Name").Value = full_name
+    new_udp.Properties("tag_Udp_Owner_Type").Value = owner
+    new_udp.Properties("tag_Udp_Data_Type").Value = ptype
+    try:
+        new_udp.Properties("tag_Is_Logical").Value = True
+        new_udp.Properties("tag_Is_Physical").Value = True
+        new_udp.Properties("tag_Is_Locally_Defined").Value = True
+        new_udp.Properties("tag_Is_Scalar").Value = True
+        new_udp.Properties("tag_Is_Prefetch").Value = True
+    except Exception:  # nosec B110
+        pass
+    if ptype == 6 and "value_list" in prop:
+        try:
+            new_udp.Properties("tag_Udp_Values_List").Value = ",".join(prop["value_list"])
+        except Exception:  # nosec B110
+            pass
+
+def _inject_data(session, manifest, value_log):
+    model_objects = session.ModelObjects
+    entity_collection = model_objects.Collect(model_objects.Root, "Entity")
+    entities_by_name = {ent.Name.lower(): ent for ent in entity_collection}
+
+    updates_applied = 0
+    skipped = 0
+    verified = 0
+    altered = 0
+    occurrences = {}
+    
+    for row in manifest:
+        up, sk, ve, al = _inject_single_value(row, model_objects, entities_by_name, occurrences, value_log)
+        updates_applied += up
+        skipped += sk
+        verified += ve
+        altered += al
+
+    print(f"       Successfully injected {updates_applied} values "
+          f"({verified} verified by read-back, {altered} altered by erwin, {skipped} skipped).")
+          
+    return entities_by_name, (updates_applied, verified, altered, skipped)
+
+def _inject_single_value(row, model_objects, entities_by_name, occurrences, value_log):
+    entity_name = row.get("entity_name", "")
+    udp_name = row.get("udp", "")
+    val = row.get("value", "")
+    source_path = row.get("source_path", "")
+    
+    if not udp_name:
+        return 0, 0, 0, 0
+
+    occ_key = (entity_name.lower(), udp_name, source_path)
+    occurrence = occurrences.get(occ_key, 0)
+    occurrences[occ_key] = occurrence + 1
+    
+    result = {
+        "entity_name": entity_name,
+        "pd_object_id": row.get("pd_object_id", ""),
+        "udp": udp_name,
+        "source_path": source_path,
+        "occurrence": occurrence,
+        "source_value": str(val),
+        "target_value": "",
+        "applied_to": "Model Root" if not entity_name else "Entity",
+        "property_format": "",
+        "status": ST_REJECTED,
+        "note": "",
+    }
+    value_log.append(result)
+
+    target_obj = model_objects.Root if not entity_name else entities_by_name.get(entity_name.lower())
+    if not target_obj:
+        result["status"] = ST_NO_ENTITY
+        result["note"] = "No entity of this name exists in the target erwin model."
+        return 0, 1, 0, 0
+
+    return _apply_udp_formats(target_obj, udp_name, val, result)
+
+def _apply_udp_formats(target_obj, udp_name, val, result):
+    properties = target_obj.Properties
+    formats = [udp_name, f"Udp.{udp_name}", f"Entity.Logical.{udp_name}", f"Entity.Physical.{udp_name}", f"Model.Logical.{udp_name}"]
+    
+    for fmt in formats:
+        try:
+            prop = properties(fmt)
+            prop.Value = str(val)
+            result["property_format"] = fmt
+            return _verify_injected_value(prop, val, result)
+        except Exception as exc:
+            result["note"] = str(exc)[:200]
+            
+    result["status"] = ST_REJECTED
+    result["note"] = "erwin accepted none of the known property name formats for this UDP on this object."
+    return 0, 1, 0, 0
+
+def _verify_injected_value(prop, val, result):
+    try:
+        readback = prop.Value
+        readback = "" if readback is None else str(readback)
+        result["target_value"] = readback
+        if readback == str(val):
+            result["status"] = ST_VERIFIED
+            result["note"] = ""
+            return 1, 0, 1, 0
+        else:
+            result["status"] = ST_ALTERED
+            result["note"] = "erwin stored a different value than the one sent."
+            return 1, 0, 0, 1
+    except Exception as exc:
+        result["status"] = ST_UNVERIFIED
+        result["note"] = f"Value written but could not be read back: {str(exc)[:150]}"
+        return 1, 0, 0, 0
+
+def _save_model(scapi, model, args, is_visible):
+    pu_item = scapi.PersistenceUnits.Item(model.ObjectId)
+    
+    if args.out_erwin:
+        if os.path.exists(args.out_erwin):
+            try:
+                os.remove(args.out_erwin)
+            except PermissionError:
+                raise PermissionError(f"Cannot overwrite {args.out_erwin} because it is currently open or locked.")
+        pu_item.Save(args.out_erwin)
+        
+    if args.out_xml:
+        if is_visible:
+            pu_item.Save(str(Path(args.out_xml).resolve()))
+        else:
+            print(f"CRITICAL WARNING: Cannot Save As .xml because the erwin UI is hidden! Skipping XML export.")
+        
+    if not args.out_erwin and not args.out_xml and args.xml:
+        pu_item.Save()
+
+def _verify_saved_model(args, manifest, schema, value_log):
+    persisted = {"attempted": False, "method": "", "reliable": None,
+                 "values_found": 0, "confirmed": 0, "not_persisted": 0,
+                 "messages": []}
+    saved_model = args.out_erwin or args.out_xml or args.xml
+    
+    if args.verify and udp_readback is not None and saved_model and schema:
+        persisted["attempted"] = True
+        try:
+            expected = udp_readback.expected_from_manifest(manifest, Path(saved_model).stem)
+            back = udp_readback.read_udps(saved_model, schema, "binary", expected)
+            persisted["method"] = back.method
+            persisted["reliable"] = back.reliable
+            persisted["values_found"] = len(back.values)
+            persisted["messages"] = list(back.messages)
+            
+            if back.reliable:
+                _match_persisted_values(saved_model, back, value_log, persisted)
+            else:
+                print("       Post-save verification inconclusive: the saved "
+                      "file could not be decoded reliably. Run udp_compare.py "
+                      "--method com for an authoritative check.")
+        except Exception as exc:
+            persisted["messages"].append(str(exc)[:300])
+            print(f"       Notice: post-save verification failed: {exc}")
+            
+    return persisted
+
+def _match_persisted_values(saved_model, back, value_log, persisted):
+    root = back.model_root_name or Path(saved_model).stem
+    for item in value_log:
+        owner = item["entity_name"].strip() or root
+        on_disk = back.get(owner, item["udp"])
+        item["persisted_value"] = "" if on_disk is None else on_disk
+        if not str(item["source_value"]).strip():
+            item["persisted"] = "blank source"
+        elif on_disk is None:
+            item["persisted"] = "no"
+            persisted["not_persisted"] += 1
+        elif str(on_disk) == str(item["source_value"]):
+            item["persisted"] = "yes"
+            persisted["confirmed"] += 1
+        else:
+            item["persisted"] = "altered"
+            persisted["not_persisted"] += 1
+    print("       Post-save verification: "
+          f"{persisted['confirmed']} value(s) confirmed in the "
+          f"saved file, {persisted['not_persisted']} not.")
+
+def _record_results(args, is_visible, started, entities_by_name, counts, persisted, dictionary_log, value_log):
+    updates_applied, verified, altered, skipped = counts
+    if args.results_json:
+        results = {
+            "model_name": Path(args.xml).stem if args.xml else "",
+            "erwin_source": str(args.xml) if args.xml else "",
+            "erwin_output": args.out_erwin or args.out_xml or (str(args.xml) if args.xml else ""),
+            "session": "Attached to the open erwin UI" if is_visible else "Background erwin process",
+            "started": started.strftime("%Y-%m-%d %H:%M:%S"),
+            "finished": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "entities_in_erwin": len(entities_by_name),
+            "totals": {
+                "applied": updates_applied,
+                "verified": verified,
+                "altered": altered,
+                "skipped": skipped,
+            },
+            "udp_name_style": args.udp_name_style,
+            "post_save_verification": persisted,
+            "dictionary": dictionary_log,
+            "values": value_log,
+        }
+        try:
+            results_path = Path(args.results_json)
+            results_path.parent.mkdir(parents=True, exist_ok=True)
+            results_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
+        except Exception as exc:
+            print(f"Warning: could not write the injection results file: {exc}")
 
 if __name__ == "__main__":
     main()

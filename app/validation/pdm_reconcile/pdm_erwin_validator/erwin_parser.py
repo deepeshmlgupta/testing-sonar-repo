@@ -109,40 +109,59 @@ def _props_child(elem: ET.Element) -> Optional[ET.Element]:
     return None
 
 
+def _non_empty(raw: Optional[str]) -> str:
+    return raw.strip() if raw and raw.strip() else ""
+
+
+def _attribute_value(elem: ET.Element, name: str) -> str:
+    return _non_empty(elem.get(name))
+
+
+def _case_insensitive_value(elem: ET.Element, name: str) -> str:
+    lower = {key.lower(): value for key, value in elem.attrib.items()}
+    return _non_empty(lower.get(name.lower()))
+
+
+def _child_text(elem: ET.Element, name: str) -> str:
+    child = _first_child(elem, name)
+    return _non_empty(child.text if child is not None else None)
+
+
+def _props_text(elem: ET.Element, name: str) -> str:
+    props = _props_child(elem)
+    return _child_text(props, name) if props is not None else ""
+
+
 def _val(elem: ET.Element, *names: str) -> str:
     """
     First non-empty value found for the given field names, checked in order:
-      1. XML attributes, exact case          (flat dialect: Physical_Name="...")
-      2. XML attributes, case-insensitive     (EMX identity: id="..." name="...")
+      1. XML attributes, exact case
+      2. XML attributes, case-insensitive
       3. direct child element text
-      4. child element text inside <XxxProps>  (EMX scalars)
-    erwin uses all four conventions interchangeably across versions.
+      4. child element text inside <XxxProps>
     """
     if elem is None:
         return ""
 
-    for n in names:
-        raw = elem.get(n)
-        if raw and raw.strip():
-            return raw.strip()
+    for name in names:
+        value = _attribute_value(elem, name)
+        if value:
+            return value
 
-    lower = {k.lower(): v for k, v in elem.attrib.items()}
-    for n in names:
-        raw = lower.get(n.lower())
-        if raw and raw.strip():
-            return raw.strip()
+    for name in names:
+        value = _case_insensitive_value(elem, name)
+        if value:
+            return value
 
-    for n in names:
-        c = _first_child(elem, n)
-        if c is not None and c.text and c.text.strip():
-            return c.text.strip()
+    for name in names:
+        value = _child_text(elem, name)
+        if value:
+            return value
 
-    props = _props_child(elem)
-    if props is not None:
-        for n in names:
-            c = _first_child(props, n)
-            if c is not None and c.text and c.text.strip():
-                return c.text.strip()
+    for name in names:
+        value = _props_text(elem, name)
+        if value:
+            return value
 
     return ""
 
@@ -272,13 +291,9 @@ def _classify_key_group(kg_elem: ET.Element):
 
 # ─── ENTITY (table) ─────────────────────────────────────────────────────────────
 
-def _parse_entity(entity_elem: ET.Element,
-                  migrated_sink: List[Dict]) -> Dict[str, Any]:
-    entity_id = _oid(entity_elem)
-    phys_name = (_physical_name(entity_elem)
-                 or _val(entity_elem, "Name")).upper()
-
-    # ── Columns ────────────────────────────────────────────────────────────────
+def _parse_entity_columns(entity_elem: ET.Element,
+                           entity_id: str,
+                           migrated_sink: List[Dict]) -> tuple:
     columns: List[Dict] = []
     attr_id_to_code: Dict[str, str] = {}
     attr_name_to_code: Dict[str, str] = {}
@@ -290,28 +305,39 @@ def _parse_entity(entity_elem: ET.Element,
         aid = _oid(attr)
         if aid and aid in seen_attr:
             continue
+
         parsed = _parse_attribute(attr)
         if not parsed["code"]:
             continue
+
         if aid:
             seen_attr.add(aid)
             attr_id_to_code[aid] = parsed["code"]
         if parsed["name"]:
             attr_name_to_code[parsed["name"].upper()] = parsed["code"]
 
-        # record migration info for FK-join resolution
-        if parsed["_parent_rel_ref"] or parsed["_parent_attr_ref"]:
-            migrated_sink.append({
-                "entity_id":       entity_id,
-                "code":            parsed["code"],
-                "parent_attr_ref": parsed["_parent_attr_ref"],
-                "parent_rel_ref":  parsed["_parent_rel_ref"],
-            })
+        _record_migration_info(parsed, entity_id, migrated_sink)
+        columns.append({key: value for key, value in parsed.items()
+                        if not key.startswith("_")})
 
-        columns.append({k: v for k, v in parsed.items()
-                        if not k.startswith("_")})
+    return columns, attr_id_to_code, attr_name_to_code
 
-    # ── Key groups -> keys + indexes ─────────────────────────────────────────────
+
+def _record_migration_info(parsed: Dict[str, Any], entity_id: str,
+                           migrated_sink: List[Dict]) -> None:
+    if not (parsed["_parent_rel_ref"] or parsed["_parent_attr_ref"]):
+        return
+    migrated_sink.append({
+        "entity_id": entity_id,
+        "code": parsed["code"],
+        "parent_attr_ref": parsed["_parent_attr_ref"],
+        "parent_rel_ref": parsed["_parent_rel_ref"],
+    })
+
+
+def _parse_entity_key_groups(entity_elem: ET.Element,
+                              attr_id_to_code: Dict[str, str],
+                              attr_name_to_code: Dict[str, str]) -> tuple:
     keys: List[Dict] = []
     indexes: List[Dict] = []
     ignore_fk_idx = _cfg("ERWIN_IGNORE_FK_INDEXES", True)
@@ -326,40 +352,142 @@ def _parse_entity(entity_elem: ET.Element,
         if kid:
             seen_kg.add(kid)
 
-        is_pk, is_unique, kg_type, is_rel_index = _classify_key_group(kg)
-        cols = _key_group_members(kg, attr_id_to_code, attr_name_to_code)
-        name = _val(kg, "Name")
-        code = _physical_name(kg) or name
+        parsed_kg = _parse_key_group(
+            kg, attr_id_to_code, attr_name_to_code, ignore_fk_idx)
+        if parsed_kg is None:
+            continue
 
-        if is_pk or kg_type in ("AK", "ALTERNATE KEY", "ALTERNATE"):
-            keys.append({
-                "name": name, "code": code,
-                "is_pk": is_pk, "is_unique": is_unique,
-                "kg_type": kg_type, "columns": cols,
-            })
-        else:
-            # IE = real inversion index; IF* = erwin's auto FK mirror index.
-            if is_rel_index and ignore_fk_idx:
-                continue
-            indexes.append({
-                "name": name, "code": code,
-                "is_unique": is_unique, "kg_type": kg_type,
-                "columns": cols,
-            })
+        target, value = parsed_kg
+        target.append(value)
+
+    return keys, indexes
+
+
+def _parse_key_group(kg: ET.Element,
+                     attr_id_to_code: Dict[str, str],
+                     attr_name_to_code: Dict[str, str],
+                     ignore_fk_idx: bool) -> Optional[tuple]:
+    is_pk, is_unique, kg_type, is_rel_index = _classify_key_group(kg)
+    cols = _key_group_members(kg, attr_id_to_code, attr_name_to_code)
+    name = _val(kg, "Name")
+    code = _physical_name(kg) or name
+
+    if is_pk or kg_type in ("AK", "ALTERNATE KEY", "ALTERNATE"):
+        return {
+            "name": name, "code": code,
+            "is_pk": is_pk, "is_unique": is_unique,
+            "kg_type": kg_type, "columns": cols,
+        }
+
+    if is_rel_index and ignore_fk_idx:
+        return None
 
     return {
-        "id":          entity_id,
-        "name":        _val(entity_elem, "Name", "Logical_Name", "Entity_Name"),
-        "code":        phys_name,
-        "owner":       _val(entity_elem, "Owner", "Owner_Path", "Schema"),
-        "columns":     columns,
-        "keys":        keys,
-        "indexes":     indexes,
+        "name": name, "code": code,
+        "is_unique": is_unique, "kg_type": kg_type,
+        "columns": cols,
+    }
+
+
+def _append_key_group(parsed_kg: Optional[Dict],
+                      keys: List[Dict], indexes: List[Dict]) -> None:
+    if parsed_kg is None:
+        return
+    if "is_pk" in parsed_kg:
+        keys.append(parsed_kg)
+    else:
+        indexes.append(parsed_kg)
+
+
+def _parse_entity_key_groups(entity_elem: ET.Element,
+                              attr_id_to_code: Dict[str, str],
+                              attr_name_to_code: Dict[str, str]) -> tuple:
+    keys: List[Dict] = []
+    indexes: List[Dict] = []
+    ignore_fk_idx = _cfg("ERWIN_IGNORE_FK_INDEXES", True)
+    seen_kg: set = set()
+
+    for kg in _descendants(entity_elem, "Key_Group"):
+        if _is_ref_node(kg):
+            continue
+        kid = _oid(kg)
+        if kid and kid in seen_kg:
+            continue
+        if kid:
+            seen_kg.add(kid)
+        _append_key_group(
+            _parse_key_group(kg, attr_id_to_code, attr_name_to_code,
+                             ignore_fk_idx),
+            keys, indexes)
+
+    return keys, indexes
+
+
+def _parse_entity(entity_elem: ET.Element,
+                  migrated_sink: List[Dict]) -> Dict[str, Any]:
+    entity_id = _oid(entity_elem)
+    phys_name = (_physical_name(entity_elem)
+                 or _val(entity_elem, "Name")).upper()
+
+    columns, attr_id_to_code, attr_name_to_code = _parse_entity_columns(
+        entity_elem, entity_id, migrated_sink)
+    keys, indexes = _parse_entity_key_groups(
+        entity_elem, attr_id_to_code, attr_name_to_code)
+
+    return {
+        "id": entity_id,
+        "name": _val(entity_elem, "Name", "Logical_Name", "Entity_Name"),
+        "code": phys_name,
+        "owner": _val(entity_elem, "Owner", "Owner_Path", "Schema"),
+        "columns": columns,
+        "keys": keys,
+        "indexes": indexes,
         "attr_id_map": attr_id_to_code,
     }
 
 
 # ─── RELATIONSHIPS (foreign keys) ────────────────────────────────────────────────
+
+def _resolve_join_column(ref: str, entity: Optional[Dict]) -> str:
+    if entity:
+        return entity["attr_id_map"].get(ref, ref)
+    return ""
+
+
+def _parse_flat_join_columns(rel_elem: ET.Element,
+                             parent_code: str,
+                             child_code: str,
+                             all_entities: Dict[str, Any]) -> List[Dict]:
+    join_columns: List[Dict] = []
+    parent_entity = all_entities.get(parent_code)
+    child_entity = all_entities.get(child_code)
+
+    for ri in _descendants(rel_elem, "RI_Constraint"):
+        p_ref = _val(ri, "Parent_Attribute_Ref", "Parent_Attribute")
+        c_ref = _val(ri, "Child_Attribute_Ref", "Child_Attribute")
+        join_columns.append({
+            "parent_col": _resolve_join_column(p_ref, parent_entity),
+            "child_col": _resolve_join_column(c_ref, child_entity),
+        })
+    return join_columns
+
+
+def _parse_migrated_join_columns(rel_id: str, migrated: List[Dict],
+                                 attr_id_to_code_global: Dict[str, str]
+                                 ) -> List[Dict]:
+    join_columns: List[Dict] = []
+    if not rel_id:
+        return join_columns
+
+    for item in migrated:
+        if item["parent_rel_ref"] != rel_id:
+            continue
+        join_columns.append({
+            "parent_col": attr_id_to_code_global.get(item["parent_attr_ref"], ""),
+            "child_col": item["code"],
+        })
+    return join_columns
+
 
 def _parse_relationship(rel_elem: ET.Element,
                         entity_id_to_code: Dict[str, str],
@@ -374,109 +502,44 @@ def _parse_relationship(rel_elem: ET.Element,
     parent_code = entity_id_to_code.get(parent_ref, parent_ref or "UNKNOWN")
     child_code = entity_id_to_code.get(child_ref, child_ref or "UNKNOWN")
 
-    join_columns: List[Dict] = []
-
-    # (a) flat dialect: explicit RI_Constraint children carry both ends.
-    for ri in _descendants(rel_elem, "RI_Constraint"):
-        p_ref = _val(ri, "Parent_Attribute_Ref", "Parent_Attribute")
-        c_ref = _val(ri, "Child_Attribute_Ref", "Child_Attribute")
-        p_col = ""
-        c_col = ""
-        pe = all_entities.get(parent_code)
-        if pe:
-            p_col = pe["attr_id_map"].get(p_ref, p_ref)
-        ce = all_entities.get(child_code)
-        if ce:
-            c_col = ce["attr_id_map"].get(c_ref, c_ref)
-        join_columns.append({"parent_col": p_col, "child_col": c_col})
-
-    # (b) EMX dialect: join columns are the child's migrated attributes that
-    #     point back at this relationship.
-    if not join_columns and rel_id:
-        for m in migrated:
-            if m["parent_rel_ref"] and m["parent_rel_ref"] == rel_id:
-                parent_col = attr_id_to_code_global.get(
-                    m["parent_attr_ref"], "")
-                join_columns.append({
-                    "parent_col": parent_col,
-                    "child_col":  m["code"],
-                })
+    join_columns = _parse_flat_join_columns(
+        rel_elem, parent_code, child_code, all_entities)
+    if not join_columns:
+        join_columns = _parse_migrated_join_columns(
+            rel_id, migrated, attr_id_to_code_global)
 
     return {
-        "name":         _val(rel_elem, "Name"),
-        "code":         _physical_name(rel_elem) or _val(rel_elem, "Name"),
+        "name": _val(rel_elem, "Name"),
+        "code": _physical_name(rel_elem) or _val(rel_elem, "Name"),
         "parent_table": parent_code,
-        "child_table":  child_code,
+        "child_table": child_code,
         "join_columns": join_columns,
     }
 
 
 # ─── PUBLIC API ───────────────────────────────────────────────────────────────
 
-def parse_erwin(filepath: str) -> Dict[str, Any]:
-    """
-    Parse an ERwin XML export file (any supported dialect).
+def _parse_model_name(root: ET.Element) -> str:
+    for candidate in _descendants(root, "Model"):
+        if _oid(candidate) or _val(candidate, "Name", "Model_Name"):
+            return _val(candidate, "Name", "Model_Name", "Logical_Name")
 
-    Returns
-    -------
-    {
-        "source_file": str,
-        "model_name":  str,
-        "tables": {
-            "<PHYSICAL_TABLE_NAME>": {
-                "code":    str,
-                "name":    str,
-                "owner":   str,
-                "columns": [ {id, name, code, data_type, not_null, default} ... ],
-                "keys":    [ {name, code, is_pk, is_unique, kg_type, columns:[code]} ... ],
-                "indexes": [ {name, code, is_unique, kg_type, columns:[code]} ... ],
-                "attr_id_map": {id: code},
-            }
-        },
-        "references": [
-            {name, code, parent_table, child_table,
-             join_columns:[{parent_col, child_col}]}
-        ]
-    }
-    On a parse failure an "error" key is added (comparator turns it into a
-    single ERROR finding) — one bad file never aborts a batch.
-    """
-    try:
-        root = safe_parse(filepath).getroot()
-    except ET.ParseError as e:
-        logger.error("XML parse error in %s: %s", filepath, e)
-        return {"source_file": filepath, "error": str(e),
-                "tables": {}, "references": []}
-    except OSError as e:
-        logger.error("Cannot read %s: %s", filepath, e)
-        return {"source_file": filepath, "error": str(e),
-                "tables": {}, "references": []}
+    props = (_first_child(root, "ModelProps")
+             or _first_child(root, "Model_Properties"))
+    if props is not None:
+        model_name = _val(props, "Name", "Model_Name")
+        if model_name:
+            return model_name
 
-    # ── Model name (dialect-agnostic) ───────────────────────────────────────────
-    model_name = ""
-    model_elem = None
-    for cand in _descendants(root, "Model"):
-        if _oid(cand) or _val(cand, "Name", "Model_Name"):
-            model_elem = cand
-            break
-    if model_elem is not None:
-        model_name = _val(model_elem, "Name", "Model_Name", "Logical_Name")
-    if not model_name:
-        props = _first_child(root, "ModelProps") or _first_child(root, "Model_Properties")
-        if props is not None:
-            model_name = _val(props, "Name", "Model_Name")
-    if not model_name:
-        model_name = _val(root, "Name", "Model_Name")
+    return _val(root, "Name", "Model_Name")
 
-    # ── Entities (tables) ────────────────────────────────────────────────────────
+
+def _parse_entities(root: ET.Element, filepath: str) -> tuple:
     tables: Dict[str, Any] = {}
     entity_id_to_code: Dict[str, str] = {}
     attr_id_to_code_global: Dict[str, str] = {}
     migrated: List[Dict] = []
     seen_entities: set = set()
-    # Entities that collide on physical name are dropped below. Record them so
-    # the comparator can report the loss instead of it being a log line nobody
-    # reads (the table totals silently stopped adding up).
     duplicate_tables: Dict[str, int] = {}
 
     for entity in _descendants(root, "Entity"):
@@ -485,7 +548,6 @@ def parse_erwin(filepath: str) -> Dict[str, Any]:
         eid = _oid(entity)
         if eid and eid in seen_entities:
             continue
-        # A definition node must have identity or a usable name.
         if not eid and not _val(entity, "Name", "Physical_Name"):
             continue
         if eid:
@@ -495,19 +557,44 @@ def parse_erwin(filepath: str) -> Dict[str, Any]:
         code = parsed["code"].upper()
         if not code:
             continue
-        if code in tables:
-            duplicate_tables[code] = duplicate_tables.get(code, 1) + 1
-            logger.warning("Duplicate ERwin table code '%s' in %s — keeping first",
-                           code, filepath)
+        if _store_entity(
+                tables, entity_id_to_code, attr_id_to_code_global,
+                duplicate_tables, parsed, code, filepath):
             continue
-        tables[code] = parsed
-        if parsed["id"]:
-            entity_id_to_code[parsed["id"]] = code
-        attr_id_to_code_global.update(parsed["attr_id_map"])
 
-    # ── Relationships (foreign keys) ─────────────────────────────────────────────
+    return (tables, entity_id_to_code, attr_id_to_code_global,
+            migrated, duplicate_tables)
+
+
+def _store_entity(tables: Dict[str, Any],
+                  entity_id_to_code: Dict[str, str],
+                  attr_id_to_code_global: Dict[str, str],
+                  duplicate_tables: Dict[str, int],
+                  parsed: Dict[str, Any],
+                  code: str,
+                  filepath: str) -> bool:
+    if code in tables:
+        duplicate_tables[code] = duplicate_tables.get(code, 1) + 1
+        logger.warning(
+            "Duplicate ERwin table code '%s' in %s — keeping first",
+            code, filepath)
+        return False
+
+    tables[code] = parsed
+    if parsed["id"]:
+        entity_id_to_code[parsed["id"]] = code
+    attr_id_to_code_global.update(parsed["attr_id_map"])
+    return True
+
+
+def _parse_relationships(root: ET.Element,
+                         entity_id_to_code: Dict[str, str],
+                         tables: Dict[str, Any],
+                         attr_id_to_code_global: Dict[str, str],
+                         migrated: List[Dict]) -> List[Dict]:
     references: List[Dict] = []
     seen_rels: set = set()
+
     for rel in _descendants(root, "Relationship"):
         if _is_ref_node(rel):
             continue
@@ -519,15 +606,50 @@ def parse_erwin(filepath: str) -> Dict[str, Any]:
         if rid:
             seen_rels.add(rid)
         references.append(_parse_relationship(
-            rel, entity_id_to_code, tables, attr_id_to_code_global, migrated))
+            rel, entity_id_to_code, tables,
+            attr_id_to_code_global, migrated))
+
+    return references
+
+
+def _parse_xml_root(filepath: str) -> tuple:
+    try:
+        return safe_parse(filepath).getroot(), ""
+    except ET.ParseError as exc:
+        logger.error("XML parse error in %s: %s", filepath, exc)
+        return None, str(exc)
+    except OSError as exc:
+        logger.error("Cannot read %s: %s", filepath, exc)
+        return None, str(exc)
+
+
+def parse_erwin(filepath: str) -> Dict[str, Any]:
+    """
+    Parse an ERwin XML export file (any supported dialect).
+
+    Returns the same public dictionary shape as the original parser.  On a
+    parse failure an "error" key is returned so the comparator can report a
+    single ERROR finding without aborting a batch.
+    """
+    root, error = _parse_xml_root(filepath)
+    if root is None:
+        return {"source_file": filepath, "error": error,
+                "tables": {}, "references": []}
+
+    model_name = _parse_model_name(root)
+    (tables, entity_id_to_code, attr_id_to_code_global,
+     migrated, duplicate_tables) = _parse_entities(root, filepath)
+    references = _parse_relationships(
+        root, entity_id_to_code, tables,
+        attr_id_to_code_global, migrated)
 
     logger.info("Parsed ERwin %s: %d tables, %d references",
                 filepath, len(tables), len(references))
 
     return {
         "source_file": filepath,
-        "model_name":  model_name,
-        "tables":      tables,
-        "references":  references,
+        "model_name": model_name,
+        "tables": tables,
+        "references": references,
         "duplicate_tables": duplicate_tables,
     }
