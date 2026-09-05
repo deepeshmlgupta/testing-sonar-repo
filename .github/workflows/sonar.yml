@@ -19,8 +19,8 @@ jobs:
           SONAR_HOST_URL: http://20.244.11.16:9000/
         with:
           args: >
-            -Dsonar.projectKey=testing-sonar-repo
-            -Dsonar.projectName=testing-sonar-repo
+            -Dsonar.projectKey=testing-sonar-repo1
+            -Dsonar.projectName=testing-sonar-repo1
             -Dsonar.sources=.
             -Dsonar.exclusions=**/__pycache__/**,**/*.pyc,**/output_*/**,**/output_excel_reports/**,**/output_jsons/**,.pytest_cache/**
             -Dsonar.python.version=3.13
