@@ -265,7 +265,6 @@ class _Semantic(_Shared):
     # Entities / attributes whose name or code matches any of these regexes are
     # ignored on both sides (staging scaffolding, tool-generated artefacts, …).
     EXCLUDE_ENTITY_PATTERNS = [
-        # r"^TMP_",
         # r"_BAK$",
     ]
     EXCLUDE_ATTRIBUTE_PATTERNS = [

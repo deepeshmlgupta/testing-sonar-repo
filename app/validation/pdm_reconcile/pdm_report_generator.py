@@ -332,7 +332,11 @@ _COL_WARNING  = 29
 _COL_RECONCILE = 37
 
 
-def _build_summary(wb, results, config) -> None:
+# Fix:
+# Dropped the unused `config` argument -- this builder reads nothing from it.
+# The call in generate_report is updated to match. Sister builders that DO use
+# config (_build_findings, _build_model_sheet, _build_config_sheet) keep theirs.
+def _build_summary(wb, results) -> None:
     ws = wb.active
     ws.title = "SUMMARY"
     _header_row(ws, SUMMARY_HEADERS, 2, fill=SUBHDR_FILL)
@@ -411,7 +415,10 @@ def _add_summary_totals(ws, results):
         cell = ws.cell(total_row, 7, average)
         cell.font, cell.number_format, cell.fill = Font(bold=True), KEY_ZERO_DECIMAL, PatternFill(KEY_SOLID, fgColor=C_GRAY)
 
-def _build_dashboard(wb: Workbook, results: List, config) -> None:
+# Fix:
+# Dropped the unused `config` argument -- every value on this sheet comes from
+# `results`. Call site in generate_report updated to match.
+def _build_dashboard(wb: Workbook, results: List) -> None:
     ws = wb.create_sheet("DASHBOARD")
     _setup_dashboard_banner(ws)
     _populate_dashboard_statistics(ws, results)
@@ -876,6 +883,20 @@ def _documentation_rows(results: List) -> List:
     return rows
 
 
+# Fix:
+# Pulled the nested conditional out of the sort key below into this named
+# helper. Same four ranks in the same order, one branch per line.
+def _doc_status_rank(status) -> int:
+    """Sort rank for a documentation row: problems first, then matches."""
+    if status in (KEY_MISSING_IN_ERWIN, KEY_MISMATCH):
+        return 0
+    if status == KEY_MISSING_IN_SAP_PD:
+        return 1
+    if status == KEY_MATCHED:
+        return 2
+    return 3
+
+
 def _build_documentation(wb: Workbook, results: List) -> None:
     """
     Side-by-side documentation mapping for every object.
@@ -919,9 +940,7 @@ def _build_documentation(wb: Workbook, results: List) -> None:
     # Problems first: a reviewer should not have to scroll past matches.
     ordered_rows = sorted(
         rows,
-        key=lambda r: (0 if r.status in (KEY_MISSING_IN_ERWIN, KEY_MISMATCH) else
-                       1 if r.status == KEY_MISSING_IN_SAP_PD else
-                       2 if r.status == KEY_MATCHED else 3,
+        key=lambda r: (_doc_status_rank(r.status),
                        r.model, r.object_type, r.object_name, r.mapping),
     )
 
@@ -1038,7 +1057,10 @@ def _build_model_sheet(wb: Workbook, result, config) -> None:
 
 # ─── MACHINE-READABLE EXPORTS ─────────────────────────────────────────────────
 
-def _export_findings_csv(results: List, output_dir: str, config) -> str:
+# Fix:
+# Dropped the unused `config` argument -- the CSV columns are fixed by
+# FINDINGS_HEADERS and nothing here is configurable. Call site updated to match.
+def _export_findings_csv(results: List, output_dir: str) -> str:
     path = os.path.join(output_dir, "findings.csv")
     with open(path, "w", newline="", encoding="utf-8-sig") as handle:
         writer = csv.writer(handle)
@@ -1125,8 +1147,8 @@ def generate_report(results: List, output_dir: str,
         config = None
 
     workbook = Workbook()
-    _build_summary(workbook, results, config)
-    _build_dashboard(workbook, results, config)
+    _build_summary(workbook, results)
+    _build_dashboard(workbook, results)
     _build_findings(workbook, results, config)
     _build_as_imported(workbook, results)
 
@@ -1149,7 +1171,7 @@ def generate_report(results: List, output_dir: str,
 
     if export_csv:
         try:
-            _export_findings_csv(results, output_dir, config)
+            _export_findings_csv(results, output_dir)
         except Exception as exc:                               # noqa: BLE001
             logger.warning("Could not write findings.csv: %s", exc)
     if export_json:

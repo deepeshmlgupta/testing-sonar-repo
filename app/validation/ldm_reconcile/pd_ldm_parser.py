@@ -119,7 +119,11 @@ _RTF_KNOWN_KEYWORDS = sorted(
 _RTF_KNOWN_CONTROL_WORD = re.compile(
     r"\\(" + "|".join(_RTF_KNOWN_KEYWORDS) + r")(-?\d+)?( )?(?![a-z])"
 )
-_RTF_GENERIC_CONTROL_WORD = re.compile(r"\\([a-zA-Z]+)(-?\d+)?([ ])?")
+# Fix:
+# Unwrapped the single-character class: ([ ])? is identical to ( )?. The capture
+# group is kept -- only the [] around the space is gone -- so group numbering is
+# untouched and this now matches the spacing of _RTF_KNOWN_CONTROL_WORD above.
+_RTF_GENERIC_CONTROL_WORD = re.compile(r"\\([a-zA-Z]+)(-?\d+)?( )?")
 
 
 class _RtfState:

@@ -119,12 +119,17 @@ def _stage_rows(result) -> List[Tuple[str, Any, str]]:
     return rows
 
 
-def _overview_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
-    result = request.result
-    udp = request.udp_outcome
-    model_name = request.model_name or Path(str(getattr(result, "pd_file", ""))).stem
+def _udp_attr(udp, name: str, default: Any = None) -> Any:
+    """Attribute of the UDP outcome, or `default` when there is no outcome."""
+    if udp is None:
+        return default
+    return getattr(udp, name, default)
 
-    rows: List[Tuple[str, Any, str]] = [
+
+def _identity_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
+    result = request.result
+    model_name = request.model_name or Path(str(getattr(result, "pd_file", ""))).stem
+    return [
         ("Model", getattr(result, "pd_model", "") or model_name, ""),
         ("Model type", request.model_type or "", ""),
         ("SAP PD file", os.path.basename(str(getattr(result, "pd_file", ""))), ""),
@@ -133,8 +138,11 @@ def _overview_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
         ("FIDELITY PROGRESSION", "",
          "Each stage is measured against a different erwin artefact and recomputed in full"),
     ]
-    rows.extend(_stage_rows(result))
-    rows.extend([
+
+
+def _component_rows(result, udp) -> List[Tuple[str, Any, str]]:
+    """COMPONENTS AT V3."""
+    return [
         ("", "", ""),
         ("COMPONENTS AT V3", "", ""),
         ("Structural fidelity %", _percent(getattr(result, "structural_fidelity_score", None)),
@@ -143,7 +151,7 @@ def _overview_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
          _percent(getattr(result, "documentation_fidelity_score", None)),
          "Comments / Notes, Descriptions and Annotations"),
         ("UDP mapping pass rate % (.erwin)",
-         _percent(getattr(udp, "pass_rate", None)) if udp is not None else layout.NOT_AVAILABLE,
+         _percent(_udp_attr(udp, "pass_rate", None)),
          "Read back from the enriched erwin model — this feeds the V3 score"),
         ("UDP fidelity % (erwin XML)", _percent(getattr(result, "udp_fidelity_score", None)),
          "udp_fidelity.py scores the XML export, which carries no UDPs"),
@@ -151,42 +159,78 @@ def _overview_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
          "Not measured: erwin's XML export has no shortcut object"),
         ("Tag fidelity %", layout.NOT_AVAILABLE,
          "Not measured: erwin Tags have no representation in this framework"),
+    ]
+
+
+def _enrichment_rows(udp) -> List[Tuple[str, Any, str]]:
+    """ENRICHMENT."""
+    return [
         ("", "", ""),
         ("ENRICHMENT", "", ""),
-        ("UDP values compared", getattr(udp, "udp_values", 0) if udp is not None else 0, ""),
-        ("UDP verdict",
-         getattr(udp, "verdict", layout.NOT_AVAILABLE) if udp is not None else layout.NOT_AVAILABLE,
-         ""),
-        ("UDP stage",
-         getattr(udp, "stage", layout.NOT_AVAILABLE) if udp is not None else layout.NOT_AVAILABLE,
+        ("UDP values compared", _udp_attr(udp, "udp_values", 0), ""),
+        ("UDP verdict", _udp_attr(udp, "verdict", layout.NOT_AVAILABLE), ""),
+        ("UDP stage", _udp_attr(udp, "stage", layout.NOT_AVAILABLE),
          "SKIPPED / EXTRACTED / INJECTED / COMPARED / FAILED"),
         ("UDPs injected into erwin", "Yes" if getattr(udp, "injected", False) else "No", ""),
         ("erwin binary read back",
          os.path.basename(str(getattr(udp, "erwin_read", "") or "")) or layout.NOT_AVAILABLE, ""),
         ("Read-back reliable", _reliability(udp),
          "The binary decoder scores itself and refuses to report below 80%"),
+    ]
+
+
+def _findings_rows(result) -> List[Tuple[str, Any, str]]:
+    """FINDINGS."""
+    return [
         ("", "", ""),
         ("FINDINGS", "", ""),
         ("Errors (CRITICAL)", getattr(result, "critical_count", 0), ""),
         ("Warnings", getattr(result, "warning_count", 0), ""),
         ("Information", getattr(result, "info_count", 0), ""),
+    ]
+
+
+def _verdict_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
+    """VERDICT."""
+    result = request.result
+    return [
         ("", "", ""),
         ("VERDICT", "", ""),
         ("Status", request.status or getattr(result, "status", ""), ""),
         ("Destination", request.destination or "", ""),
         ("Gate note", getattr(result, "promotion_note", ""), ""),
+    ]
+
+
+def _related_rows(request: V3ReportRequest, udp) -> List[Tuple[str, Any, str]]:
+    """RELATED REPORTS, plus the UDP notes and any error."""
+    rows: List[Tuple[str, Any, str]] = [
         ("", "", ""),
         ("RELATED REPORTS", "", ""),
         ("V1 initial fidelity report",
          os.path.basename(request.v1_report_path) or layout.NOT_AVAILABLE, ""),
         ("V2 UDP mapping report",
          os.path.basename(request.v2_report_path) or layout.NOT_AVAILABLE, ""),
-        ("UDP notes",
-         " | ".join(getattr(udp, "messages", []) or []) if udp is not None else "", ""),
-    ])
-    error = getattr(udp, "error", "") if udp is not None else ""
+        ("UDP notes", " | ".join(_udp_attr(udp, "messages", []) or []), ""),
+    ]
+    error = _udp_attr(udp, "error", "")
     if error:
         rows.append(("UDP error", error, ""))
+    return rows
+
+
+def _overview_rows(request: V3ReportRequest) -> List[Tuple[str, Any, str]]:
+    result = request.result
+    udp = request.udp_outcome
+
+    rows: List[Tuple[str, Any, str]] = []
+    rows.extend(_identity_rows(request))
+    rows.extend(_stage_rows(result))
+    rows.extend(_component_rows(result, udp))
+    rows.extend(_enrichment_rows(udp))
+    rows.extend(_findings_rows(result))
+    rows.extend(_verdict_rows(request))
+    rows.extend(_related_rows(request, udp))
     return rows
 
 

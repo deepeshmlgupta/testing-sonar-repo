@@ -503,7 +503,7 @@ def main():
     models = find_models(dirs)
     
     if not models:
-        logger.warning(f"No sample models found in SAP input folders")
+        logger.warning("No sample models found in SAP input folders")
         return
 
     print(f"Found {len(models)} model(s) to process.")

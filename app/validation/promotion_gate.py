@@ -228,7 +228,20 @@ def publish(result, *paths, destination: str = "") -> list:
     Copy artefacts that belong with a routed model (typically its report) into
     the manual-review folder without removing them from where they were written.
     Returns the new paths.  Never raises.
+
+    ``result`` is not read here -- copying leaves the original in place, so
+    there is no staging path to repoint the way route() does via _follow(). It
+    stays in the signature because it is the FIRST POSITIONAL parameter ahead of
+    ``*paths``, shared with route() and reject().
     """
+    # Fix:
+    # Kept `result` -- removing it would NOT raise. Callers pass it positionally
+    # (promotion_gate.publish(record.result, path, destination=...)), so dropping
+    # it would silently swallow the result object into *paths and try to copy it
+    # as a file. Referenced here instead so it is no longer an unused parameter.
+    logger.debug("publish(%s): copying %d artefact(s)",
+                 getattr(result, "pd_model", "?"), len(paths))
+
     copied = []
     for path in paths:
         try:
@@ -247,7 +260,19 @@ def reject(result, *paths) -> list:
     """
     Move a rejected model's staged files (XML / .erwin) into the `rejected`
     sub-folder next to them.  Returns the new paths.  Never raises.
+
+    ``result`` is not read here: the destination is derived from each file's own
+    folder, not from the model. It stays in the signature because route()
+    forwards to this function as ``reject(result, *paths)`` and callers pass it
+    positionally ahead of ``*paths``.
     """
+    # Fix:
+    # Kept `result` -- see the note in publish() above. Dropping a positional
+    # parameter that sits in front of *paths corrupts the argument list silently
+    # instead of raising. Referenced here so it is no longer unused.
+    logger.debug("reject(%s): moving %d staged file(s) to the rejected folder",
+                 getattr(result, "pd_model", "?"), len(paths))
+
     moved = []
     for path in paths:
         try:

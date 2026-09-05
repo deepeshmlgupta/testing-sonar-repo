@@ -94,11 +94,21 @@ def _import_validator_modules(before):
 
 
 def _publish_validator_aliases():
-    """Keep validator modules reachable under the private namespace."""
-    for name, module in list(sys.modules.items()):
-        if name in _OWNED_NAMES and module is not None:
-            if _module_belongs_to_validator(module):
-                sys.modules[f"{_ALIAS_PREFIX}.{name}"] = module
+    """
+    Keep validator modules reachable under the private namespace.
+
+    The aliases are collected first and registered afterwards: writing into
+    ``sys.modules`` while iterating it raises "dictionary changed size during
+    iteration", which is what the previous ``list()`` copy guarded against.
+    """
+    aliases = {
+        f"{_ALIAS_PREFIX}.{name}": module
+        for name, module in sys.modules.items()
+        if name in _OWNED_NAMES
+        and module is not None
+        and _module_belongs_to_validator(module)
+    }
+    sys.modules.update(aliases)
 
 
 def _restore_shadowed_modules(shadowed, before, saved_path):
@@ -199,14 +209,14 @@ def validate_pair(pdm_path: str, erwin_xml_path: str):
     Mirrors the validator's own ``validate_pair`` so a parse failure becomes an
     ERROR result instead of an exception that would stop the batch.
     """
-    ValidationResult, Finding = get_result_classes()
+    validation_result_cls, finding_cls = get_result_classes()
     try:
         return compare(parse_pdm(pdm_path), parse_erwin(erwin_xml_path))
     except Exception as exc:                                  # noqa: BLE001
         logger.error("PDM validation failed (%s vs %s): %s",
                      pdm_path, erwin_xml_path, exc)
-        result = ValidationResult(pd_file=pdm_path, erwin_file=erwin_xml_path,
-                                  status="ERROR")
-        result.add(Finding("EXCEPTION", "CRITICAL", message=str(exc)))
+        result = validation_result_cls(pd_file=pdm_path, erwin_file=erwin_xml_path,
+                                       status="ERROR")
+        result.add(finding_cls("EXCEPTION", "CRITICAL", message=str(exc)))
         result.compute_score()
         return result

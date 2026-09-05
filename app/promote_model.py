@@ -169,13 +169,17 @@ def _promote_files(base_model_name, wb, excel_path, preprocessed_dir, final_dir,
         
     if promoted:
         print("  [SUCCESS] Promotion complete.")
-        _update_and_archive_excel(wb, excel_path, base_model_name, manual_review_dir)
+        _update_and_archive_excel(wb, excel_path, base_model_name)
     else:
         print(f"  [ERROR] No {base_model_name}.xml/.erwin found in "
               f"{excel_path.parent} or {preprocessed_dir}. Could not promote.")
         wb.close()
 
-def _update_and_archive_excel(wb, excel_path, base_model_name, manual_review_dir):
+# Fix: 
+#  Dropped the old `manual_review_dir` argument: the archive folder is derived
+# from the report's own location (excel_path.parent), so the flat
+# manual_review_reports path passed down from run_promotion_scan was never read.
+def _update_and_archive_excel(wb, excel_path, base_model_name):
     if "SUMMARY" in wb.sheetnames:
         ws_summary = wb["SUMMARY"]
         for cell in ws_summary[2]:

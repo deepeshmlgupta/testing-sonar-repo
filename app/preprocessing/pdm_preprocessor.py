@@ -102,14 +102,14 @@ def _ns_of(tag: str) -> str:
 
 
 def _first_child(elem: ET.Element, name: str) -> Optional[ET.Element]:
-    for c in list(elem):
+    for c in elem:
         if _local(c.tag) == name:
             return c
     return None
 
 
 def _props_child(elem: ET.Element) -> Optional[ET.Element]:
-    for c in list(elem):
+    for c in elem:
         if _local(c.tag).endswith("Props"):
             return c
     return None
@@ -237,6 +237,20 @@ def _add_column(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
     tbl_phys = doc.entity_phys(entity)
     order = len(doc.attributes(entity)) + 1
 
+    _populate_column_properties(new, new_id, pd_col, model_name, tbl_phys, order)
+
+    _attribute_container(entity).append(new)
+    doc.all_ids.add(new_id)
+    report.columns_added += 1
+    report.note(f"restored column {tbl_phys}.{_key(pd_col.get('code',''))} "
+                f"({pd_col.get('type') or 'no type'}, "
+                f"{'NOT NULL' if pd_col.get('not_null') else 'NULL'})")
+    return new
+
+
+# ─── 2. PRIMARY KEYS ──────────────────────────────────────────────────────────
+
+def _populate_column_properties(new, new_id, pd_col, model_name, tbl_phys, order):
     _set_prop(new, "Name", pd_col.get("name") or pd_col.get("code", ""))
     _set_prop(new, "Long_Id", new_id)
     if model_name:
@@ -257,22 +271,10 @@ def _add_column(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
     _set_prop(new, "Master_Attribute_Ref", new_id)
     _set_prop(new, "User_Formatted_Name", pd_col.get("name") or pd_col.get("code", ""))
     _set_prop(new, "User_Formatted_Physical_Name", _key(pd_col.get("code", "")))
-    # The clone must not inherit the template's migration/domain pointers.
     for stale in ("Parent_Attribute_Ref", "Parent_Relationship_Ref",
                   "Parent_Domain_Ref", "Definition", "Long_Id_Header"):
         if stale in ("Parent_Attribute_Ref", "Parent_Relationship_Ref"):
             _del_prop(new, stale)
-
-    _attribute_container(entity).append(new)
-    doc.all_ids.add(new_id)
-    report.columns_added += 1
-    report.note(f"restored column {tbl_phys}.{_key(pd_col.get('code',''))} "
-                f"({dtype or 'no type'}, "
-                f"{'NOT NULL' if pd_col.get('not_null') else 'NULL'})")
-    return new
-
-
-# ─── 2. PRIMARY KEYS ──────────────────────────────────────────────────────────
 
 def _pd_pk_columns(pd_table: Dict[str, Any]) -> List[str]:
     for k in pd_table.get("keys", []):
@@ -344,9 +346,8 @@ def _get_or_create_pk_group(doc: _ErwinDoc, report: PreprocessReport, model_name
         return None
 
     pk_group = deepcopy(template)
-    for holder in list(pk_group):
-        if _local(holder.tag) == "Key_Group_Member_Groups":
-            pk_group.remove(holder)
+    for holder in [h for h in pk_group if _local(h.tag) == "Key_Group_Member_Groups"]:
+        pk_group.remove(holder)
 
     kg_id = _new_id()
     pk_group.set("id", kg_id)
@@ -446,7 +447,7 @@ def _repair_single_fk(doc: _ErwinDoc, report: PreprocessReport, ref: Dict[str, A
     name = ref.get("name") or ref.get("code") or "?"
     parent_phys = _key(ref.get("parent_table", ""))
     child_phys = _key(ref.get("child_table", ""))
-    joins = [j for j in ref.get("join_columns", [])]
+    joins = list(ref.get("join_columns", []))
 
     if not _validate_fk_joins(report, name, joins, parent_phys, child_phys):
         return
@@ -527,6 +528,11 @@ def _register_namespaces(source_xml: str) -> None:
     # unprefixed. Tools that scan the file as text — the provenance audit's
     # content inventory among them — match on '<EntityProps>', so a prefixed
     # re-serialisation made every remediated file read as empty.
+    assignments = _assign_namespace_prefixes(declared)
+    for uri, prefix in assignments.items():
+        ET.register_namespace(prefix, uri)
+
+def _assign_namespace_prefixes(declared: Dict[str, str]) -> Dict[str, str]:
     used_prefixes = set()
     assignments: Dict[str, str] = {}
     if _DATA_NS in declared:
@@ -543,8 +549,7 @@ def _register_namespaces(source_xml: str) -> None:
             synthetic += 1
         assignments[uri] = candidate
         used_prefixes.add(candidate)
-    for uri, prefix in assignments.items():
-        ET.register_namespace(prefix, uri)
+    return assignments
 
 
 # ─── PUBLIC API ───────────────────────────────────────────────────────────────

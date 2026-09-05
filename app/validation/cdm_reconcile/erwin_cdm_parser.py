@@ -38,7 +38,7 @@ Two structural facts drive the design:
 import re
 import logging
 import xml.etree.ElementTree as ET  # nosec B405
-from defusedxml.ElementTree import parse as safe_parse, iterparse as safe_iterparse
+from defusedxml.ElementTree import parse as safe_parse
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from app.config.validation_config import CDM_CONFIG as config
@@ -66,11 +66,11 @@ def _local(tag: Any) -> str:
 
 
 def _children(elem: ET.Element, local_name: str) -> List[ET.Element]:
-    return [child for child in list(elem) if _local(child.tag) == local_name]
+    return [child for child in elem if _local(child.tag) == local_name]
 
 
 def _first_child(elem: ET.Element, local_name: str) -> Optional[ET.Element]:
-    for child in list(elem):
+    for child in elem:
         if _local(child.tag) == local_name:
             return child
     return None
@@ -89,7 +89,7 @@ def _props_child(elem: ET.Element) -> Optional[ET.Element]:
     Attribute → AttributeProps, Key_Group → Key_GroupProps, Relationship →
     RelationshipProps, Domain → DomainProps. Returns that wrapper if present.
     """
-    for child in list(elem):
+    for child in elem:
         if _local(child.tag).endswith("Props"):
             return child
     return None

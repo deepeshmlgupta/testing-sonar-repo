@@ -54,6 +54,6 @@ def run_preprocessing(model_path: Path, initial_xml_file: Path, base_name: str,
         print(f"  -> Warning: Comment Injection failed: {e}")
         shutil.copy2(initial_xml_file, preprocessed_xml_file) # fallback
         
-    print(f"  -> Preprocessing complete. Final XML saved to: 2_preprocessed/xml")
+    print("  -> Preprocessing complete. Final XML saved to: 2_preprocessed/xml")
     
     return preprocessed_xml_file

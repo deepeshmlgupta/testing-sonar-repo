@@ -172,13 +172,18 @@ def _strip_rtf_for_report(value: str) -> str:
 
     text = _strip_rtf_tables(value)
 
-    text = re.sub(r"\\par[d]?\b", "\n", text)      # paragraph breaks
+    # Fix:
+    # Unwrapped two single-character classes in this block: [d]? is identical to
+    # d?, and [ ]? on the control-words line is identical to a space plus ?.
+    # Both patterns match exactly what they matched before. The [a-zA-Z],
+    # [0-9a-fA-F] and [ \t] classes are real ranges/sets and stay as they are.
+    text = re.sub(r"\\pard?\b", "\n", text)         # paragraph breaks
     text = re.sub(r"\\tab\b", "\t", text)
     text = re.sub(r"\\'([0-9a-fA-F]{2})",
                   lambda m: chr(int(m.group(1), 16)), text)   # \'e9 -> é
     text = re.sub(r"\\u(-?\d+)\??",
                   lambda m: chr(int(m.group(1)) % 65536), text)
-    text = re.sub(r"\\[a-zA-Z]+-?\d*[ ]?", "", text)          # control words
+    text = re.sub(r"\\[a-zA-Z]+-?\d* ?", "", text)            # control words
     text = text.replace("{", "").replace("}", "")
     text = re.sub(r"[ \t]+", " ", text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()

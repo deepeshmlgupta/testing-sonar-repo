@@ -363,10 +363,15 @@ def _parse_entity_key_groups(entity_elem: ET.Element,
     return keys, indexes
 
 
+# Fix:
+# Corrected the return hint from Optional[tuple] to Optional[Dict]. Both of this
+# function's non-None returns build a dict, never a tuple, and _append_key_group
+# below already declares its parameter as Optional[Dict]. Annotation only -- no
+# runtime behaviour changes, the returned values are exactly as before.
 def _parse_key_group(kg: ET.Element,
                      attr_id_to_code: Dict[str, str],
                      attr_name_to_code: Dict[str, str],
-                     ignore_fk_idx: bool) -> Optional[tuple]:
+                     ignore_fk_idx: bool) -> Optional[Dict]:
     is_pk, is_unique, kg_type, is_rel_index = _classify_key_group(kg)
     cols = _key_group_members(kg, attr_id_to_code, attr_name_to_code)
     name = _val(kg, "Name")

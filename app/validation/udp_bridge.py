@@ -120,6 +120,48 @@ def _module_belongs_to_tool(module: Any) -> bool:
         return False
 
 
+def _import_tool_modules(before: set) -> Dict[str, Any]:
+    """Import each owned module plus any tool submodule it dragged in."""
+    modules = {name: importlib.import_module(name) for name in _OWNED_NAMES}
+    for name in set(sys.modules) - before:
+        module = sys.modules.get(name)
+        if module is not None and _module_belongs_to_tool(module):
+            modules.setdefault(name, module)
+    return modules
+
+
+def _publish_tool_aliases() -> set:
+    """
+    Republish the loaded tool modules under a private alias namespace so the
+    bridge keeps the only live reference to them, and return the alias names.
+
+    The aliases are collected first and registered afterwards: writing into
+    ``sys.modules`` while iterating it raises "dictionary changed size during
+    iteration", which is what the previous ``list()`` copy guarded against.
+    """
+    aliases = {
+        f"{_ALIAS_PREFIX}.{name}": module
+        for name, module in sys.modules.items()
+        if name in _OWNED_NAMES and module is not None and _module_belongs_to_tool(module)
+    }
+    sys.modules.update(aliases)
+    return set(aliases)
+
+
+def _restore_interpreter_modules(shadowed: Dict[str, Any], before: set,
+                                 aliases: set) -> None:
+    """Undo every change to sys.modules except the aliases we deliberately kept."""
+    for name, previous in shadowed.items():
+        if previous is not None:
+            sys.modules[name] = previous
+        else:
+            sys.modules.pop(name, None)
+    for name in set(sys.modules) - before - aliases:
+        module = sys.modules.get(name)
+        if module is not None and _module_belongs_to_tool(module):
+            sys.modules.pop(name, None)
+
+
 def _load_isolated() -> Dict[str, Any]:
     """Import the tool's modules without disturbing anything already loaded."""
     if not os.path.isdir(TOOL_DIR):
@@ -131,31 +173,14 @@ def _load_isolated() -> Dict[str, Any]:
 
     sys.path.insert(0, TOOL_DIR)
     try:
-        modules = {name: importlib.import_module(name) for name in _OWNED_NAMES}
-        for name in set(sys.modules) - before:
-            module = sys.modules.get(name)
-            if module is not None and _module_belongs_to_tool(module):
-                modules.setdefault(name, module)
+        modules = _import_tool_modules(before)
     finally:
-        # Publish under a private namespace so the objects stay reachable...
-        aliases = set()
-        for name, module in list(sys.modules.items()):
-            if name in _OWNED_NAMES and module is not None and _module_belongs_to_tool(module):
-                alias = f"{_ALIAS_PREFIX}.{name}"
-                sys.modules[alias] = module
-                aliases.add(alias)
-        # ...then restore the interpreter to exactly how we found it, leaving the
+        # Publish under a private namespace so the objects stay reachable, then
+        # restore the interpreter to exactly how we found it, leaving the
         # aliases in place (removing them too would drop the only reference the
         # bridge keeps to the loaded modules).
-        for name, previous in shadowed.items():
-            if previous is not None:
-                sys.modules[name] = previous
-            else:
-                sys.modules.pop(name, None)
-        for name in set(sys.modules) - before - aliases:
-            module = sys.modules.get(name)
-            if module is not None and _module_belongs_to_tool(module):
-                sys.modules.pop(name, None)
+        aliases = _publish_tool_aliases()
+        _restore_interpreter_modules(shadowed, before, aliases)
         sys.path[:] = saved_path
 
     logger.info("Loaded UDP tool from %s", TOOL_DIR)

@@ -60,7 +60,7 @@ def connect_scapi():
         # Try to connect to the erwin window you currently have open
         scapi = win32com.client.GetActiveObject(clsid)
         return scapi, True
-    except Exception as e:
+    except Exception:
         # print(f"Notice: Could not find an open erwin window. Starting a background process instead. (Error: {e})")
         try:
             # Fallback: Start a new, hidden background erwin process
@@ -81,12 +81,12 @@ def load_model(scapi, is_visible, xml_path=None):
             sys.exit(1)
             
         if not is_visible and xml_path.suffix.lower() == ".xml":
-            print(f"CRITICAL ERROR: You are trying to load an XML file, but the erwin UI is not open on your desktop!")
-            print(f"Due to an erwin bug, loading XML files in the background causes a catastrophic crash.")
-            print(f"Please double-click the erwin application to open it on your screen, then run the pipeline again.")
+            print("CRITICAL ERROR: You are trying to load an XML file, but the erwin UI is not open on your desktop!")
+            print("Due to an erwin bug, loading XML files in the background causes a catastrophic crash.")
+            print("Please double-click the erwin application to open it on your screen, then run the pipeline again.")
             sys.exit(1)
             
-        print(f"       Connecting to erwin...")
+        print("       Connecting to erwin...")
         # erwin requires "erwin://" at the start of XML file paths
         if xml_path.suffix.lower() == ".xml":
             load_path = f"erwin://{xml_path}"
@@ -395,7 +395,7 @@ def _save_model(scapi, model, args, is_visible):
         if is_visible:
             pu_item.Save(str(Path(args.out_xml).resolve()))
         else:
-            print(f"CRITICAL WARNING: Cannot Save As .xml because the erwin UI is hidden! Skipping XML export.")
+            print("CRITICAL WARNING: Cannot Save As .xml because the erwin UI is hidden! Skipping XML export.")
         
     if not args.out_erwin and not args.out_xml and args.xml:
         pu_item.Save()

@@ -9,8 +9,8 @@ from app.validation import promotion_gate as pg  # noqa: E402
 
 
 def _result(**kw):
-    base = dict(pd_file="m.cdm", pd_model="M", status="WARN", fidelity_score=95.0,
-                structural_fidelity_score=97.0, critical_count=1, warning_count=3)
+    base = {"pd_file": "m.cdm", "pd_model": "M", "status": "WARN", "fidelity_score": 95.0,
+            "structural_fidelity_score": 97.0, "critical_count": 1, "warning_count": 3}
     base.update(kw)
     return SimpleNamespace(**base)
 

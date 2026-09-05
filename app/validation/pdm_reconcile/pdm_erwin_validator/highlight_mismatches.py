@@ -72,6 +72,19 @@ FILL_AMBER = PatternFill("solid", fgColor=C_AMBER)
 FILL_BLUE  = PatternFill("solid", fgColor=C_BLUE)
 FILL_GREEN = PatternFill("solid", fgColor=C_GREEN)
 
+
+# Fix:
+# The same nested severity->fill conditional appeared in two places
+# (_style_match_marker and the manual-review row styling). Extracted here once,
+# as plain if/elif/else. Same three fills, same order, same objects returned.
+def _severity_fill(severity):
+    """The cell fill for a finding severity: red, amber, or blue for the rest."""
+    if severity == "CRITICAL":
+        return FILL_RED
+    if severity == "WARNING":
+        return FILL_AMBER
+    return FILL_BLUE
+
 THIN   = Side(style="thin", color="FFB8B8B8")
 BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 HEADER_FONT = Font(bold=True, color=C_WHITE, name="Calibri", size=10)
@@ -340,13 +353,7 @@ def _style_match_marker(ws, row, insert_at, severity):
         bold=True,
         color=C_WHITE if severity == "CRITICAL" else C_BLACK,
     )
-    mark.fill = (
-        FILL_RED
-        if severity == "CRITICAL"
-        else FILL_AMBER
-        if severity == "WARNING"
-        else FILL_BLUE
-    )
+    mark.fill = _severity_fill(severity)
     mark.alignment = CENTER
     mark.border = BORDER
 
@@ -491,13 +498,7 @@ def _write_manual_review_row(ws, row, index, finding):
 
     sev_cell = ws.cell(row=row, column=5)
     severity = finding["severity"]
-    sev_cell.fill = (
-        FILL_RED
-        if severity == "CRITICAL"
-        else FILL_AMBER
-        if severity == "WARNING"
-        else FILL_BLUE
-    )
+    sev_cell.fill = _severity_fill(severity)
     sev_cell.font = Font(
         bold=True,
         color=C_WHITE if severity in ("CRITICAL", "INFO") else C_BLACK,

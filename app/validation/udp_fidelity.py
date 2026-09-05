@@ -124,7 +124,15 @@ _ERWIN_ENTITY_TAGS = {"Entity", "Table"}
 _ERWIN_ATTRIBUTE_TAGS = {"Attribute", "Column"}
 _ERWIN_OWNER_PREFIX = re.compile(r"^(Entity|Table|Attribute|Column|Model|Key_Group|Relationship)\.",
                                  re.IGNORECASE)
-_ERWIN_UDP_LOCAL = re.compile(r"^(UDP|Udp)(_|\.|\d)", re.IGNORECASE)
+# Fix:
+# Two things in this one pattern. (UDP|Udp) was a redundant alternative -- the
+# re.IGNORECASE flag already makes "UDP" match "Udp", "udp" and every other
+# casing, so the second branch could never match anything the first did not.
+# (_|\.|\d) was an alternation of single characters, rewritten as the character
+# class [_.\d] (inside a class the dot is literal, so it needs no escape).
+# Matches exactly the same strings; the groups were never read -- this pattern
+# is only ever used as a boolean .match() test.
+_ERWIN_UDP_LOCAL = re.compile(r"^UDP[_.\d]", re.IGNORECASE)
 _XML_ESCAPE = re.compile(r"_x([0-9A-Fa-f]{4})_")
 
 # PowerDesigner ExtendedAttributesText entry:  {GUID},Name,<length>=<value>
@@ -284,9 +292,11 @@ class UdpFidelityResult:
                 f"{self.udp_missing} missing, {self.udp_mismatch} mismatched.")
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  Helpers
-# ═════════════════════════════════════════════════════════════════════════════
+# Fix:
+# Sonar read the banner rule above "Helpers" as commented-out code. Swapped it
+# for a single-line section header, which it does not flag. Same section, same
+# place, no code touched.
+# ─── HELPERS ────────────────────────────────────────────────────────────────
 
 def _local(tag: str) -> str:
     return tag.rsplit("}", 1)[-1] if "}" in tag else tag
@@ -503,7 +513,11 @@ def extract_erwin_udps(path) -> Tuple[List[UdpValue], Dict[str, int], List[str]]
             if _ns(child.tag) == _ERWIN_UDP_NS:
                 raw = _decode_erwin_name(local)
             elif _ERWIN_UDP_LOCAL.match(local):
-                raw = _decode_erwin_name(re.sub(r"^(UDP|Udp)[_.]", "", local, flags=re.IGNORECASE))
+                # Fix:
+                # Same redundant alternative as _ERWIN_UDP_LOCAL above: with
+                # flags=re.IGNORECASE, "UDP" already covers "Udp". The group was
+                # never referenced -- the replacement is an empty string.
+                raw = _decode_erwin_name(re.sub(r"^UDP[_.]", "", local, flags=re.IGNORECASE))
             else:
                 continue
             if len(child):
@@ -986,8 +1000,16 @@ def build_sheets(wb, results, config=None, tier_label: str = "") -> None:
             rows = rows[:max_rows]
         model = os.path.basename(str(getattr(result, "pd_file", "")))
         for r in rows:
-            owner = r.owner_name if r.object_type == "ATTRIBUTE" else \
-                (r.object_name if r.object_type == "ENTITY" else "(model)")
+            # Fix:
+            # Unpacked the nested conditional into if/elif/else. Same three
+            # outcomes in the same order: attribute -> its owner, entity -> its
+            # own name, anything else -> "(model)".
+            if r.object_type == "ATTRIBUTE":
+                owner = r.owner_name
+            elif r.object_type == "ENTITY":
+                owner = r.object_name
+            else:
+                owner = "(model)"
             values = [model, r.object_type, owner, r.object_name, r.object_code, r.udp_name,
                       r.source_path, clean(r.pd_value), clean(r.erwin_value), r.status,
                       clean(r.note)]

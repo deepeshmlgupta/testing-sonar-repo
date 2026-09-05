@@ -276,10 +276,14 @@ def main():
     print(f"{'='*70}")
 
     # 6. Generate Excel report
-    print(f"\n▶  Generating Excel report …")
+    # Fix:
+    # Dropped the f prefix on these two prints -- neither has a {placeholder}, so
+    # the f was doing nothing. The "Report saved" line between them keeps its f
+    # because it interpolates report_path. Text and escapes are unchanged.
+    print("\n▶  Generating Excel report …")
     report_path = generate_report(results, args.out)
     print(f"✅  Report saved → {report_path}")
-    print(f"✅  Log saved   → validation.log\n")
+    print("✅  Log saved   → validation.log\n")
 
 
 if __name__ == "__main__":
