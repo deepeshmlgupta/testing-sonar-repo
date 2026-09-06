@@ -1,0 +1,18 @@
+{
+  "Entity": 195,
+  "EntityAttribute": 8,
+  "Relationship": 194,
+  "Identifier": 5,
+  "Inheritance": 18,
+  "LogicalDiagram": 0,
+  "Shortcut": 2,
+  "RelationshipJoin": 0,
+  "InheritanceLink": 51,
+  "extended_attribute_values": 650,
+  "inheritances_mutually_exclusive": 18,
+  "entities_with_comment": 48,
+  "attributes_with_comment": 0,
+  "entities_without_identifier": 190,
+  "attributes_untyped": 8,
+  "identifiers_primary": 0
+}

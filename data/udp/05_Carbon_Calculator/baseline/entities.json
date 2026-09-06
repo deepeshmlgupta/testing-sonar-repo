@@ -1,0 +1,1997 @@
+[
+  {
+    "object_id": "C89651D5-480F-4D63-83F4-B05265388373",
+    "name": "FUEL_FORM_PROPERTY",
+    "code": "FL_FRM_PRPRTY",
+    "extended_attributes": {
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}"
+    }
+  },
+  {
+    "object_id": "1A2A5A62-42CD-4956-AEE4-8F37CE811B49",
+    "name": "DISCLAIMER",
+    "code": "DISCLAIMER",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "1DD1F57D-C54E-4424-92F3-E1123E29FDA0",
+    "name": "NCI_CLIENT_PARAMETER_PVS",
+    "code": "NCI_CLIENT_PARAMETER_PVS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "861A5E9D-80AB-4664-89B1-CEBC92384F54",
+    "name": "PRODUCT_EMISSION_COMPONENT_HISTORY",
+    "code": "PRODUCT_EMISSION_COMPONENT_HISTORY",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "94EEA88E-AEBC-4028-837A-39087F565580",
+    "name": "GHG",
+    "code": "GHG",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "GREENHOUSE_GAS",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "Emission",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "65BC2CC6-353E-4F2B-A9E6-BC545309FDB5",
+    "name": "PARAMETER_TYPE",
+    "code": "PARAMETER_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "PARAMETER_TYPE"
+    }
+  },
+  {
+    "object_id": "0F32AF8D-C27C-4BA2-B673-8DEAD1AC55D3",
+    "name": "ACTIVITY_CATEGORY",
+    "code": "ACTIVITY_CATEGORY",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "EMISSION_ACTIVITY_CATEGORY",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "Emission",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "9EB10367-A4B7-41A4-9881-D03494EA4436",
+    "name": "ACTIVITY_CATEGORY_PARAMETER",
+    "code": "ACTIVITY_CATEGORY_PARAMETER",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMISSION_ACTIVITY_CATEGORY_PARAMETER"
+    }
+  },
+  {
+    "object_id": "403C6086-CA8E-499A-BDE3-2698C9D16E65",
+    "name": "FACTOR_SOURCE",
+    "code": "FACTOR_SOURCE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "EMISSION_FACTOR_SOURCE",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "Emission",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "09FB33DD-AE45-40CD-B524-8BADF0BC0043",
+    "name": "ACTIVITY_CATEGORY_TYPE",
+    "code": "ACTIVITY_CATEGORY_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "EMISSION_ACTIVITY_CATEGORY_TYPE",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "26098CC6-016D-4411-920B-B9AB34B72A70",
+    "name": "ACTIVITY_TYPE_PARAMETER",
+    "code": "ACTIVITY_TYPE_PARAMETER",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "EMISSION_ACTIVITY_TYPE_PARAMETER",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "4469C7F7-62AE-4565-BE90-93003D951FA8",
+    "name": "FUEL_APPLICATION",
+    "code": "FUEL_APPLICATION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_APPLICATION"
+    }
+  },
+  {
+    "object_id": "CC7ED728-3531-4178-B671-2EF34EABE25E",
+    "name": "LIFECYCLE_PHASE",
+    "code": "LIFECYCLE_PHASE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "Carbon Intensity",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "PRODUCT_LIFE_CYCLE_STAGE"
+    }
+  },
+  {
+    "object_id": "8B3A2653-D178-47AF-8A66-46E601CD7BB5",
+    "name": "DIMENSION",
+    "code": "DIMENSION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMISSION_DIMENSION"
+    }
+  },
+  {
+    "object_id": "4CBD2E3B-1800-4813-B4F2-BC88F8E62303",
+    "name": "ACTIVITY_CATEGORY_DIMENSION",
+    "code": "ACTIVITY_CATEGORY_DIMENSION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.DataArea": "Emission",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMISSION_CATEGORY_DIMENSION"
+    }
+  },
+  {
+    "object_id": "32D1D81E-23D4-46C5-9587-945531C6A7DE",
+    "name": "DIMENSION_VALUE",
+    "code": "DIMENSION_VALUE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMISSION_DIMENSION_VALUE"
+    }
+  },
+  {
+    "object_id": "87E32491-1CA3-4250-B489-CACE449635B4",
+    "name": "ACTIVITY_CATEGORY_TYPE_DIMENSION",
+    "code": "ACTIVITY_CATEGORY_TYPE_DIMENSION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMISSION_CATEGORY_TYPE_DIMENSION_VALUE"
+    }
+  },
+  {
+    "object_id": "BB7BC91C-0D7E-430A-9E90-F1834E0931FE",
+    "name": "LNG_ENGINE_TYPE",
+    "code": "LNG_ENGINE_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "LNG_ENGINE_TYPE"
+    }
+  },
+  {
+    "object_id": "D8A7C638-E4D1-4AA2-8243-B9FD5457F16D",
+    "name": "FACTOR_PUBLISHER",
+    "code": "FACTOR_PUBLISHER",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMISSION_DATA_PUBLISHER"
+    }
+  },
+  {
+    "object_id": "6E0A71B5-8F4B-49E4-A6EA-9478D45D88AF",
+    "name": "FACTOR_SOURCE_COMPOSITION",
+    "code": "FACTOR_SOURCE_COMPOSITION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FACTOR_SOURCE_COMPOSITION"
+    }
+  },
+  {
+    "object_id": "5CF66D83-CCA0-42D7-9537-C0196D993721",
+    "name": "PROPERTY_TYPE",
+    "code": "PROPERTY_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "PHYSICAL_PROPERTY_TYPE"
+    }
+  },
+  {
+    "object_id": "BF0A7345-D886-498C-BB5D-485AD9FCB30F",
+    "name": "UOM_CONVERSION_TYPE",
+    "code": "UOM_CONVERSION_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "UoM_CONVERSION_TYPE"
+    }
+  },
+  {
+    "object_id": "835F3411-13F5-464D-9B7F-2AEA89ED9D10",
+    "name": "UOM_DERIVATION",
+    "code": "UOM_DERIVATION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "UoM_DERIVATION"
+    }
+  },
+  {
+    "object_id": "306EAED2-7879-4A51-8128-D6259908D122",
+    "name": "FUEL_FORM",
+    "code": "FUEL_FORM",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_FORM"
+    }
+  },
+  {
+    "object_id": "308A0805-4055-4FD3-B924-036FB2621538",
+    "name": "APPLICATION_EQUIPMENT",
+    "code": "APPLICATION_EQUIPMENT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "APPLICATION_EQUIPMENT"
+    }
+  },
+  {
+    "object_id": "848C9DC0-FA74-4E50-90E2-4CBF73C40495",
+    "name": "FUEL_FORM_QUANTITY_UNIT",
+    "code": "FUEL_FORM_QUANTITY_UNIT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_FORM_QUANTITY_UNIT"
+    }
+  },
+  {
+    "object_id": "D5131519-7B9E-41E4-8095-A95C215BCCDE",
+    "name": "EQUIPMENT_ENGINE_TYPE",
+    "code": "EQUIPMENT_ENGINE_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EQUIPMENT_ENGINE_TYPE"
+    }
+  },
+  {
+    "object_id": "85A2F0CB-0C17-4C08-83C2-6C2DB90C93A9",
+    "name": "FUEL_PRODUCT_REGION_COMMENT",
+    "code": "FUEL_PRODUCT_REGION_COMMENT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "Fuel_Market_Product_Comment"
+    }
+  },
+  {
+    "object_id": "3116D276-3E6B-4EE2-A53D-F957BE9736CE",
+    "name": "UOM",
+    "code": "UOM",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "UNIT_OF_MEASURE",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataArea": "Unit Of Measure",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "6E321EA9-B42C-4BAC-9053-83D2DFE136CD",
+    "name": "UOM_CONVERSION",
+    "code": "UOM_CONVERSION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "UoM_CONVERSION"
+    }
+  },
+  {
+    "object_id": "76158E06-D17C-4C9F-BB37-F8E01F08B33B",
+    "name": "FUEL_PRODUCT_REGION_CLIENT",
+    "code": "FUEL_PRODUCT_REGION_CLIENT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data": "L",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Security_Classification": "Restricted",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Design_Status": "Approved",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category": "Master",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "FE7A122C-162E-40E3-B768-7D413F48165A",
+    "name": "PCF_CLIENT_PRODUCT",
+    "code": "PCF_CLIENT_PRODUCT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "413C3CCE-79AE-4C8F-BB9F-06439ED1EB2A",
+    "name": "PCF_CLIENT_DIMENSION_VALUE",
+    "code": "PCF_CLIENT_DIMENSION_VALUE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "76CED552-1870-483C-9F62-F6F3C842E037",
+    "name": "FUEL_MARKET_PRODUCT",
+    "code": "FUEL_MARKET_PRODUCT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_MARKET_PRODUCT"
+    }
+  },
+  {
+    "object_id": "5B7B3BA7-03E2-4C1E-898A-102E42FC2DD4",
+    "name": "FUEL_PRODUCT",
+    "code": "FUEL_PRODUCT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Design_Status": "Approved",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category": "Reference",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Mapping_Level": "02 - Conceptual",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Security_Classification": "Restricted",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "FUEL_PRODUCT",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "023EB5D1-7D07-481C-8E17-FA308F74336A",
+    "name": "PRODUCT_EMISSION_COMPONENT",
+    "code": "PRODUCT_EMISSION_COMPONENT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_MARKET_PRODUCT_EMISSION_COMPONENT"
+    }
+  },
+  {
+    "object_id": "941DFC99-9C26-4180-B991-C6BE4EE67973",
+    "name": "NCI_CLIENT_PRODUCT_TYPE",
+    "code": "NCI_CLIENT_PRODUCT_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "21246286-2241-4506-B7FC-EAD245705095",
+    "name": "ACTIVITY_TYPE_PARAMETER_FACTOR",
+    "code": "ACTIVITY_TYPE_PARAMETER_FACTOR",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Confidential",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MapsToEntity": "EMISSION_ACTIVITY_TYPE_FACTOR",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM"
+    }
+  },
+  {
+    "object_id": "EAC84B96-83C8-4236-A663-B56CDE3D8EA4",
+    "name": "NCI_CLIENT_PARAMETER_VALUE_SET",
+    "code": "NCI_CLIENT_PARAMETER_VALUE_SET",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "6F97EC91-4834-49FF-BC67-616E3A46E9D8",
+    "name": "PARAMETER_VALUE_SET",
+    "code": "PARAMETER_VALUE_SET",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "4AD1CC90-33DC-4469-AC36-F0EC29991152",
+    "name": "NCI_CLIENT_PARAMETER",
+    "code": "NCI_CLIENT_PARAMETER",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "C5F546B4-AA51-4A77-84FF-4A6675041D34",
+    "name": "APPLICATION_METHOD",
+    "code": "APPLICATION_METHOD",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_APPLICATION_METHOD"
+    }
+  },
+  {
+    "object_id": "0CEB000A-8386-4FD4-84A1-6DABF43C2CEE",
+    "name": "CLIENT_UOM",
+    "code": "CLIENT_UOM",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "External Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "F83D8787-DB26-475D-9ED2-CDC0784FB2EB",
+    "name": "PRODUCT_PROPERTY_VALUE",
+    "code": "PRODUCT_PROPERTY_VALUE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_PRODUCT_PROPERTY"
+    }
+  },
+  {
+    "object_id": "3D3DF1EF-B058-4E4A-9950-BE54724F244D",
+    "name": "NCI_CLIENT_PRODUCT_FACTOR",
+    "code": "NCI_CLIENT_PRODUCT_FACTOR",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "FD1AD173-EF5D-4849-8A49-7C59056AB216",
+    "name": "FUEL_PRODUCT_REGION",
+    "code": "FUEL_PRODUCT_REGION",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Confidential",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "21F3B66E-EB71-4880-B623-BD9161FB156B",
+    "name": "FAQ",
+    "code": "FAQ",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "DAC19097-A40F-4A53-B3FC-5570E60094FD",
+    "name": "CLIENT",
+    "code": "CLIENT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific"
+    }
+  },
+  {
+    "object_id": "A83BF9A8-EF45-40DE-8126-BACAFCAA9606",
+    "name": "GLOSSARY",
+    "code": "GLOSSARY",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data"
+    }
+  },
+  {
+    "object_id": "28C44B1D-D978-4B87-91A2-9FD1755A6904",
+    "name": "EFL_UI_APPROVER",
+    "code": "EF_UI_APPRVR",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "BD0AE091-3F5E-4309-8A61-C39A1A04A015",
+    "name": "EFL_UI_APPROVER_GROUP",
+    "code": "APPROVER_GROUPS2",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "1FCB0896-A733-411F-B686-24C65033C3A2",
+    "name": "FUEL_PRODUCT_DEFAULT",
+    "code": "FL_PRDCT_DFLT",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "E9A268B8-0CD8-4119-B21B-FFF3F2ACB480",
+    "name": "APPLICATION_METHOD_UOM",
+    "code": "APPLICATION_METHOD_UOM",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "3839DB5B-EEBC-4A79-B96F-04DA64F6E68C",
+    "name": "PUBLICATION",
+    "code": "PUBLICATION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "BC73555A-D7A2-42BB-B593-C4A255CFE4BB",
+    "name": "APPLICATION_METHOD_ARCHETYPE",
+    "code": "APPLICATION_METHOD_ARCHETYPE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "APPLICATION_PERFORMANCE_ARCHETYPE",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "B4297F53-8A75-446C-8927-91729CDB59B5",
+    "name": "APPROVERS",
+    "code": "APPROVERS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "C0C779A4-27FA-44DA-85C6-6B9DFA3B1B3E",
+    "name": "APPROVER_GROUPS",
+    "code": "APPROVER_GROUPS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "F2ADDFCA-55C1-4FD2-86B6-370936853505",
+    "name": "ARCHETYPE_REGION",
+    "code": "ARCHETYPE_REGION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "REGION_ARCHETYPE",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "A6972307-A4DA-4940-B68F-EF1CDA38F338",
+    "name": "CLIENT_PREFERENCES",
+    "code": "CLIENT_PREFERENCES",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "843CF939-8808-4EC2-B730-6A72DB30DB98",
+    "name": "EFL_UI_REQUEST",
+    "code": "EFL_UI_REQUEST",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "3899CDF0-B59C-41DF-B66D-EEDE33B5B58D",
+    "name": "EFL_UI_SECTION",
+    "code": "EFL_UI_SECTION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "10B1975E-C1AD-4CFF-B5D9-A8CFDA519A52",
+    "name": "EFL_UI_WORKFLOW_STATUS",
+    "code": "EFL_UI_WORKFLOW_STATUS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "E0BD2AD4-8123-46B2-9470-E30A412E1B62",
+    "name": "FACTOR_GROUP",
+    "code": "FACTOR_GROUP",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "68809599-5BE5-4175-AC1B-510DDE5D9231",
+    "name": "FUEL_CONSUMPTION",
+    "code": "FUEL_CONSUMPTION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "APPLICATION_EQUIPMENT_PERFORMANCE",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "47EDAB0C-5B08-4AF2-9EF3-C3DCB3F98B81",
+    "name": "FUEL_CONSUMPTION_ARCHETYPE",
+    "code": "FUEL_CONSUMPTION_ARCHETYPE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "APPLICATION_PERFORMANCE_ARCHETYPE",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "22BC8FC1-8BAA-4E43-97DF-C96FE9524E44",
+    "name": "FUEL_CONSUMPTION_VALUE",
+    "code": "FUEL_CONSUMPTION_VALUE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "APPLICATION_EQUIPMENT_PERFORMANCE",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "18C9D8A8-09C7-4637-AB87-606B7B0DB8E9",
+    "name": "INTENDED_USE",
+    "code": "INTENDED_USE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "91B2CFCD-ED1B-449B-8759-CF599D8EBF3A",
+    "name": "INTENDED_USE_CATEGORY",
+    "code": "INTENDED_USE_CATEGORY",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "104D5916-89B1-44F4-8BBF-84806D40B022",
+    "name": "NCI_CLIENT_PRODUCT",
+    "code": "NCI_CLIENT_PRODUCT",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "C5622F66-7EF1-471D-989F-D4147851A4DA",
+    "name": "NCI_CLIENT_PRODUCT_UOM",
+    "code": "NCI_CLIENT_PRODUCT_UOM",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "5529A9F4-89EF-4A3E-940F-2DDE4BDDD183",
+    "name": "NCI_DATA_MAPPING",
+    "code": "NCI_DATA_MAPPING",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "98D05D63-B6CA-4F6D-83E4-372F5EAE467A",
+    "name": "NCI_DATA_UPLOAD_VERSION",
+    "code": "NCI_DATA_UPLOAD_VERSION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "992E0554-0A1E-45D1-BA77-275EB9F7B474",
+    "name": "NCI_PRODUCT_PROPERTY_PVS",
+    "code": "NCI_PRODUCT_PROPERTY_PVS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "DB51634D-E15C-4BA8-B3C9-D12197E28838",
+    "name": "NCI_UOM_CONVERSION_PVS",
+    "code": "NCI_UOM_CONVERSION_PVS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "6F97B7C2-5485-4B5F-9EC2-F76BCAB30CAE",
+    "name": "PCF_CLIENT_PRODUCT_REGION_ACTIVITY_PARAMETER",
+    "code": "PCF_CLIENT_PRODUCT_REGION_ACTIVITY_PARAMETER",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "6B54CE91-9285-4782-A108-698E63E5E33F",
+    "name": "PCF_CLIENT_PRODUCT_REGION_ENERGY_APPLICATION",
+    "code": "PCF_CLIENT_PRODUCT_REGION_ENERGY_APPLICATION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "A0E8D3D2-A330-48FA-9483-D603F81D7010",
+    "name": "PCF_CLIENT_PRODUCT_REGION_INTENDED_USE",
+    "code": "PCF_CLIENT_PRODUCT_REGION_INTENDED_USE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "92E942BF-9BB4-4CDD-B822-E0495839B53E",
+    "name": "PCF_CLIENT_PRODUCT_REGION_UOM",
+    "code": "PCF_CLIENT_PRODUCT_REGION_UOM",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "81F49AB7-FED9-496F-90E8-365BFC14914C",
+    "name": "PRODUCT",
+    "code": "PRODUCT",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataArea": "",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "FUEL_PRODUCT",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "ABC70A6C-C7B3-45AD-8D10-DC78D9FBE2F5",
+    "name": "PRODUCT_FAMILY",
+    "code": "PRODUCT_FAMILY",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "D69DD4E8-14A9-4226-B003-6F01B0C46645",
+    "name": "PRODUCT_FAMILY_INTENDED_USE",
+    "code": "PRODUCT_FAMILY_INTENDED_USE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "A3EFE662-AF20-4EFF-8F1A-A0632EF07FBD",
+    "name": "REQUEST_APPROVER_COMMENT",
+    "code": "REQUEST_APPROVER_COMMENT",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "FA4751E6-22C3-45CC-8D1C-E36AB18B49DC",
+    "name": "REQUEST_ASSIGNEE",
+    "code": "REQUEST_ASSIGNEE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "503B1B0B-7C16-4BA1-A6EE-A450946B906F",
+    "name": "REQUEST_STAGE",
+    "code": "REQUEST_STAGE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "8D27AE7B-7E81-4F83-A799-AF511427453A",
+    "name": "REQ_NCI_CLIENT_PARAMETER",
+    "code": "REQ_NCI_CLIENT_PARAMETER",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "450C9DCB-F817-431F-8C30-41454D986F03",
+    "name": "REQ_NCI_CLIENT_PARAMETER_PVS",
+    "code": "REQ_NCI_CLIENT_PARAMETER_PVS",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "46F9012A-B898-4860-9619-2FBF67AF785D",
+    "name": "REQ_NCI_CLIENT_PARAMETER_VALUE_SET",
+    "code": "REQ_NCI_CLIENT_PARAMETER_VALUE_SET",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "71912D64-9057-4D6B-B376-87B8A24E49C6",
+    "name": "REQ_NCI_CLIENT_PRODUCT",
+    "code": "REQ_NCI_CLIENT_PRODUCT",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "0AFA0A56-3DCD-4C1F-95AE-01753BF2854D",
+    "name": "REQ_NCI_CLIENT_PRODUCT_FACTOR",
+    "code": "REQ_NCI_CLIENT_PRODUCT_FACTOR",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "D22074AC-03F0-44A4-A4D6-1124EF8AA1B7",
+    "name": "REQ_NCI_CLIENT_PRODUCT_TYPE",
+    "code": "REQ_NCI_CLIENT_PRODUCT_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Intersection",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "46699FBA-B0D0-459A-B154-4E2584DD18E6",
+    "name": "REQ_NCI_CLIENT_PRODUCT_UOM",
+    "code": "REQ_NCI_CLIENT_PRODUCT_UOM",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "1B0FBF62-236C-46E0-94F1-CF1BE3E6C2E9",
+    "name": "REQ_PCF_FUEL_PRODUCT_REGION_CLIENT",
+    "code": "REQ_PCF_FUEL_PRODUCT_REGION_CLIENT",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Critical_Data": "L",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Security_Classification": "Restricted",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Design_Status": "Approved",
+      "SHL_LDM_EntityPropertyExtension.MTED_EDaM_Entity_Data_Category": "Master",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "0291366A-FCDD-4BAB-AD18-275F12EFFA15",
+    "name": "REQ_PCF_PRODUCT_REGION_ENERGY_APPLICATION",
+    "code": "REQ_PCF_PRODUCT_ENERGY_APPLICATION",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "73D346FC-1843-4E05-AB8D-5807B748824F",
+    "name": "REQ_PCF_PRODUCT_REGION_ACTIVITY_PARAMETER",
+    "code": "REQ_PCF_PRODUCT_REGION_ACTIVITY_PARAMETER",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "1D0094A3-481B-45C1-8C55-454F2FE35904",
+    "name": "REQ_PCF_PRODUCT_REGION_INTENDED_USE",
+    "code": "REQ_PCF_PRODUCT_REGION_INTENDED_USE",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "E7EC10F0-37A7-409E-A5E8-4BAD8E0591A1",
+    "name": "REQ_PCF_PRODUCT_REGION_UOM",
+    "code": "REQ_PCF_PRODUCT_REGION_UOM",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "4E60AB68-BA2E-4BAA-A925-78ED3362DA16",
+    "name": "EQUIPMENT_TYPE",
+    "code": "EQUIPMENT_TYPE",
+    "extended_attributes": {
+      "SHL_LDM_EntityPropertyExtension.CSI": "false",
+      "SHL_LDM_EntityPropertyExtension.MTED_Encryption_Required": "false",
+      "SHL_LDM_EntityPropertyExtension.PII": "false",
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Internal Reference",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DataArea": "Equipment",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EQUIPMENT"
+    }
+  },
+  {
+    "object_id": "BBC3FE8C-D594-4EF9-A1B7-838AAC839A44",
+    "name": "CLIENT_CONSENT",
+    "code": "CLIENT_CNSNT",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data"
+    }
+  },
+  {
+    "object_id": "D496D984-4C1F-4FCC-BED2-2123EA38FD66",
+    "name": "FACTOR_PUBLICATION_COMPOSITION",
+    "code": "FCTR_PBLCTN_CMPSTN",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.DesignStatus": "Approved",
+      "BIM-core.EntityCategory": "Master",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data"
+    }
+  },
+  {
+    "object_id": "1C25A39E-9D6A-4CE9-B8BB-ABDFEA7B6470",
+    "name": "CLIENT_USER",
+    "code": "CLIENT_USER",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataArea": "Core HR",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.MappingLevel": "BLM",
+      "BIM-core.MapsToEntity": "EMPLOYEE",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  },
+  {
+    "object_id": "0CB4099C-534A-4943-A3C0-80E3500D9C99",
+    "name": "DATA_REQUEST",
+    "code": "DATA_REQUEST",
+    "extended_attributes": {
+      "BIM-core.CommerciallySensitiveInformation": "No Commercially Sensitive Information",
+      "BIM-core.Criticality": "No Critical Data",
+      "BIM-core.DataCategory": "Structured",
+      "BIM-core.DataConfidentiality": "Internal",
+      "BIM-core.EntityCategory": "Transaction",
+      "BIM-core.EntityPersonalData": "No Personal Data",
+      "BIM-core.FinancialPersonalData": "No Financial Personal Data",
+      "BIM-core.SensitivePersonalData": "No Sensitive Personal Data",
+      "BIM-core.MTED_EDaM_Mapping_Note": "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Times New Roman;}}",
+      "BIM-core.MappingLevel": "Application Specific",
+      "BIM-core.DesignStatus": "Approved"
+    }
+  }
+]

@@ -38,7 +38,7 @@ Two structural facts drive the design:
 import re
 import logging
 import xml.etree.ElementTree as ET  # nosec B405
-from defusedxml.ElementTree import parse as safe_parse, iterparse as safe_iterparse
+from defusedxml.ElementTree import parse as safe_parse
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from app.config.validation_config import CDM_CONFIG as config
@@ -66,11 +66,11 @@ def _local(tag: Any) -> str:
 
 
 def _children(elem: ET.Element, local_name: str) -> List[ET.Element]:
-    return [child for child in list(elem) if _local(child.tag) == local_name]
+    return [child for child in elem if _local(child.tag) == local_name]
 
 
 def _first_child(elem: ET.Element, local_name: str) -> Optional[ET.Element]:
-    for child in list(elem):
+    for child in elem:
         if _local(child.tag) == local_name:
             return child
     return None
@@ -89,10 +89,34 @@ def _props_child(elem: ET.Element) -> Optional[ET.Element]:
     Attribute → AttributeProps, Key_Group → Key_GroupProps, Relationship →
     RelationshipProps, Domain → DomainProps. Returns that wrapper if present.
     """
-    for child in list(elem):
+    for child in elem:
         if _local(child.tag).endswith("Props"):
             return child
     return None
+
+
+def _attribute_value(elem: ET.Element, names: Tuple[str, ...]) -> str:
+    """First non-empty XML attribute among `names`: exact case, then case-insensitive."""
+    for name in names:
+        raw = elem.get(name)
+        if raw and raw.strip():
+            return raw.strip()
+
+    lower_attribs = {key.lower(): value for key, value in elem.attrib.items()}
+    for name in names:
+        raw = lower_attribs.get(name.lower())
+        if raw and raw.strip():
+            return raw.strip()
+    return ""
+
+
+def _child_text(elem: ET.Element, names: Tuple[str, ...]) -> str:
+    """First non-empty text of a direct child element named in `names`."""
+    for name in names:
+        child = _first_child(elem, name)
+        if child is not None and child.text and child.text.strip():
+            return child.text.strip()
+    return ""
 
 
 def _val(elem: ET.Element, *names: str) -> str:
@@ -104,28 +128,17 @@ def _val(elem: ET.Element, *names: str) -> str:
     (see ``_props_child``). erwin uses all of these conventions
     interchangeably across versions and export options.
     """
-    for name in names:
-        raw = elem.get(name)
-        if raw and raw.strip():
-            return raw.strip()
+    value = _attribute_value(elem, names)
+    if value:
+        return value
 
-    lower_attribs = {key.lower(): value for key, value in elem.attrib.items()}
-    for name in names:
-        raw = lower_attribs.get(name.lower())
-        if raw and raw.strip():
-            return raw.strip()
-
-    for name in names:
-        child = _first_child(elem, name)
-        if child is not None and child.text and child.text.strip():
-            return child.text.strip()
+    value = _child_text(elem, names)
+    if value:
+        return value
 
     props = _props_child(elem)
     if props is not None:
-        for name in names:
-            child = _first_child(props, name)
-            if child is not None and child.text and child.text.strip():
-                return child.text.strip()
+        return _child_text(props, names)
 
     return ""
 
@@ -191,28 +204,39 @@ def _decode_note_text(record: str) -> str:
                   lambda m: chr(int(m.group(1), 16)), text)
 
 
+def _doc_containers(elem: ET.Element) -> List[ET.Element]:
+    """The element itself plus its '<XxxProps>' wrapper, when it has one."""
+    containers = [elem]
+    props = _props_child(elem)
+    if props is not None:
+        containers.append(props)
+    return containers
+
+
+def _note_list_texts(container: ET.Element) -> List[str]:
+    """Decoded, non-blank Note_List entries directly under `container`."""
+    texts = []
+    for child in container:
+        if _local(child.tag) != _NOTE_ARRAY_TAG:
+            continue
+        for note in child:
+            if _local(note.tag) != _NOTE_ITEM_TAG:
+                continue
+            decoded = _decode_note_text(note.text or "")
+            if decoded.strip():
+                texts.append(decoded.strip())
+    return texts
+
+
 def _note(elem: ET.Element) -> str:
     """
     All Note_List entries on this object, decoded and joined.  Returns "" when
     the object carries no notes (i.e. preprocessing has not been run, or the
     SAP PD Comment was empty).
     """
-    containers = [elem]
-    props = _props_child(elem)
-    if props is not None:
-        containers.append(props)
-
     texts = []
-    for container in containers:
-        for child in container:
-            if _local(child.tag) != _NOTE_ARRAY_TAG:
-                continue
-            for note in child:
-                if _local(note.tag) != _NOTE_ITEM_TAG:
-                    continue
-                decoded = _decode_note_text(note.text or "")
-                if decoded.strip():
-                    texts.append(decoded.strip())
+    for container in _doc_containers(elem):
+        texts.extend(_note_list_texts(container))
     return "\n".join(texts)
 
 
@@ -237,23 +261,25 @@ def _extended_notes(elem: ET.Element) -> str:
     an erwin import lands a SAP PD Annotation, and most objects have no
     Annotation.
     """
-    containers = [elem]
-    props = _props_child(elem)
-    if props is not None:
-        containers.append(props)
-
     texts = []
-    for container in containers:
-        for child in container:
-            if _local(child.tag) != _EXT_NOTES_ARRAY_TAG:
-                continue
-            for note in child:
-                if _local(note.tag) != _EXT_NOTES_ITEM_TAG:
-                    continue
-                text = _val(note, "Comment")
-                if text.strip():
-                    texts.append(text.strip())
+    for container in _doc_containers(elem):
+        texts.extend(_extended_note_texts(container))
     return "\n".join(texts)
+
+
+def _extended_note_texts(container: ET.Element) -> List[str]:
+    """Non-blank Extended_Notes comments directly under `container`."""
+    texts = []
+    for child in container:
+        if _local(child.tag) != _EXT_NOTES_ARRAY_TAG:
+            continue
+        for note in child:
+            if _local(note.tag) != _EXT_NOTES_ITEM_TAG:
+                continue
+            text = _val(note, "Comment")
+            if text.strip():
+                texts.append(text.strip())
+    return texts
 
 
 def _erwin_comment_only(elem: ET.Element) -> str:
@@ -444,6 +470,38 @@ def _parse_entity(elem: ET.Element,
     )
 
     # ── Attributes ───────────────────────────────────────────────────────────
+    attr_code_by_oid = _collect_entity_attributes(entity, elem, domains_by_oid)
+
+    # ── Identifiers ──────────────────────────────────────────────────────────
+    _collect_entity_identifiers(entity, elem, attr_code_by_oid)
+    _mark_primary_attributes(entity)
+
+    return entity
+
+
+def _register_attribute(entity: Entity, attribute: Attribute,
+                        attr_code_by_oid: Dict[str, str]) -> None:
+    """Place one parsed attribute on the entity per the migrated-key handling mode."""
+    if attribute.is_migrated:
+        # Remembered on the entity regardless of the handling mode: the
+        # identifier comparison needs to know which key members arrived by
+        # migration, and under "ignore" they never reach entity.attributes.
+        entity.migrated_attributes.append(attribute)
+
+    if attribute.is_migrated and config.ERWIN_MIGRATED_KEY_HANDLING == "ignore":
+        # Still needed for identifier resolution, just not for comparison.
+        if attribute.oid:
+            attr_code_by_oid[attribute.oid] = attribute.code
+        return
+
+    entity.attributes.append(attribute)
+    if attribute.oid:
+        attr_code_by_oid[attribute.oid] = attribute.code
+
+
+def _collect_entity_attributes(entity: Entity, elem: ET.Element,
+                               domains_by_oid: Dict[str, Domain]) -> Dict[str, str]:
+    """Parse the entity's attributes; returns the attribute oid → code map."""
     attr_code_by_oid: Dict[str, str] = {}
     order = 0
 
@@ -455,23 +513,13 @@ def _parse_entity(elem: ET.Element,
 
         if normalizers.is_excluded_attribute(attribute.name, attribute.code):
             continue
-        if attribute.is_migrated:
-            # Remembered on the entity regardless of the handling mode: the
-            # identifier comparison needs to know which key members arrived by
-            # migration, and under "ignore" they never reach entity.attributes.
-            entity.migrated_attributes.append(attribute)
+        _register_attribute(entity, attribute, attr_code_by_oid)
 
-        if attribute.is_migrated and config.ERWIN_MIGRATED_KEY_HANDLING == "ignore":
-            # Still needed for identifier resolution, just not for comparison.
-            if attribute.oid:
-                attr_code_by_oid[attribute.oid] = attribute.code
-            continue
+    return attr_code_by_oid
 
-        entity.attributes.append(attribute)
-        if attribute.oid:
-            attr_code_by_oid[attribute.oid] = attribute.code
 
-    # ── Identifiers ──────────────────────────────────────────────────────────
+def _collect_entity_identifiers(entity: Entity, elem: ET.Element,
+                                attr_code_by_oid: Dict[str, str]) -> None:
     for kg_elem in _descendants(elem, "Key_Group"):
         if not _oid(kg_elem) and not _name(kg_elem):
             continue
@@ -479,14 +527,14 @@ def _parse_entity(elem: ET.Element,
         if identifier and identifier.attributes:
             entity.identifiers.append(identifier)
 
+
+def _mark_primary_attributes(entity: Entity) -> None:
     primary = entity.primary_identifier
     if primary:
         members = {code.upper() for code in primary.attributes}
         for attribute in entity.attributes:
             if attribute.code.upper() in members:
                 attribute.is_primary = True
-
-    return entity
 
 
 # ─── RELATIONSHIPS ────────────────────────────────────────────────────────────
@@ -686,11 +734,8 @@ _SUBTYPE_TAGS = ("Subtype_Relationship", "Subtype", "Subtype_Group",
                  "Generalization", "Category_Relationship")
 
 
-def _parse_subtype(elem: ET.Element,
-                   entity_code_by_oid: Dict[str, str]) -> Inheritance:
-    parent_ref = _val(elem, "Entity_Ref_Parent", "Parent_Entity_Ref",
-                      "Supertype_Entity_Ref", "Supertype_Ref")
-
+def _subtype_child_refs(elem: ET.Element, parent_ref: str) -> List[str]:
+    """Entity references of every subtype member, in declaration order."""
     child_refs: List[str] = []
     for member_tag in ("Subtype_Member", "Subtype_Symbol", "Subtype_Entity",
                        "Category_Member", "Child_Entity"):
@@ -704,21 +749,31 @@ def _parse_subtype(elem: ET.Element,
         ref = _val(elem, "Entity_Ref_Child", "Child_Entity_Ref")
         if ref:
             child_refs.append(ref)
+    return child_refs
 
-    # erwin describes completeness as Complete / Incomplete and exclusivity as
-    # Exclusive / Inclusive, either as a flag or as free text.
+
+def _subtype_is_complete(elem: ET.Element) -> bool:
+    # erwin describes completeness as Complete / Incomplete, either as a flag
+    # or as free text.
     completeness = _val(elem, "Subtype_Type", "Completeness", "Type").upper()
     complete = ("COMPLETE" in completeness and "INCOMPLETE" not in completeness)
     if not completeness:
         complete = _bool_val(elem, "Is_Complete", "Complete")
+    return complete
 
+
+def _subtype_is_exclusive(elem: ET.Element) -> bool:
+    # erwin describes exclusivity as Exclusive / Inclusive, either as a flag or
+    # as free text.
     exclusivity = _val(elem, "Exclusivity", "Subtype_Exclusivity").upper()
     if exclusivity:
-        exclusive = "INCLUSIVE" not in exclusivity
-    else:
-        exclusive = _bool_val(elem, "Is_Exclusive", "Exclusive", default=True)
+        return "INCLUSIVE" not in exclusivity
+    return _bool_val(elem, "Is_Exclusive", "Exclusive", default=True)
 
-    # De-duplicate while preserving declaration order.
+
+def _unique_child_codes(child_refs: List[str],
+                        entity_code_by_oid: Dict[str, str]) -> List[str]:
+    """Resolve refs to entity codes, de-duplicated while preserving declaration order."""
     seen: Set[str] = set()
     children: List[str] = []
     for ref in child_refs:
@@ -726,6 +781,18 @@ def _parse_subtype(elem: ET.Element,
         if code and code not in seen:
             seen.add(code)
             children.append(code)
+    return children
+
+
+def _parse_subtype(elem: ET.Element,
+                   entity_code_by_oid: Dict[str, str]) -> Inheritance:
+    parent_ref = _val(elem, "Entity_Ref_Parent", "Parent_Entity_Ref",
+                      "Supertype_Entity_Ref", "Supertype_Ref")
+
+    child_refs = _subtype_child_refs(elem, parent_ref)
+    complete   = _subtype_is_complete(elem)
+    exclusive  = _subtype_is_exclusive(elem)
+    children   = _unique_child_codes(child_refs, entity_code_by_oid)
 
     return Inheritance(
         oid      = _oid(elem),
@@ -787,18 +854,59 @@ def parse_erwin(filepath: str) -> CDMModel:
     model = CDMModel(source_file=filepath, source_tool="erwin",
                      model_type="Logical")
 
-    try:
-        root = safe_parse(filepath).getroot()
-    except ET.ParseError as exc:
-        logger.error("XML parse error in %s: %s", filepath, exc)
-        model.parse_error = f"XML parse error: {exc}"
-        return model
-    except OSError as exc:
-        logger.error("Cannot read %s: %s", filepath, exc)
-        model.parse_error = f"File read error: {exc}"
+    root = _read_root(model, filepath)
+    if root is None:
         return model
 
     # ── Model header ─────────────────────────────────────────────────────────
+    _parse_model_header(model, root)
+
+    # ── Domains ──────────────────────────────────────────────────────────────
+    domains_by_oid = _parse_domains(model, root)
+
+    # ── Subject areas ────────────────────────────────────────────────────────
+    subject_area_by_oid = _build_subject_area_map(root)
+    model.subject_areas = sorted(set(subject_area_by_oid.values()))
+
+    # ── Entities ─────────────────────────────────────────────────────────────
+    entity_code_by_oid = _parse_entities(model, root, subject_area_by_oid, domains_by_oid)
+
+    # ── Relationships ────────────────────────────────────────────────────────
+    _parse_relationships(model, root, entity_code_by_oid)
+
+    # ── Collapsed-cardinality guard ───────────────────────────────────────────
+    _flag_collapsed_cardinality(model)
+
+    # ── Inheritance ──────────────────────────────────────────────────────────
+    _parse_inheritances(model, root, entity_code_by_oid)
+
+    # ── Business rules ───────────────────────────────────────────────────────
+    _parse_business_rules(model, root)
+
+    logger.debug("Parsed %s → %s", filepath, model.stats())
+    return model
+
+
+def _read_root(model: CDMModel, filepath: str) -> Optional[ET.Element]:
+    """Root element of the export, or None with the failure recorded on `model`."""
+    try:
+        return safe_parse(filepath).getroot()
+    except ET.ParseError as exc:
+        logger.error("XML parse error in %s: %s", filepath, exc)
+        model.parse_error = f"XML parse error: {exc}"
+        return None
+    except OSError as exc:
+        logger.error("Cannot read %s: %s", filepath, exc)
+        model.parse_error = f"File read error: {exc}"
+        return None
+
+
+def _tagged_descendants(root: ET.Element, tags: Tuple[str, ...]) -> List[ET.Element]:
+    """Descendants of `root` carrying any of `tags`, grouped by tag in the order given."""
+    return [elem for tag in tags for elem in _descendants(root, tag)]
+
+
+def _parse_model_header(model: CDMModel, root: ET.Element) -> None:
     props = (_first_child(root, "ModelProps")
              or _first_child(root, "Model_Properties")
              or _first_child(root, "Model"))
@@ -812,35 +920,45 @@ def parse_erwin(filepath: str) -> CDMModel:
 
     model.model_code = _val(root, "Code", "Physical_Name") or model.model_name
 
-    # ── Domains ──────────────────────────────────────────────────────────────
-    # erwin auto-generates a handful of built-in system type domains in every
-    # model (<root>, <default>, String, Number, Datetime, Blob — identifiable
-    # by a non-zero Built_In_Id). These are internal scaffolding, not domains
-    # a modeler created, so comparing them against the CDM produces false
-    # "domain missing" findings. Excluded from the comparison-facing domain
-    # list below — but kept in domains_by_oid, since a real attribute may
-    # legitimately be typed against one and still needs it for data-type/
-    # length/precision resolution.
+
+def _register_domain(model: CDMModel, elem: ET.Element,
+                     domains_by_oid: Dict[str, Domain]) -> None:
+    domain = _parse_domain(elem)
+    if domain.oid:
+        domains_by_oid[domain.oid] = domain
+    built_in = _val(elem, "Built_In_Id", "BuiltIn", "System_Domain")
+    if built_in and built_in != "0":
+        return
+    key = (domain.code or domain.name).upper()
+    if key:
+        model.domains.setdefault(key, domain)
+
+
+def _parse_domains(model: CDMModel, root: ET.Element) -> Dict[str, Domain]:
+    """
+    Parse every domain; returns the oid → Domain map.
+
+    erwin auto-generates a handful of built-in system type domains in every
+    model (<root>, <default>, String, Number, Datetime, Blob — identifiable
+    by a non-zero Built_In_Id). These are internal scaffolding, not domains
+    a modeler created, so comparing them against the CDM produces false
+    "domain missing" findings. Excluded from the comparison-facing domain
+    list — but kept in domains_by_oid, since a real attribute may
+    legitimately be typed against one and still needs it for data-type/
+    length/precision resolution.
+    """
     domains_by_oid: Dict[str, Domain] = {}
-    for tag in ("Domain", "Domain_Dictionary_Entry"):
-        for elem in _descendants(root, tag):
-            if not _oid(elem) and not _name(elem):
-                continue
-            domain = _parse_domain(elem)
-            if domain.oid:
-                domains_by_oid[domain.oid] = domain
-            built_in = _val(elem, "Built_In_Id", "BuiltIn", "System_Domain")
-            if built_in and built_in != "0":
-                continue
-            key = (domain.code or domain.name).upper()
-            if key:
-                model.domains.setdefault(key, domain)
+    for elem in _tagged_descendants(root, ("Domain", "Domain_Dictionary_Entry")):
+        if not _oid(elem) and not _name(elem):
+            continue
+        _register_domain(model, elem, domains_by_oid)
+    return domains_by_oid
 
-    # ── Subject areas ────────────────────────────────────────────────────────
-    subject_area_by_oid = _build_subject_area_map(root)
-    model.subject_areas = sorted(set(subject_area_by_oid.values()))
 
-    # ── Entities ─────────────────────────────────────────────────────────────
+def _parse_entities(model: CDMModel, root: ET.Element,
+                    subject_area_by_oid: Dict[str, str],
+                    domains_by_oid: Dict[str, Domain]) -> Dict[str, str]:
+    """Parse every entity onto `model`; returns the entity oid → code map."""
     entity_code_by_oid: Dict[str, str] = {}
     seen_entity_oids: Set[str] = set()
 
@@ -860,7 +978,58 @@ def parse_erwin(filepath: str) -> CDMModel:
         model.add_entity(entity)
         entity_code_by_oid[entity.oid] = entity.code
 
-    # ── Relationships ────────────────────────────────────────────────────────
+    return entity_code_by_oid
+
+
+def _absorb_subtype_relationship(model: CDMModel, elem: ET.Element,
+                                 relationship: Relationship) -> bool:
+    """
+    erwin encodes a subtype/generalisation as a <Relationship> with
+    Type=9 (no verb phrases, no PowerDesigner counterpart).  Left in the
+    relationship list, each one is reported as EXTRA_IN_ERWIN against a
+    CDM that models it as an inheritance.
+
+    Returns True when the relationship was recorded as an inheritance and must
+    not be added to the relationship list.
+    """
+    if not (getattr(config, "ERWIN_SUBTYPE_AS_INHERITANCE", True)
+            and _relationship_is_subtype(elem)):
+        return False
+    parent = relationship.end1.entity
+    child  = relationship.end2.entity
+    if not (parent and parent != "UNKNOWN" and child and child != "UNKNOWN"):
+        return False
+    existing = next((i for i in model.inheritances
+                     if i.parent == parent), None)
+    if existing is None:
+        model.inheritances.append(
+            Inheritance(oid=_oid(elem), name=relationship.name,
+                        parent=parent, children=[child])
+        )
+    elif child not in existing.children:
+        existing.children.append(child)
+    return True
+
+
+def _register_relationship(model: CDMModel, relationship: Relationship, oid: str) -> None:
+    if relationship.end1.entity == "UNKNOWN" and relationship.end2.entity == "UNKNOWN":
+        model.parse_warnings.append(
+            f"Relationship '{relationship.name or oid}' has unresolved endpoints"
+        )
+        return
+
+    # An associative entity plus its two relationships is erwin's rendering
+    # of a many-to-many association; tag it so it reconciles with a
+    # PowerDesigner Association rather than looking like a stray relationship.
+    child = model.entities.get(relationship.end2.entity.upper())
+    if child is not None and child.is_associative:
+        relationship.kind = "ASSOCIATION"
+
+    model.relationships.append(relationship)
+
+
+def _parse_relationships(model: CDMModel, root: ET.Element,
+                         entity_code_by_oid: Dict[str, str]) -> None:
     seen_rel_oids: Set[str] = set()
     for elem in _descendants(root, "Relationship"):
         oid = _oid(elem)
@@ -873,86 +1042,60 @@ def parse_erwin(filepath: str) -> CDMModel:
 
         relationship = _parse_relationship(elem, entity_code_by_oid)
 
-        # erwin encodes a subtype/generalisation as a <Relationship> with
-        # Type=9 (no verb phrases, no PowerDesigner counterpart).  Left in the
-        # relationship list, each one is reported as EXTRA_IN_ERWIN against a
-        # CDM that models it as an inheritance.
-        if (getattr(config, "ERWIN_SUBTYPE_AS_INHERITANCE", True)
-                and _relationship_is_subtype(elem)):
-            parent = relationship.end1.entity
-            child  = relationship.end2.entity
-            if parent and parent != "UNKNOWN" and child and child != "UNKNOWN":
-                existing = next((i for i in model.inheritances
-                                 if i.parent == parent), None)
-                if existing is None:
-                    model.inheritances.append(
-                        Inheritance(oid=_oid(elem), name=relationship.name,
-                                    parent=parent, children=[child])
-                    )
-                elif child not in existing.children:
-                    existing.children.append(child)
-                continue
-
-        if relationship.end1.entity == "UNKNOWN" and relationship.end2.entity == "UNKNOWN":
-            model.parse_warnings.append(
-                f"Relationship '{relationship.name or oid}' has unresolved endpoints"
-            )
+        if _absorb_subtype_relationship(model, elem, relationship):
             continue
 
-        # An associative entity plus its two relationships is erwin's rendering
-        # of a many-to-many association; tag it so it reconciles with a
-        # PowerDesigner Association rather than looking like a stray relationship.
-        child = model.entities.get(relationship.end2.entity.upper())
-        if child is not None and child.is_associative:
-            relationship.kind = "ASSOCIATION"
+        _register_relationship(model, relationship, oid)
 
-        model.relationships.append(relationship)
 
-    # ── Collapsed-cardinality guard ───────────────────────────────────────────
-    # A misread cardinality produces a *valid* value, so nothing downstream can
-    # tell it apart from a real one.  The one detectable signature is loss of
-    # variance: every relationship in the model resolving to the same pair.
-    # Real models vary, so a constant means the source value never landed.
-    if getattr(config, "ERWIN_FLAG_COLLAPSED_CARDINALITY", True):
-        real = [r for r in model.relationships if r.kind == "RELATIONSHIP"]
-        if len(real) >= 3:
-            pairs = {(r.end1.cardinality, r.end2.cardinality) for r in real}
-            if len(pairs) == 1:
-                only = next(iter(pairs))
-                message = (
-                    f"All {len(real)} erwin relationships resolved to the same "
-                    f"cardinality {only[0]}/{only[1]} — suspected cardinality "
-                    f"parse failure, not a real model property. Run "
-                    f"diagnose_cardinality.py against this XML to see the raw values."
-                )
-                logger.warning(message)
-                model.parse_warnings.append(message)
+def _flag_collapsed_cardinality(model: CDMModel) -> None:
+    """
+    A misread cardinality produces a *valid* value, so nothing downstream can
+    tell it apart from a real one.  The one detectable signature is loss of
+    variance: every relationship in the model resolving to the same pair.
+    Real models vary, so a constant means the source value never landed.
+    """
+    if not getattr(config, "ERWIN_FLAG_COLLAPSED_CARDINALITY", True):
+        return
+    real = [r for r in model.relationships if r.kind == "RELATIONSHIP"]
+    if len(real) < 3:
+        return
+    pairs = {(r.end1.cardinality, r.end2.cardinality) for r in real}
+    if len(pairs) != 1:
+        return
+    only = next(iter(pairs))
+    message = (
+        f"All {len(real)} erwin relationships resolved to the same "
+        f"cardinality {only[0]}/{only[1]} — suspected cardinality "
+        f"parse failure, not a real model property. Run "
+        f"diagnose_cardinality.py against this XML to see the raw values."
+    )
+    logger.warning(message)
+    model.parse_warnings.append(message)
 
-    # ── Inheritance ──────────────────────────────────────────────────────────
+
+def _parse_inheritances(model: CDMModel, root: ET.Element,
+                        entity_code_by_oid: Dict[str, str]) -> None:
     seen_subtype_oids: Set[str] = set()
-    for tag in _SUBTYPE_TAGS:
-        for elem in _descendants(root, tag):
-            oid = _oid(elem)
-            if oid and oid in seen_subtype_oids:
-                continue
-            if oid:
-                seen_subtype_oids.add(oid)
-            inheritance = _parse_subtype(elem, entity_code_by_oid)
-            if inheritance.parent and inheritance.parent != "UNKNOWN" and inheritance.children:
-                model.inheritances.append(inheritance)
+    for elem in _tagged_descendants(root, _SUBTYPE_TAGS):
+        oid = _oid(elem)
+        if oid and oid in seen_subtype_oids:
+            continue
+        if oid:
+            seen_subtype_oids.add(oid)
+        inheritance = _parse_subtype(elem, entity_code_by_oid)
+        if inheritance.parent and inheritance.parent != "UNKNOWN" and inheritance.children:
+            model.inheritances.append(inheritance)
 
-    # ── Business rules ───────────────────────────────────────────────────────
+
+def _parse_business_rules(model: CDMModel, root: ET.Element) -> None:
     seen_rule_keys: Set[str] = set()
-    for tag in _RULE_TAGS:
-        for elem in _descendants(root, tag):
-            if not _name(elem) and not _val(elem, "Expression"):
-                continue
-            rule = _parse_business_rule(elem)
-            key = (rule.name or rule.oid).upper()
-            if key in seen_rule_keys:
-                continue
-            seen_rule_keys.add(key)
-            model.business_rules.append(rule)
-
-    logger.debug("Parsed %s → %s", filepath, model.stats())
-    return model
+    for elem in _tagged_descendants(root, _RULE_TAGS):
+        if not _name(elem) and not _val(elem, "Expression"):
+            continue
+        rule = _parse_business_rule(elem)
+        key = (rule.name or rule.oid).upper()
+        if key in seen_rule_keys:
+            continue
+        seen_rule_keys.add(key)
+        model.business_rules.append(rule)

@@ -45,13 +45,13 @@ from typing import Any, Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 # The namespace erwin's EMX dialect uses for model-body elements.
-_DATA_NS = "http://www.erwin.com/dm/data"
+_DATA_NS = "http://www.erwin.com/dm/data"  # NOSONAR
 # Stable prefixes for the other erwin namespaces when they were declared as
 # defaults in the source (only one default can survive re-serialisation).
 _KNOWN_PREFIXES = {
-    "http://www.erwin.com/dm": "EMX",
-    "http://www.erwin.com/dm/EM2data": "EM2",
-    "http://www.erwin.com/dm/metadata": "EMXMD",
+    "http://www.erwin.com/dm": "EMX",           # NOSONAR
+    "http://www.erwin.com/dm/EM2data": "EM2",   # NOSONAR
+    "http://www.erwin.com/dm/metadata": "EMXMD",# NOSONAR
 }
 
 
@@ -102,14 +102,14 @@ def _ns_of(tag: str) -> str:
 
 
 def _first_child(elem: ET.Element, name: str) -> Optional[ET.Element]:
-    for c in list(elem):
+    for c in elem:
         if _local(c.tag) == name:
             return c
     return None
 
 
 def _props_child(elem: ET.Element) -> Optional[ET.Element]:
-    for c in list(elem):
+    for c in elem:
         if _local(c.tag).endswith("Props"):
             return c
     return None
@@ -237,6 +237,20 @@ def _add_column(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
     tbl_phys = doc.entity_phys(entity)
     order = len(doc.attributes(entity)) + 1
 
+    _populate_column_properties(new, new_id, pd_col, model_name, tbl_phys, order)
+
+    _attribute_container(entity).append(new)
+    doc.all_ids.add(new_id)
+    report.columns_added += 1
+    report.note(f"restored column {tbl_phys}.{_key(pd_col.get('code',''))} "
+                f"({pd_col.get('type') or 'no type'}, "
+                f"{'NOT NULL' if pd_col.get('not_null') else 'NULL'})")
+    return new
+
+
+# ─── 2. PRIMARY KEYS ──────────────────────────────────────────────────────────
+
+def _populate_column_properties(new, new_id, pd_col, model_name, tbl_phys, order):
     _set_prop(new, "Name", pd_col.get("name") or pd_col.get("code", ""))
     _set_prop(new, "Long_Id", new_id)
     if model_name:
@@ -257,22 +271,10 @@ def _add_column(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
     _set_prop(new, "Master_Attribute_Ref", new_id)
     _set_prop(new, "User_Formatted_Name", pd_col.get("name") or pd_col.get("code", ""))
     _set_prop(new, "User_Formatted_Physical_Name", _key(pd_col.get("code", "")))
-    # The clone must not inherit the template's migration/domain pointers.
     for stale in ("Parent_Attribute_Ref", "Parent_Relationship_Ref",
                   "Parent_Domain_Ref", "Definition", "Long_Id_Header"):
         if stale in ("Parent_Attribute_Ref", "Parent_Relationship_Ref"):
             _del_prop(new, stale)
-
-    _attribute_container(entity).append(new)
-    doc.all_ids.add(new_id)
-    report.columns_added += 1
-    report.note(f"restored column {tbl_phys}.{_key(pd_col.get('code',''))} "
-                f"({dtype or 'no type'}, "
-                f"{'NOT NULL' if pd_col.get('not_null') else 'NULL'})")
-    return new
-
-
-# ─── 2. PRIMARY KEYS ──────────────────────────────────────────────────────────
 
 def _pd_pk_columns(pd_table: Dict[str, Any]) -> List[str]:
     for k in pd_table.get("keys", []):
@@ -316,69 +318,72 @@ def _kg_member_codes(doc: _ErwinDoc, entity: ET.Element,
 
 
 def _fix_primary_key(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
-                     entity: ET.Element, pd_table: Dict[str, Any]) -> bool:
+                       entity: ET.Element, pd_table: Dict[str, Any]) -> bool:
     pd_pk = _pd_pk_columns(pd_table)
     if not pd_pk:
         return False
     tbl_phys = doc.entity_phys(entity)
 
-    # Locate (or create) the PK key group.
-    pk_group = None
-    for kg in doc.key_groups(entity):
-        if _prop_text(kg, "Key_Group_Type").upper() == "PK":
-            pk_group = kg
-            break
+    pk_group = _get_or_create_pk_group(doc, report, model_name, entity, tbl_phys)
     if pk_group is None:
-        template = _template_pk_group(doc)
-        if template is None:
-            report.errors.append(f"No PK Key_Group template for '{tbl_phys}'")
-            return False
-        pk_group = deepcopy(template)
-        # strip the template's members; identity and naming get rewritten
-        for holder in list(pk_group):
-            if _local(holder.tag) == "Key_Group_Member_Groups":
-                pk_group.remove(holder)
-        kg_id = _new_id()
-        pk_group.set("id", kg_id)
-        pk_group.set("name", "Identifier_1")
-        _set_prop(pk_group, "Name", "Identifier_1")
-        _set_prop(pk_group, "Long_Id", kg_id)
-        if model_name:
-            _set_prop(pk_group, "Owner_Path", f"{model_name}.{tbl_phys}")
-        _set_prop(pk_group, "Key_Group_Type", "PK")
-        _set_prop(pk_group, "Physical_Name", f"{tbl_phys}_PK")
-        _set_prop(pk_group, "Is_Unique", "true")
-        holder = _first_child(entity, "Key_Group_Groups")
-        if holder is None:
-            holder = ET.SubElement(entity, f"{_ns_of(entity.tag)}Key_Group_Groups")
-        holder.append(pk_group)
-        doc.all_ids.add(kg_id)
-        report.pk_groups_created += 1
-        report.note(f"created PK Key_Group for {tbl_phys}")
+        return False
 
     existing = set(_kg_member_codes(doc, entity, pk_group))
     missing = [c for c in pd_pk if c not in existing]
     if not missing:
         return False
 
+    return _add_missing_pk_members(doc, report, model_name, entity, tbl_phys, pk_group, missing)
+
+def _get_or_create_pk_group(doc: _ErwinDoc, report: PreprocessReport, model_name: str, entity: ET.Element, tbl_phys: str) -> ET.Element:
+    for kg in doc.key_groups(entity):
+        if _prop_text(kg, "Key_Group_Type").upper() == "PK":
+            return kg
+
+    template = _template_pk_group(doc)
+    if template is None:
+        report.errors.append(f"No PK Key_Group template for '{tbl_phys}'")
+        return None
+
+    pk_group = deepcopy(template)
+    for holder in [h for h in pk_group if _local(h.tag) == "Key_Group_Member_Groups"]:
+        pk_group.remove(holder)
+
+    kg_id = _new_id()
+    pk_group.set("id", kg_id)
+    pk_group.set("name", "Identifier_1")
+    _set_prop(pk_group, "Name", "Identifier_1")
+    _set_prop(pk_group, "Long_Id", kg_id)
+    if model_name:
+        _set_prop(pk_group, "Owner_Path", f"{model_name}.{tbl_phys}")
+    _set_prop(pk_group, "Key_Group_Type", "PK")
+    _set_prop(pk_group, "Physical_Name", f"{tbl_phys}_PK")
+    _set_prop(pk_group, "Is_Unique", "true")
+
+    holder = _first_child(entity, "Key_Group_Groups")
+    if holder is None:
+        holder = ET.SubElement(entity, f"{_ns_of(entity.tag)}Key_Group_Groups")
+    holder.append(pk_group)
+    doc.all_ids.add(kg_id)
+    report.pk_groups_created += 1
+    report.note(f"created PK Key_Group for {tbl_phys}")
+    return pk_group
+
+def _add_missing_pk_members(doc: _ErwinDoc, report: PreprocessReport, model_name: str, entity: ET.Element, tbl_phys: str, pk_group: ET.Element, missing: list) -> bool:
     kgm_template = _template_kgm(doc)
     member_holder = _first_child(pk_group, "Key_Group_Member_Groups")
     if member_holder is None:
-        member_holder = ET.SubElement(
-            pk_group, f"{_ns_of(pk_group.tag)}Key_Group_Member_Groups")
+        member_holder = ET.SubElement(pk_group, f"{_ns_of(pk_group.tag)}Key_Group_Member_Groups")
 
     added = 0
     order_base = len(list(member_holder))
     for i, code in enumerate(missing, start=1):
         attr = doc.attr_by_code(entity, code)
         if attr is None:
-            report.errors.append(
-                f"PK column '{code}' not found in erwin entity '{tbl_phys}'")
+            report.errors.append(f"PK column '{code}' not found in erwin entity '{tbl_phys}'")
             continue
-        if kgm_template is not None:
-            member = deepcopy(kgm_template)
-        else:
-            member = ET.Element(f"{_ns_of(pk_group.tag)}Key_Group_Member")
+
+        member = deepcopy(kgm_template) if kgm_template is not None else ET.Element(f"{_ns_of(pk_group.tag)}Key_Group_Member")
         m_id = _new_id()
         logical = attr.get("name") or code
         member.set("id", m_id)
@@ -386,8 +391,7 @@ def _fix_primary_key(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
         _set_prop(member, "Name", logical)
         _set_prop(member, "Long_Id", m_id)
         if model_name:
-            _set_prop(member, "Owner_Path",
-                      f"{model_name}.{tbl_phys}.{pk_group.get('name', 'Identifier_1')}")
+            _set_prop(member, "Owner_Path", f"{model_name}.{tbl_phys}.{pk_group.get('name', 'Identifier_1')}")
         _set_prop(member, "Attribute_Ref", attr.get("id"))
         _set_prop(member, "Physical_Name", code)
         _set_prop(member, "Key_Group_Sort_Order", "ASC")
@@ -402,9 +406,6 @@ def _fix_primary_key(doc: _ErwinDoc, report: PreprocessReport, model_name: str,
         report.note(f"re-linked PK member {tbl_phys}.{code}")
 
     return added > 0
-
-
-# ─── 3. FOREIGN KEYS ──────────────────────────────────────────────────────────
 
 def _fk_signature(ref: Dict) -> str:
     """Must mirror the validator comparator's _fk_signature exactly."""
@@ -425,7 +426,6 @@ def _rel_endpoints(doc: _ErwinDoc, rel: ET.Element) -> Tuple[str, str]:
 
 def _fix_foreign_keys(doc: _ErwinDoc, report: PreprocessReport,
                       pd_model: Dict[str, Any], result) -> None:
-    # The validator's own findings are the work list.
     missing_sigs = {f.pd_value for f in getattr(result, "findings", [])
                     if f.category == "FOREIGN_KEY" and f.erwin_value == "—"}
     if not missing_sigs:
@@ -435,81 +435,78 @@ def _fix_foreign_keys(doc: _ErwinDoc, report: PreprocessReport,
                if _fk_signature(r) in missing_sigs]
     report.fk_targets = len(pd_refs)
 
-    # Directional (parent, child) -> erwin relationships.
     rels_by_pair: Dict[Tuple[str, str], List[ET.Element]] = {}
     for rel in doc.rels:
         rels_by_pair.setdefault(_rel_endpoints(doc, rel), []).append(rel)
     used_rel_ids: set = set()
 
     for ref in pd_refs:
-        name = ref.get("name") or ref.get("code") or "?"
-        parent_phys = _key(ref.get("parent_table", ""))
-        child_phys = _key(ref.get("child_table", ""))
-        joins = [j for j in ref.get("join_columns", [])]
+        _repair_single_fk(doc, report, ref, rels_by_pair, used_rel_ids)
 
-        # An FK can only be wired once BOTH of its columns exist and are named.
-        if not joins or any(not j.get("parent_col") or not j.get("child_col")
-                            for j in joins):
-            report.fk_unfixable.append(name)
-            report.note(f"FK '{name}' ({parent_phys}→{child_phys}) cannot be "
-                        f"restored: the PD reference has no complete column "
-                        f"join (defect in the source model, left in report)")
+def _repair_single_fk(doc: _ErwinDoc, report: PreprocessReport, ref: Dict[str, Any], rels_by_pair: Dict[Tuple[str, str], List[ET.Element]], used_rel_ids: set) -> None:
+    name = ref.get("name") or ref.get("code") or "?"
+    parent_phys = _key(ref.get("parent_table", ""))
+    child_phys = _key(ref.get("child_table", ""))
+    joins = list(ref.get("join_columns", []))
+
+    if not _validate_fk_joins(report, name, joins, parent_phys, child_phys):
+        return
+
+    parent_entity = doc.entities.get(parent_phys)
+    child_entity = doc.entities.get(child_phys)
+    if parent_entity is None or child_entity is None:
+        report.fk_unfixable.append(name)
+        report.note(f"FK '{name}': entity missing in erwin ({parent_phys}->{child_phys}); left in report")
+        return
+
+    rel = _find_matching_relationship(name, parent_phys, child_phys, rels_by_pair, used_rel_ids)
+    if rel is None:
+        report.fk_unfixable.append(name)
+        report.note(f"FK '{name}': no erwin Relationship between {parent_phys} and {child_phys}; left in report")
+        return
+
+    _wire_fk_joins(doc, report, name, joins, parent_entity, child_entity, rel, parent_phys, child_phys, used_rel_ids)
+
+def _validate_fk_joins(report: PreprocessReport, name: str, joins: list, parent_phys: str, child_phys: str) -> bool:
+    if not joins or any(not j.get("parent_col") or not j.get("child_col") for j in joins):
+        report.fk_unfixable.append(name)
+        report.note(f"FK '{name}' ({parent_phys}->{child_phys}) cannot be restored: the PD reference has no complete column join")
+        return False
+    return True
+
+def _find_matching_relationship(name: str, parent_phys: str, child_phys: str, rels_by_pair: dict, used_rel_ids: set) -> ET.Element:
+    candidates = [r for r in rels_by_pair.get((parent_phys, child_phys), []) if r.get("id") not in used_rel_ids]
+    rel = next((cand for cand in candidates if _key(cand.get("name", "")) == _key(name)), None)
+    if rel is None and candidates:
+        rel = candidates[0]
+    return rel
+
+def _wire_fk_joins(doc: _ErwinDoc, report: PreprocessReport, name: str, joins: list, parent_entity: ET.Element, child_entity: ET.Element, rel: ET.Element, parent_phys: str, child_phys: str, used_rel_ids: set) -> None:
+    rel_id = rel.get("id")
+    wired = 0
+    for j in joins:
+        parent_attr = doc.attr_by_code(parent_entity, j["parent_col"])
+        child_attr = doc.attr_by_code(child_entity, j["child_col"])
+        if parent_attr is None or child_attr is None:
+            report.errors.append(f"FK '{name}': join column missing ({parent_phys}.{j['parent_col']} -> {child_phys}.{j['child_col']})")
             continue
-
-        parent_entity = doc.entities.get(parent_phys)
-        child_entity = doc.entities.get(child_phys)
-        if parent_entity is None or child_entity is None:
-            report.fk_unfixable.append(name)
-            report.note(f"FK '{name}': entity missing in erwin "
-                        f"({parent_phys}→{child_phys}); left in report")
-            continue
-
-        candidates = [r for r in rels_by_pair.get((parent_phys, child_phys), [])
-                      if r.get("id") not in used_rel_ids]
-        rel = None
-        for cand in candidates:            # prefer a name match
-            if _key(cand.get("name", "")) == _key(name):
-                rel = cand
-                break
-        if rel is None and candidates:
-            rel = candidates[0]
-        if rel is None:
-            report.fk_unfixable.append(name)
-            report.note(f"FK '{name}': no erwin Relationship between "
-                        f"{parent_phys} and {child_phys}; left in report")
-            continue
-
-        rel_id = rel.get("id")
-        wired = 0
-        for j in joins:
-            parent_attr = doc.attr_by_code(parent_entity, j["parent_col"])
-            child_attr = doc.attr_by_code(child_entity, j["child_col"])
-            if parent_attr is None or child_attr is None:
-                report.errors.append(
-                    f"FK '{name}': join column missing "
-                    f"({parent_phys}.{j['parent_col']} → "
-                    f"{child_phys}.{j['child_col']})")
+        
+        current = _prop_text(child_attr, "Parent_Attribute_Ref")
+        if current and current in doc.all_ids:
+            current_rel = _prop_text(child_attr, "Parent_Relationship_Ref")
+            if current_rel and current_rel in doc.all_ids:
+                wired += 1
                 continue
-            # Never rewrite a pointer that already resolves.
-            current = _prop_text(child_attr, "Parent_Attribute_Ref")
-            if current and current in doc.all_ids:
-                current_rel = _prop_text(child_attr, "Parent_Relationship_Ref")
-                if current_rel and current_rel in doc.all_ids:
-                    wired += 1
-                    continue
-            _set_prop(child_attr, "Parent_Relationship_Ref", rel_id)
-            _set_prop(child_attr, "Parent_Attribute_Ref", parent_attr.get("id"))
-            wired += 1
-        if wired == len(joins):
-            used_rel_ids.add(rel_id)
-            report.fks_fixed += 1
-            report.note(f"repaired FK '{name}' ({parent_phys}→{child_phys}) "
-                        f"via relationship {rel.get('name', rel_id)}")
-        else:
-            report.fk_unfixable.append(name)
+        _set_prop(child_attr, "Parent_Relationship_Ref", rel_id)
+        _set_prop(child_attr, "Parent_Attribute_Ref", parent_attr.get("id"))
+        wired += 1
 
-
-# ─── SERIALISATION ────────────────────────────────────────────────────────────
+    if wired == len(joins):
+        used_rel_ids.add(rel_id)
+        report.fks_fixed += 1
+        report.note(f"repaired FK '{name}' ({parent_phys}->{child_phys}) via relationship {rel.get('name', rel_id)}")
+    else:
+        report.fk_unfixable.append(name)
 
 def _register_namespaces(source_xml: str) -> None:
     """
@@ -531,6 +528,11 @@ def _register_namespaces(source_xml: str) -> None:
     # unprefixed. Tools that scan the file as text — the provenance audit's
     # content inventory among them — match on '<EntityProps>', so a prefixed
     # re-serialisation made every remediated file read as empty.
+    assignments = _assign_namespace_prefixes(declared)
+    for uri, prefix in assignments.items():
+        ET.register_namespace(prefix, uri)
+
+def _assign_namespace_prefixes(declared: Dict[str, str]) -> Dict[str, str]:
     used_prefixes = set()
     assignments: Dict[str, str] = {}
     if _DATA_NS in declared:
@@ -547,8 +549,7 @@ def _register_namespaces(source_xml: str) -> None:
             synthetic += 1
         assignments[uri] = candidate
         used_prefixes.add(candidate)
-    for uri, prefix in assignments.items():
-        ET.register_namespace(prefix, uri)
+    return assignments
 
 
 # ─── PUBLIC API ───────────────────────────────────────────────────────────────
@@ -563,12 +564,6 @@ def preprocess_model(pd_model: Dict[str, Any],
                      model_name: str = "") -> PreprocessReport:
     """
     Remediate one erwin XML export against its PowerDesigner source.
-
-    Reads ``source_xml``, applies the three repair classes driven by the
-    validator ``result``'s findings, and writes ``target_xml``.  The paired
-    ``.erwin`` binary (unwritable off-Windows) is carried forward beside it;
-    ``rebuild_erwin_binary`` regenerates it when erwin's COM API is available.
-    Never raises for a data problem — everything is recorded on the report.
     """
     report = PreprocessReport(model_name=model_name)
 
@@ -585,10 +580,26 @@ def preprocess_model(pd_model: Dict[str, Any],
 
     pd_tables = {_key(k): v for k, v in pd_model.get("tables", {}).items()}
 
-    # ── 1. restore missing columns (from COLUMN findings) ─────────────────────
+    _restore_missing_columns(doc, report, owner_model, result, pd_tables)
+    _relink_primary_keys(doc, report, owner_model, result, pd_tables)
+    _fix_foreign_keys(doc, report, pd_model, result)
+
+    os.makedirs(os.path.dirname(os.path.abspath(target_xml)), exist_ok=True)
+    tree.write(target_xml, encoding="utf-8", xml_declaration=True)
+    report.note(f"remediated XML written to {target_xml}")
+
+    if source_erwin and target_erwin and os.path.exists(source_erwin):
+        os.makedirs(os.path.dirname(os.path.abspath(target_erwin)), exist_ok=True)
+        shutil.copy2(source_erwin, target_erwin)
+        if not rebuild_erwin_binary(target_xml, target_erwin):
+            report.note(".erwin binary carried forward unchanged (erwin COM not available here); regenerate it from the remediated XML on a Windows machine with erwin Data Modeler installed")
+
+    return report
+
+def _restore_missing_columns(doc: _ErwinDoc, report: PreprocessReport, owner_model: str, result, pd_tables: dict) -> None:
     for f in getattr(result, "findings", []):
         if f.category != "COLUMN" or f.erwin_value != "—":
-            continue                                   # only PD→erwin missing
+            continue
         tbl, col = _key(f.table), _key(f.column)
         entity = doc.entities.get(tbl)
         pd_table = pd_tables.get(tbl)
@@ -596,20 +607,16 @@ def preprocess_model(pd_model: Dict[str, Any],
             report.errors.append(f"cannot restore {tbl}.{col}: table not matched")
             continue
         if doc.attr_by_code(entity, col) is not None:
-            continue                                   # already present
-        pd_col = next((c for c in pd_table.get("columns", [])
-                       if _key(c.get("code", "")) == col), None)
+            continue
+        pd_col = next((c for c in pd_table.get("columns", []) if _key(c.get("code", "")) == col), None)
         if pd_col is None:
             report.errors.append(f"cannot restore {tbl}.{col}: not in PD model")
             continue
         _add_column(doc, report, owner_model, entity, pd_col)
 
-    # ── 2. re-link primary keys (PD is the truth) ─────────────────────────────
-    pk_tables = {_key(f.table) for f in getattr(result, "findings", [])
-                 if f.category == "PRIMARY_KEY" and f.erwin_value == "(none)"}
-    # Tables that just regained a PK column also need their members checked.
-    pk_tables |= {_key(f.table) for f in getattr(result, "findings", [])
-                  if f.category == "COLUMN" and f.erwin_value == "—"}
+def _relink_primary_keys(doc: _ErwinDoc, report: PreprocessReport, owner_model: str, result, pd_tables: dict) -> None:
+    pk_tables = {_key(f.table) for f in getattr(result, "findings", []) if f.category == "PRIMARY_KEY" and f.erwin_value == "(none)"}
+    pk_tables |= {_key(f.table) for f in getattr(result, "findings", []) if f.category == "COLUMN" and f.erwin_value == "—"}
     for tbl in sorted(pk_tables):
         entity = doc.entities.get(tbl)
         pd_table = pd_tables.get(tbl)
@@ -617,27 +624,6 @@ def preprocess_model(pd_model: Dict[str, Any],
             continue
         if _fix_primary_key(doc, report, owner_model, entity, pd_table):
             report.pks_fixed += 1
-
-    # ── 3. repair foreign-key joins ────────────────────────────────────────────
-    _fix_foreign_keys(doc, report, pd_model, result)
-
-    # ── write the remediated XML ───────────────────────────────────────────────
-    os.makedirs(os.path.dirname(os.path.abspath(target_xml)), exist_ok=True)
-    tree.write(target_xml, encoding="utf-8", xml_declaration=True)
-    report.note(f"remediated XML written to {target_xml}")
-
-    # ── carry the .erwin binary forward / regenerate when possible ────────────
-    if source_erwin and target_erwin and os.path.exists(source_erwin):
-        os.makedirs(os.path.dirname(os.path.abspath(target_erwin)), exist_ok=True)
-        shutil.copy2(source_erwin, target_erwin)
-        if not rebuild_erwin_binary(target_xml, target_erwin):
-            report.note(
-                ".erwin binary carried forward unchanged (erwin COM not "
-                "available here); regenerate it from the remediated XML on a "
-                "Windows machine with erwin Data Modeler installed")
-
-    return report
-
 
 def rebuild_erwin_binary(xml_path: str, erwin_path: str) -> bool:
     """

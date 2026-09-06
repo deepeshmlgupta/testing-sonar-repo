@@ -18,9 +18,41 @@ LOGS_OUT_DIR = os.path.join(OUTPUT_DIR, "logs")
 # General Settings
 LOG_LEVEL = "WARNING"
 
+# ─── PROMOTION GATE (shared by CDM, LDM and PDM) ──────────────────────────────
+# A model is promoted to erwinmodels/3_final only at or above this MEASURED
+# fidelity. Below it, the model and its final report are routed to that model's
+# own app/reporting/<tier>_reports/<model>/manual_review_report folder.
+PROMOTION_FIDELITY_THRESHOLD = 90.0
+
+# Which number the gate tests.
+#   "overall"     result.fidelity_score - the V3 staged score (default)
+#   "structural"  result.structural_fidelity_score - reconciliation only
+PROMOTION_FIDELITY_BASIS = "overall"
+
+# How many bands the gate uses.
+#   "two"   (default)  fidelity >= threshold -> PASS -> erwinmodels/3_final
+#                      fidelity <  threshold -> FAIL -> manual_review_report
+#   "three"            PASS / WARN (held in 2_preprocessed) / FAIL, using
+#                      REVIEW_FIDELITY_FLOOR below.
+PROMOTION_BANDS = "two"
+
+# Where a sub-threshold model is routed when no per-model folder is supplied.
+MANUAL_REVIEW_DIR = "manual_review"
+
+# Honoured only when PROMOTION_BANDS = "three".
+REVIEW_FIDELITY_FLOOR = 60.0
+REJECTED_SUBDIR = "rejected"          # relative to erwinmodels/2_preprocessed
+
+# Block promotion outright on any CRITICAL / WARNING finding, independently of
+# the fidelity score.
+PROMOTION_BLOCK_ON_CRITICAL = False
+PROMOTION_BLOCK_ON_WARNING = False
+
 # ─── PDM PIPELINE (Phase D for .pdm models) ───────────────────────────────────
 # A PDM is only promoted to 3_final at (or above) this measured fidelity.
-PDM_FIDELITY_TARGET = 100.0
+# Tied to the shared promotion threshold above (was 100.0 before the
+# two-band gate; confirmed change).
+PDM_FIDELITY_TARGET = PROMOTION_FIDELITY_THRESHOLD
 
 # Run the PowerDesigner-driven remediation (missing columns / PK members /
 # FK joins) when the first validation pass falls short of the target.

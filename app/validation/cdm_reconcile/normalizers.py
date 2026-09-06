@@ -137,8 +137,10 @@ _TYPE_FAMILIES = {
 
 # PowerDesigner writes some conceptual types with the length glued on: "VA20",
 # "A10", "DC18,2".  Split the alphabetic prefix from the numeric tail.
-_GLUED_TYPE = re.compile(r"^([A-Za-z_ ]+?)\s*(\d+(?:\s*,\s*\d+)?)$")
-_PARENS     = re.compile(r"^([A-Za-z0-9_ ]+?)\s*\(\s*([^)]*)\s*\)$")
+_GLUED_TYPE = re.compile(r"^([A-Za-z_]+(?:[ \t]+[A-Za-z_]+)*)\s*(\d+(?:\s*,\s*\d+)?)$")
+# (?a:...) keeps \w ASCII-only here, exactly what [A-Za-z0-9_] matched, while
+# leaving the surrounding \s Unicode-aware as before.
+_PARENS     = re.compile(r"^((?a:\w+(?:[ \t]+\w+)*))\s*\(\s*([^)]*)\s*\)$")
 
 _NAME_NOISE = re.compile(r"[^0-9a-zA-Z]+")
 _CAMEL_SPLIT = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
@@ -238,7 +240,7 @@ def describe_type(dtype: str, length: str = "", precision: str = "") -> str:
     """
     if not dtype:
         return "(none)"
-    base, glued_len, glued_prec = split_type(dtype)
+    _, glued_len, glued_prec = split_type(dtype)
     length    = (length    or glued_len).strip()
     precision = (precision or glued_prec).strip()
     canonical = canonical_type(dtype)

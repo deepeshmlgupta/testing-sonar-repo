@@ -1,0 +1,722 @@
+[
+  {
+    "pd_object_id": "84EA5DD8-6A1A-45B8-8B2D-56057B619E63",
+    "entity_name": "INVOICE",
+    "entity_code": "INVOICE_HEADER",
+    "udp": "PD_ObjectID",
+    "value": "84EA5DD8-6A1A-45B8-8B2D-56057B619E63",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "84EA5DD8-6A1A-45B8-8B2D-56057B619E63",
+    "entity_name": "INVOICE",
+    "entity_code": "INVOICE_HEADER",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "84EA5DD8-6A1A-45B8-8B2D-56057B619E63",
+    "entity_name": "INVOICE",
+    "entity_code": "INVOICE_HEADER",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "FD78AA7B-4711-4963-8DB9-ECB1B24D0E68",
+    "entity_name": "DISCOUNT",
+    "entity_code": "DISCOUNT",
+    "udp": "PD_ObjectID",
+    "value": "FD78AA7B-4711-4963-8DB9-ECB1B24D0E68",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "FD78AA7B-4711-4963-8DB9-ECB1B24D0E68",
+    "entity_name": "DISCOUNT",
+    "entity_code": "DISCOUNT",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "FD78AA7B-4711-4963-8DB9-ECB1B24D0E68",
+    "entity_name": "DISCOUNT",
+    "entity_code": "DISCOUNT",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "74B87F8A-E51D-4E06-AA56-48EA81D65346",
+    "entity_name": "ACCOUNTS_RECEIVABLE",
+    "entity_code": "ACCOUNTS_RECEIVABLE",
+    "udp": "PD_ObjectID",
+    "value": "74B87F8A-E51D-4E06-AA56-48EA81D65346",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "74B87F8A-E51D-4E06-AA56-48EA81D65346",
+    "entity_name": "ACCOUNTS_RECEIVABLE",
+    "entity_code": "ACCOUNTS_RECEIVABLE",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "74B87F8A-E51D-4E06-AA56-48EA81D65346",
+    "entity_name": "ACCOUNTS_RECEIVABLE",
+    "entity_code": "ACCOUNTS_RECEIVABLE",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "73C53A15-DAA2-4BDF-ACB0-E72E49B7EA1C",
+    "entity_name": "DISTRIBUTOR_ANNUAL_TARGET",
+    "entity_code": "DISTRIBUTOR_ANNL_TRGT",
+    "udp": "PD_ObjectID",
+    "value": "73C53A15-DAA2-4BDF-ACB0-E72E49B7EA1C",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "73C53A15-DAA2-4BDF-ACB0-E72E49B7EA1C",
+    "entity_name": "DISTRIBUTOR_ANNUAL_TARGET",
+    "entity_code": "DISTRIBUTOR_ANNL_TRGT",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "73C53A15-DAA2-4BDF-ACB0-E72E49B7EA1C",
+    "entity_name": "DISTRIBUTOR_ANNUAL_TARGET",
+    "entity_code": "DISTRIBUTOR_ANNL_TRGT",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "4A716CC9-6376-4739-AB96-C5B4E10D0C33",
+    "entity_name": "DISTRIBUTOR_SALES_REPRESENTATIVE_VISIT",
+    "entity_code": "DISTRIBUTOR_SLS_REPRESENTATIVE_VST",
+    "udp": "PD_ObjectID",
+    "value": "4A716CC9-6376-4739-AB96-C5B4E10D0C33",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "4A716CC9-6376-4739-AB96-C5B4E10D0C33",
+    "entity_name": "DISTRIBUTOR_SALES_REPRESENTATIVE_VISIT",
+    "entity_code": "DISTRIBUTOR_SLS_REPRESENTATIVE_VST",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "4A716CC9-6376-4739-AB96-C5B4E10D0C33",
+    "entity_name": "DISTRIBUTOR_SALES_REPRESENTATIVE_VISIT",
+    "entity_code": "DISTRIBUTOR_SLS_REPRESENTATIVE_VST",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "0EE5B940-6BAE-4399-998F-7FE00DB9FFF0",
+    "entity_name": "DISTRIBUTOR_SALES_REPRESENTATIVE",
+    "entity_code": "DISTRIBUTOR_SLS_REPRESENTATIVE",
+    "udp": "PD_ObjectID",
+    "value": "0EE5B940-6BAE-4399-998F-7FE00DB9FFF0",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "0EE5B940-6BAE-4399-998F-7FE00DB9FFF0",
+    "entity_name": "DISTRIBUTOR_SALES_REPRESENTATIVE",
+    "entity_code": "DISTRIBUTOR_SLS_REPRESENTATIVE",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "0EE5B940-6BAE-4399-998F-7FE00DB9FFF0",
+    "entity_name": "DISTRIBUTOR_SALES_REPRESENTATIVE",
+    "entity_code": "DISTRIBUTOR_SLS_REPRESENTATIVE",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "69FF7247-4A87-4F1A-A137-330AC33842A2",
+    "entity_name": "DISTRIBUTOR_SALES_MANAGER",
+    "entity_code": "DISTRIBUTOR_SLS_MNGR",
+    "udp": "PD_ObjectID",
+    "value": "69FF7247-4A87-4F1A-A137-330AC33842A2",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "69FF7247-4A87-4F1A-A137-330AC33842A2",
+    "entity_name": "DISTRIBUTOR_SALES_MANAGER",
+    "entity_code": "DISTRIBUTOR_SLS_MNGR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "69FF7247-4A87-4F1A-A137-330AC33842A2",
+    "entity_name": "DISTRIBUTOR_SALES_MANAGER",
+    "entity_code": "DISTRIBUTOR_SLS_MNGR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "960AA318-BCE2-49DA-9DA2-C6F3623617D8",
+    "entity_name": "OUTLET",
+    "entity_code": "OUTLET",
+    "udp": "PD_ObjectID",
+    "value": "960AA318-BCE2-49DA-9DA2-C6F3623617D8",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "960AA318-BCE2-49DA-9DA2-C6F3623617D8",
+    "entity_name": "OUTLET",
+    "entity_code": "OUTLET",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "960AA318-BCE2-49DA-9DA2-C6F3623617D8",
+    "entity_name": "OUTLET",
+    "entity_code": "OUTLET",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "DC110BC0-2610-4B08-9CD9-120C85F56EA8",
+    "entity_name": "LEAD_CAMPAIGN",
+    "entity_code": "LEAD_CAMPAIGN",
+    "udp": "PD_ObjectID",
+    "value": "DC110BC0-2610-4B08-9CD9-120C85F56EA8",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "DC110BC0-2610-4B08-9CD9-120C85F56EA8",
+    "entity_name": "LEAD_CAMPAIGN",
+    "entity_code": "LEAD_CAMPAIGN",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "DC110BC0-2610-4B08-9CD9-120C85F56EA8",
+    "entity_name": "LEAD_CAMPAIGN",
+    "entity_code": "LEAD_CAMPAIGN",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "31B29DA3-97BC-4C62-B4FE-A4119A477AB0",
+    "entity_name": "LEAD",
+    "entity_code": "LEAD",
+    "udp": "PD_ObjectID",
+    "value": "31B29DA3-97BC-4C62-B4FE-A4119A477AB0",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "31B29DA3-97BC-4C62-B4FE-A4119A477AB0",
+    "entity_name": "LEAD",
+    "entity_code": "LEAD",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "31B29DA3-97BC-4C62-B4FE-A4119A477AB0",
+    "entity_name": "LEAD",
+    "entity_code": "LEAD",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "4F2A91E7-2E53-4CBC-BE89-3F6AF7AD6A53",
+    "entity_name": "COUNTRY",
+    "entity_code": "COUNTRY",
+    "udp": "PD_ObjectID",
+    "value": "4F2A91E7-2E53-4CBC-BE89-3F6AF7AD6A53",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "4F2A91E7-2E53-4CBC-BE89-3F6AF7AD6A53",
+    "entity_name": "COUNTRY",
+    "entity_code": "COUNTRY",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "4F2A91E7-2E53-4CBC-BE89-3F6AF7AD6A53",
+    "entity_name": "COUNTRY",
+    "entity_code": "COUNTRY",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "29486221-0FF1-43CC-8EAF-6BA03652BC1E",
+    "entity_name": "CAMPAIGN_SOURCE",
+    "entity_code": "CAMPAIGN_SOURCE",
+    "udp": "PD_ObjectID",
+    "value": "29486221-0FF1-43CC-8EAF-6BA03652BC1E",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "29486221-0FF1-43CC-8EAF-6BA03652BC1E",
+    "entity_name": "CAMPAIGN_SOURCE",
+    "entity_code": "CAMPAIGN_SOURCE",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "29486221-0FF1-43CC-8EAF-6BA03652BC1E",
+    "entity_name": "CAMPAIGN_SOURCE",
+    "entity_code": "CAMPAIGN_SOURCE",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "455C054B-EBAF-4850-BD5F-46B8A8B2276E",
+    "entity_name": "SHELL_COMPANY",
+    "entity_code": "SHLL_CMPNY",
+    "udp": "PD_ObjectID",
+    "value": "455C054B-EBAF-4850-BD5F-46B8A8B2276E",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "455C054B-EBAF-4850-BD5F-46B8A8B2276E",
+    "entity_name": "SHELL_COMPANY",
+    "entity_code": "SHLL_CMPNY",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "455C054B-EBAF-4850-BD5F-46B8A8B2276E",
+    "entity_name": "SHELL_COMPANY",
+    "entity_code": "SHLL_CMPNY",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "1DEDB8E1-38EA-4360-B884-100D631BE3B8",
+    "entity_name": "DISTRIBUTOR_LEARNING",
+    "entity_code": "DISTRIBUTOR_LRNNG",
+    "udp": "PD_ObjectID",
+    "value": "1DEDB8E1-38EA-4360-B884-100D631BE3B8",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "1DEDB8E1-38EA-4360-B884-100D631BE3B8",
+    "entity_name": "DISTRIBUTOR_LEARNING",
+    "entity_code": "DISTRIBUTOR_LRNNG",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "1DEDB8E1-38EA-4360-B884-100D631BE3B8",
+    "entity_name": "DISTRIBUTOR_LEARNING",
+    "entity_code": "DISTRIBUTOR_LRNNG",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "156D779F-AEEC-4C4D-9389-4DD05F42D893",
+    "entity_name": "CUSTOMER",
+    "entity_code": "CSTMR",
+    "udp": "PD_ObjectID",
+    "value": "156D779F-AEEC-4C4D-9389-4DD05F42D893",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "156D779F-AEEC-4C4D-9389-4DD05F42D893",
+    "entity_name": "CUSTOMER",
+    "entity_code": "CSTMR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "156D779F-AEEC-4C4D-9389-4DD05F42D893",
+    "entity_name": "CUSTOMER",
+    "entity_code": "CSTMR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "478387EE-5181-48FB-9EB6-6B96337AB385",
+    "entity_name": "RETAILER",
+    "entity_code": "RTLR",
+    "udp": "PD_ObjectID",
+    "value": "478387EE-5181-48FB-9EB6-6B96337AB385",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "478387EE-5181-48FB-9EB6-6B96337AB385",
+    "entity_name": "RETAILER",
+    "entity_code": "RTLR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "478387EE-5181-48FB-9EB6-6B96337AB385",
+    "entity_name": "RETAILER",
+    "entity_code": "RTLR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "EEC9DD4A-5C30-431B-A5E9-BB0609784F0C",
+    "entity_name": "DISTRIBUTOR",
+    "entity_code": "DISTRIBUTOR",
+    "udp": "PD_ObjectID",
+    "value": "EEC9DD4A-5C30-431B-A5E9-BB0609784F0C",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "EEC9DD4A-5C30-431B-A5E9-BB0609784F0C",
+    "entity_name": "DISTRIBUTOR",
+    "entity_code": "DISTRIBUTOR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "EEC9DD4A-5C30-431B-A5E9-BB0609784F0C",
+    "entity_name": "DISTRIBUTOR",
+    "entity_code": "DISTRIBUTOR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "BB8C1827-CF9F-468C-926A-0E29A8627E38",
+    "entity_name": "SALES_AREA",
+    "entity_code": "SLS_AR",
+    "udp": "PD_ObjectID",
+    "value": "BB8C1827-CF9F-468C-926A-0E29A8627E38",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "BB8C1827-CF9F-468C-926A-0E29A8627E38",
+    "entity_name": "SALES_AREA",
+    "entity_code": "SLS_AR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "BB8C1827-CF9F-468C-926A-0E29A8627E38",
+    "entity_name": "SALES_AREA",
+    "entity_code": "SLS_AR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "E27B95D0-75E7-44D3-BF2F-B677D39E2984",
+    "entity_name": "CUSTOMER_GROUP",
+    "entity_code": "CSTMR_GRP",
+    "udp": "PD_ObjectID",
+    "value": "E27B95D0-75E7-44D3-BF2F-B677D39E2984",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "E27B95D0-75E7-44D3-BF2F-B677D39E2984",
+    "entity_name": "CUSTOMER_GROUP",
+    "entity_code": "CSTMR_GRP",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "E27B95D0-75E7-44D3-BF2F-B677D39E2984",
+    "entity_name": "CUSTOMER_GROUP",
+    "entity_code": "CSTMR_GRP",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "343116AB-E234-4918-8C58-C0FFCA032A4B",
+    "entity_name": "SELL_OUT_SALES_ORDER",
+    "entity_code": "SELL_OT_SLS_ORDR",
+    "udp": "PD_ObjectID",
+    "value": "343116AB-E234-4918-8C58-C0FFCA032A4B",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "343116AB-E234-4918-8C58-C0FFCA032A4B",
+    "entity_name": "SELL_OUT_SALES_ORDER",
+    "entity_code": "SELL_OT_SLS_ORDR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "343116AB-E234-4918-8C58-C0FFCA032A4B",
+    "entity_name": "SELL_OUT_SALES_ORDER",
+    "entity_code": "SELL_OT_SLS_ORDR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "48AA03B9-FC65-478C-A46D-1B414D314724",
+    "entity_name": "SELL_IN_SALES_ORDER",
+    "entity_code": "SELL_IN_SLS_ORDR",
+    "udp": "PD_ObjectID",
+    "value": "48AA03B9-FC65-478C-A46D-1B414D314724",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "48AA03B9-FC65-478C-A46D-1B414D314724",
+    "entity_name": "SELL_IN_SALES_ORDER",
+    "entity_code": "SELL_IN_SLS_ORDR",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "48AA03B9-FC65-478C-A46D-1B414D314724",
+    "entity_name": "SELL_IN_SALES_ORDER",
+    "entity_code": "SELL_IN_SLS_ORDR",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "AC27EBF5-D435-4DE5-9BB5-8BDD8F604119",
+    "entity_name": "PRODUCT",
+    "entity_code": "PRDCT",
+    "udp": "PD_ObjectID",
+    "value": "AC27EBF5-D435-4DE5-9BB5-8BDD8F604119",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "AC27EBF5-D435-4DE5-9BB5-8BDD8F604119",
+    "entity_name": "PRODUCT",
+    "entity_code": "PRDCT",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "AC27EBF5-D435-4DE5-9BB5-8BDD8F604119",
+    "entity_name": "PRODUCT",
+    "entity_code": "PRDCT",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "EE2DCD40-E8BA-4110-83AF-2A7ADE4FDAC6",
+    "entity_name": "SURVEY",
+    "entity_code": "SRVY",
+    "udp": "PD_ObjectID",
+    "value": "EE2DCD40-E8BA-4110-83AF-2A7ADE4FDAC6",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "EE2DCD40-E8BA-4110-83AF-2A7ADE4FDAC6",
+    "entity_name": "SURVEY",
+    "entity_code": "SRVY",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "EE2DCD40-E8BA-4110-83AF-2A7ADE4FDAC6",
+    "entity_name": "SURVEY",
+    "entity_code": "SRVY",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "F78DA6FF-3A66-4C1E-93A7-24C91A127419",
+    "entity_name": "DISTRIBUTOR_STOCK",
+    "entity_code": "DISTRIBUTOR_STCK",
+    "udp": "PD_ObjectID",
+    "value": "F78DA6FF-3A66-4C1E-93A7-24C91A127419",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "F78DA6FF-3A66-4C1E-93A7-24C91A127419",
+    "entity_name": "DISTRIBUTOR_STOCK",
+    "entity_code": "DISTRIBUTOR_STCK",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "F78DA6FF-3A66-4C1E-93A7-24C91A127419",
+    "entity_name": "DISTRIBUTOR_STOCK",
+    "entity_code": "DISTRIBUTOR_STCK",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "862931D6-4800-4B0F-848B-7E1DC56F1D7E",
+    "entity_name": "SALES_RETURN",
+    "entity_code": "SLS_RTRN",
+    "udp": "PD_ObjectID",
+    "value": "862931D6-4800-4B0F-848B-7E1DC56F1D7E",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "862931D6-4800-4B0F-848B-7E1DC56F1D7E",
+    "entity_name": "SALES_RETURN",
+    "entity_code": "SLS_RTRN",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "862931D6-4800-4B0F-848B-7E1DC56F1D7E",
+    "entity_name": "SALES_RETURN",
+    "entity_code": "SLS_RTRN",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "34C7524C-C257-4E1A-BC2B-C6AD7DDFF742",
+    "entity_name": "PURCHASE_RETURN",
+    "entity_code": "PURCHASE_RETURN",
+    "udp": "PD_ObjectID",
+    "value": "34C7524C-C257-4E1A-BC2B-C6AD7DDFF742",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "34C7524C-C257-4E1A-BC2B-C6AD7DDFF742",
+    "entity_name": "PURCHASE_RETURN",
+    "entity_code": "PURCHASE_RETURN",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "34C7524C-C257-4E1A-BC2B-C6AD7DDFF742",
+    "entity_name": "PURCHASE_RETURN",
+    "entity_code": "PURCHASE_RETURN",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "2DEACA07-7D74-4EE6-8438-A4F605B6B786",
+    "entity_name": "PRODUCT_TYPE",
+    "entity_code": "PRODUCT_TYPE",
+    "udp": "PD_ObjectID",
+    "value": "2DEACA07-7D74-4EE6-8438-A4F605B6B786",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "2DEACA07-7D74-4EE6-8438-A4F605B6B786",
+    "entity_name": "PRODUCT_TYPE",
+    "entity_code": "PRODUCT_TYPE",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "2DEACA07-7D74-4EE6-8438-A4F605B6B786",
+    "entity_name": "PRODUCT_TYPE",
+    "entity_code": "PRODUCT_TYPE",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "25C10BF2-7D02-4DA2-BD09-48CC50B3194C",
+    "entity_name": "PRODUCT_STOCK_KEEPING_UNIT",
+    "entity_code": "PRODUCT_STOCK_KEEPING_UNIT",
+    "udp": "PD_ObjectID",
+    "value": "25C10BF2-7D02-4DA2-BD09-48CC50B3194C",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "25C10BF2-7D02-4DA2-BD09-48CC50B3194C",
+    "entity_name": "PRODUCT_STOCK_KEEPING_UNIT",
+    "entity_code": "PRODUCT_STOCK_KEEPING_UNIT",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "25C10BF2-7D02-4DA2-BD09-48CC50B3194C",
+    "entity_name": "PRODUCT_STOCK_KEEPING_UNIT",
+    "entity_code": "PRODUCT_STOCK_KEEPING_UNIT",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "8C0BAA7F-9F96-42D0-BE18-3AAF9CA92879",
+    "entity_name": "PRODUCT_PRICE",
+    "entity_code": "PRODUCT_PRICE",
+    "udp": "PD_ObjectID",
+    "value": "8C0BAA7F-9F96-42D0-BE18-3AAF9CA92879",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "8C0BAA7F-9F96-42D0-BE18-3AAF9CA92879",
+    "entity_name": "PRODUCT_PRICE",
+    "entity_code": "PRODUCT_PRICE",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "8C0BAA7F-9F96-42D0-BE18-3AAF9CA92879",
+    "entity_name": "PRODUCT_PRICE",
+    "entity_code": "PRODUCT_PRICE",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "300EC709-67F2-4014-A2D8-5F43A0F9C5D8",
+    "entity_name": "PRODUCT_FAMILY",
+    "entity_code": "PRODUCT_FAMILY",
+    "udp": "PD_ObjectID",
+    "value": "300EC709-67F2-4014-A2D8-5F43A0F9C5D8",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "300EC709-67F2-4014-A2D8-5F43A0F9C5D8",
+    "entity_name": "PRODUCT_FAMILY",
+    "entity_code": "PRODUCT_FAMILY",
+    "udp": "PD_SourceExtraction",
+    "value": "46603045",
+    "source_path": ""
+  },
+  {
+    "pd_object_id": "300EC709-67F2-4014-A2D8-5F43A0F9C5D8",
+    "entity_name": "PRODUCT_FAMILY",
+    "entity_code": "PRODUCT_FAMILY",
+    "udp": "PD_SourceModel",
+    "value": "03_Lubes_Sales_Marketing_Indirect_Channel_Portfolio_LDM_updated",
+    "source_path": ""
+  }
+]

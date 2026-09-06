@@ -83,46 +83,68 @@ def _module_belongs_to_validator(module) -> bool:
         return False
 
 
+def _import_validator_modules(before):
+    """Import validator modules and collect validator-local dependencies."""
+    modules = {name: importlib.import_module(name) for name in _OWNED_NAMES}
+    for name in set(sys.modules) - before:
+        module = sys.modules.get(name)
+        if module is not None and _module_belongs_to_validator(module):
+            modules.setdefault(name, module)
+    return modules
+
+
+def _publish_validator_aliases():
+    """
+    Keep validator modules reachable under the private namespace.
+
+    The aliases are collected first and registered afterwards: writing into
+    ``sys.modules`` while iterating it raises "dictionary changed size during
+    iteration", which is what the previous ``list()`` copy guarded against.
+    """
+    aliases = {
+        f"{_ALIAS_PREFIX}.{name}": module
+        for name, module in sys.modules.items()
+        if name in _OWNED_NAMES
+        and module is not None
+        and _module_belongs_to_validator(module)
+    }
+    sys.modules.update(aliases)
+
+
+def _restore_shadowed_modules(shadowed, before, saved_path):
+    """Restore the interpreter state that existed before the isolated import."""
+    for name, previous in shadowed.items():
+        if previous is not None:
+            sys.modules[name] = previous
+        else:
+            sys.modules.pop(name, None)
+
+    for name in set(sys.modules) - before:
+        module = sys.modules.get(name)
+        if module is not None and _module_belongs_to_validator(module):
+            sys.modules.pop(name, None)
+
+    sys.path[:] = saved_path
+
+
 def _load_isolated():
     """Import the validator's modules without disturbing the LDM ones."""
     if not os.path.isdir(VALIDATOR_DIR):
         raise ImportError(f"PDM validator folder not found: {VALIDATOR_DIR}")
 
     saved_path = list(sys.path)
-    # Hide any same-named modules (the LDM tool's) for the duration of the import.
     shadowed = {name: sys.modules.pop(name, None) for name in _OWNED_NAMES}
     before = set(sys.modules)
 
     sys.path.insert(0, VALIDATOR_DIR)
     try:
-        modules = {name: importlib.import_module(name) for name in _OWNED_NAMES}
-
-        # Anything else the validator pulled in from its own folder gets aliased
-        # too, so nothing is left dangling under a bare top-level name.
-        for name in set(sys.modules) - before:
-            module = sys.modules.get(name)
-            if module is not None and _module_belongs_to_validator(module):
-                modules.setdefault(name, module)
+        modules = _import_validator_modules(before)
     finally:
-        # Publish under a private namespace so the objects stay reachable...
-        for name, module in list(sys.modules.items()):
-            if name in _OWNED_NAMES and module is not None and _module_belongs_to_validator(module):
-                sys.modules[f"{_ALIAS_PREFIX}.{name}"] = module
-        # ...then restore the interpreter to exactly how we found it.
-        for name, previous in shadowed.items():
-            if previous is not None:
-                sys.modules[name] = previous
-            else:
-                sys.modules.pop(name, None)
-        for name in set(sys.modules) - before:
-            module = sys.modules.get(name)
-            if module is not None and _module_belongs_to_validator(module):
-                sys.modules.pop(name, None)
-        sys.path[:] = saved_path
+        _publish_validator_aliases()
+        _restore_shadowed_modules(shadowed, before, saved_path)
 
     logger.info("Loaded PDM validator from %s", VALIDATOR_DIR)
     return modules
-
 
 def load():
     """Load (once) and return the validator's modules as a dict."""
@@ -187,14 +209,14 @@ def validate_pair(pdm_path: str, erwin_xml_path: str):
     Mirrors the validator's own ``validate_pair`` so a parse failure becomes an
     ERROR result instead of an exception that would stop the batch.
     """
-    ValidationResult, Finding = get_result_classes()
+    validation_result_cls, finding_cls = get_result_classes()
     try:
         return compare(parse_pdm(pdm_path), parse_erwin(erwin_xml_path))
     except Exception as exc:                                  # noqa: BLE001
         logger.error("PDM validation failed (%s vs %s): %s",
                      pdm_path, erwin_xml_path, exc)
-        result = ValidationResult(pd_file=pdm_path, erwin_file=erwin_xml_path,
-                                  status="ERROR")
-        result.add(Finding("EXCEPTION", "CRITICAL", message=str(exc)))
+        result = validation_result_cls(pd_file=pdm_path, erwin_file=erwin_xml_path,
+                                       status="ERROR")
+        result.add(finding_cls("EXCEPTION", "CRITICAL", message=str(exc)))
         result.compute_score()
         return result

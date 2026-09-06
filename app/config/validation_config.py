@@ -36,6 +36,83 @@ class _Shared:
     MAX_DIFF_ROWS_PER_MODEL = 500
 
 
+    # ─── UDP FIDELITY (app/validation/udp_fidelity.py) ────────────────────────
+    # Scores SAP PD Extended Attributes against the UDPs the erwin XML export
+    # carries, and blends that into the fidelity score. Setting
+    # UDP_FIDELITY_ENABLED = False removes the layer's effect entirely.
+    UDP_FIDELITY_ENABLED = True
+    UDP_FIDELITY_WEIGHT = 0.20            # overall = structural x 0.8 + UDP x 0.2
+    UDP_FIDELITY_AFFECTS_PROMOTION_GATE = False
+    UDP_UNPOPULATED_VALUES = ("", "<unspecified>", "<none>", "<undefined>")
+    UDP_COMPARE_IGNORE_CASE = False
+    UDP_MAX_DETAIL_ROWS = 5000            # per model, on the UDP_DETAIL sheet
+
+    # ─── UDP ENGINE / PHASE D (app/validation/udp_flow.py) ────────────────────
+    # Runs the standalone UDP tool (app/udp_tool) as a phase of app/main.py:
+    #   1a classify + baseline   1b schema + manifest
+    #   2  inject into .erwin    3 mapping workbook    4 read-back comparison
+    # UDP_TOOL_ENABLED = False skips the phase entirely.
+    UDP_TOOL_ENABLED = True
+    # Phase 2 needs Windows + erwin Data Modeler + pywin32. When they are not
+    # present the phase records why and continues to phases 3 and 4, which read
+    # whatever is on disk.
+    UDP_TOOL_INJECT_ENABLED = True
+    # "bare"      erwin UDP name = PD_ObjectID          (matches udp_fidelity)
+    # "qualified" erwin UDP name = Entity.Logical.PD_ObjectID  (tool default)
+    # Bare naming is used here because udp_fidelity.py strips a single owner
+    # prefix, so a qualified name never matches its PowerDesigner counterpart.
+    UDP_TOOL_NAME_STYLE = "bare"
+    UDP_TOOL_READBACK_METHOD = "auto"     # auto | com | binary
+    # Per-model working directory. The standalone tool shares one baseline
+    # folder across a batch, which is safe only because it runs strictly
+    # sequentially; inside the pipeline loop each model gets its own.
+    UDP_TOOL_WORKDIR = "data/udp"
+    UDP_TOOL_EXTRACTION_ID = "46603045"   # PowerDesigner repository extraction id
+    UDP_TOOL_TIMEOUT_SECONDS = 1800
+    UDP_TOOL_REQUIRE_ERWIN_BINARY = False
+    # Where the source .erwin binary is looked for, in order.
+    UDP_TOOL_ERWIN_INPUT_DIRS = (
+        "erwinmodels/1_initial/erwin",
+        "app/udp_tool/input_erwin_models",
+    )
+    # Where the binary to READ BACK is looked for, in order: this run's injected
+    # output first, then any previously injected model, then the raw input.
+    UDP_TOOL_ERWIN_READBACK_DIRS = (
+        "erwinmodels/2_preprocessed/erwin",
+        "app/udp_tool/output_erwin_models",
+        "erwinmodels/1_initial/erwin",
+        "app/udp_tool/input_erwin_models",
+    )
+    # The UDP tool's own raw workbooks stay in its existing report folder.
+    UDP_TOOL_REPORT_DIR = "app/udp_tool/output_excel_reports"
+
+    # ─── STAGED FIDELITY V1 -> V2 -> V3 (app/validation/fidelity_stages.py) ───
+    # Every stage is measured against a DIFFERENT erwin artefact and every
+    # component recomputed; nothing is carried forward.
+    #   V1  vs erwinmodels/1_initial/xml       raw export: no comments, no UDPs
+    #   V2  vs erwinmodels/2_preprocessed/xml  after Comments/Notes or repairs
+    #   V3  vs the enriched .erwin read-back   after the UDP engine (Phase D)
+    # Components with nothing to measure for a given model are dropped and the
+    # remaining weights renormalised, so a model is never penalised for
+    # metadata it never had.
+    FIDELITY_STAGE_WEIGHTS = {
+        "structural": 0.50,
+        "documentation": 0.25,
+        "udp": 0.25,
+    }
+    # Shortcuts and Tags are NOT scored: erwin's XML export has no shortcut
+    # object, so a shortcut reads as missing at every stage alike (a constant
+    # drag, not a progression), and erwin Tags have no representation anywhere
+    # in the framework. Both are reported as "not measured" rather than zero.
+
+    # ─── REPORTS (app/reporting/) ─────────────────────────────────────────────
+    # Each model gets its own folder inside its model type's reporting folder,
+    # holding its V1 initial, V2 UDP mapping and V3 final reports.
+    V3_REPORT_ENABLED = True
+    # Tier sheets the consolidated V3 report must never carry. UDP_DETAIL is
+    # the full per-value dump.
+    V3_REPORT_EXCLUDE_SHEETS = ("UDP_DETAIL",)
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  _Semantic — the 41 settings CDM and LDM share and PDM has no use for.
 #

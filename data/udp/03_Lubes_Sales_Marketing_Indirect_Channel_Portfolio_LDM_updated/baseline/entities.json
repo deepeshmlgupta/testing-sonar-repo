@@ -1,0 +1,182 @@
+[
+  {
+    "object_id": "84EA5DD8-6A1A-45B8-8B2D-56057B619E63",
+    "name": "INVOICE",
+    "code": "INVOICE_HEADER",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "FD78AA7B-4711-4963-8DB9-ECB1B24D0E68",
+    "name": "DISCOUNT",
+    "code": "DISCOUNT",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "74B87F8A-E51D-4E06-AA56-48EA81D65346",
+    "name": "ACCOUNTS_RECEIVABLE",
+    "code": "ACCOUNTS_RECEIVABLE",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "73C53A15-DAA2-4BDF-ACB0-E72E49B7EA1C",
+    "name": "DISTRIBUTOR_ANNUAL_TARGET",
+    "code": "DISTRIBUTOR_ANNL_TRGT",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "4A716CC9-6376-4739-AB96-C5B4E10D0C33",
+    "name": "DISTRIBUTOR_SALES_REPRESENTATIVE_VISIT",
+    "code": "DISTRIBUTOR_SLS_REPRESENTATIVE_VST",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "0EE5B940-6BAE-4399-998F-7FE00DB9FFF0",
+    "name": "DISTRIBUTOR_SALES_REPRESENTATIVE",
+    "code": "DISTRIBUTOR_SLS_REPRESENTATIVE",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "69FF7247-4A87-4F1A-A137-330AC33842A2",
+    "name": "DISTRIBUTOR_SALES_MANAGER",
+    "code": "DISTRIBUTOR_SLS_MNGR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "960AA318-BCE2-49DA-9DA2-C6F3623617D8",
+    "name": "OUTLET",
+    "code": "OUTLET",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "DC110BC0-2610-4B08-9CD9-120C85F56EA8",
+    "name": "LEAD_CAMPAIGN",
+    "code": "LEAD_CAMPAIGN",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "31B29DA3-97BC-4C62-B4FE-A4119A477AB0",
+    "name": "LEAD",
+    "code": "LEAD",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "4F2A91E7-2E53-4CBC-BE89-3F6AF7AD6A53",
+    "name": "COUNTRY",
+    "code": "COUNTRY",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "29486221-0FF1-43CC-8EAF-6BA03652BC1E",
+    "name": "CAMPAIGN_SOURCE",
+    "code": "CAMPAIGN_SOURCE",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "455C054B-EBAF-4850-BD5F-46B8A8B2276E",
+    "name": "SHELL_COMPANY",
+    "code": "SHLL_CMPNY",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "1DEDB8E1-38EA-4360-B884-100D631BE3B8",
+    "name": "DISTRIBUTOR_LEARNING",
+    "code": "DISTRIBUTOR_LRNNG",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "156D779F-AEEC-4C4D-9389-4DD05F42D893",
+    "name": "CUSTOMER",
+    "code": "CSTMR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "478387EE-5181-48FB-9EB6-6B96337AB385",
+    "name": "RETAILER",
+    "code": "RTLR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "EEC9DD4A-5C30-431B-A5E9-BB0609784F0C",
+    "name": "DISTRIBUTOR",
+    "code": "DISTRIBUTOR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "BB8C1827-CF9F-468C-926A-0E29A8627E38",
+    "name": "SALES_AREA",
+    "code": "SLS_AR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "E27B95D0-75E7-44D3-BF2F-B677D39E2984",
+    "name": "CUSTOMER_GROUP",
+    "code": "CSTMR_GRP",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "343116AB-E234-4918-8C58-C0FFCA032A4B",
+    "name": "SELL_OUT_SALES_ORDER",
+    "code": "SELL_OT_SLS_ORDR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "48AA03B9-FC65-478C-A46D-1B414D314724",
+    "name": "SELL_IN_SALES_ORDER",
+    "code": "SELL_IN_SLS_ORDR",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "AC27EBF5-D435-4DE5-9BB5-8BDD8F604119",
+    "name": "PRODUCT",
+    "code": "PRDCT",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "EE2DCD40-E8BA-4110-83AF-2A7ADE4FDAC6",
+    "name": "SURVEY",
+    "code": "SRVY",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "F78DA6FF-3A66-4C1E-93A7-24C91A127419",
+    "name": "DISTRIBUTOR_STOCK",
+    "code": "DISTRIBUTOR_STCK",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "862931D6-4800-4B0F-848B-7E1DC56F1D7E",
+    "name": "SALES_RETURN",
+    "code": "SLS_RTRN",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "34C7524C-C257-4E1A-BC2B-C6AD7DDFF742",
+    "name": "PURCHASE_RETURN",
+    "code": "PURCHASE_RETURN",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "2DEACA07-7D74-4EE6-8438-A4F605B6B786",
+    "name": "PRODUCT_TYPE",
+    "code": "PRODUCT_TYPE",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "25C10BF2-7D02-4DA2-BD09-48CC50B3194C",
+    "name": "PRODUCT_STOCK_KEEPING_UNIT",
+    "code": "PRODUCT_STOCK_KEEPING_UNIT",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "8C0BAA7F-9F96-42D0-BE18-3AAF9CA92879",
+    "name": "PRODUCT_PRICE",
+    "code": "PRODUCT_PRICE",
+    "extended_attributes": {}
+  },
+  {
+    "object_id": "300EC709-67F2-4014-A2D8-5F43A0F9C5D8",
+    "name": "PRODUCT_FAMILY",
+    "code": "PRODUCT_FAMILY",
+    "extended_attributes": {}
+  }
+]

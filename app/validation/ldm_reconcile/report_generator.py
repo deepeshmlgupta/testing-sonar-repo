@@ -167,71 +167,54 @@ SUMMARY_HEADERS = [
 ]
 
 
-def _build_summary(wb: Workbook, results: List[ValidationResult]) -> None:
-    ws = wb.active
-    ws.title = "SUMMARY"
-    ws.freeze_panes = "C3"
-    ws.row_dimensions[1].height = 22
-    ws.row_dimensions[2].height = 32
+def _write_summary_data_row(ws, result: ValidationResult, row: int, index: int) -> None:
+    _data_row(ws, [
+        index,
+        os.path.basename(result.pd_file),
+        os.path.basename(result.erwin_file),
+        result.pd_model,
+        result.erwin_model,
+        result.status,
+        result.fidelity_score,
+        "YES" if result.needs_review else "",
+        result.entities_pd, result.entities_erwin, result.entities_matched,
+        result.entities_missing_in_erwin, result.entities_extra_in_erwin,
+        result.attributes_pd, result.attributes_erwin, result.attributes_matched,
+        result.attributes_missing_in_erwin, result.attributes_extra_in_erwin,
+        result.relationships_pd, result.relationships_erwin,
+        result.relationships_matched,
+        result.relationships_missing_in_erwin, result.relationships_extra_in_erwin,
+        result.inheritances_pd, result.inheritances_erwin,
+        result.identifiers_pd, result.identifiers_erwin,
+        result.domains_pd, result.domains_erwin,
+        result.shortcuts_pd, getattr(result, "shortcuts_erwin", 0),
+        result.critical_count, result.warning_count, result.info_count,
+    ], row, alt=(index % 2 == 0))
 
-    last_column = get_column_letter(len(SUMMARY_HEADERS))
-    ws.merge_cells(f"A1:{last_column}1")
-    banner = ws["A1"]
-    banner.value = ("SAP PD (PowerDesigner LDM) -> erwin  |  Logical Model Validation Report"
-                    f"   |   generated {datetime.now():%Y-%m-%d %H:%M}")
-    banner.font      = Font(bold=True, color=C_WHITE, size=14, name=config.REPORT_FONT)
-    banner.fill      = PatternFill("solid", fgColor=C_HEADER)
-    banner.alignment = CENTER
 
-    _header_row(ws, SUMMARY_HEADERS, 2)
+def _format_summary_row(ws, result: ValidationResult, row: int) -> None:
+    _paint_status(ws, row, 6, result.status)
 
-    for index, result in enumerate(results, start=1):
-        row = index + 2
-        _data_row(ws, [
-            index,
-            os.path.basename(result.pd_file),
-            os.path.basename(result.erwin_file),
-            result.pd_model,
-            result.erwin_model,
-            result.status,
-            result.fidelity_score,
-            "YES" if result.needs_review else "",
-            result.entities_pd, result.entities_erwin, result.entities_matched,
-            result.entities_missing_in_erwin, result.entities_extra_in_erwin,
-            result.attributes_pd, result.attributes_erwin, result.attributes_matched,
-            result.attributes_missing_in_erwin, result.attributes_extra_in_erwin,
-            result.relationships_pd, result.relationships_erwin,
-            result.relationships_matched,
-            result.relationships_missing_in_erwin, result.relationships_extra_in_erwin,
-            result.inheritances_pd, result.inheritances_erwin,
-            result.identifiers_pd, result.identifiers_erwin,
-            result.domains_pd, result.domains_erwin,
-            result.shortcuts_pd, getattr(result, "shortcuts_erwin", 0),
-            result.critical_count, result.warning_count, result.info_count,
-        ], row, alt=(index % 2 == 0))
+    fidelity_cell = ws.cell(row=row, column=7)
+    fidelity_cell.number_format = "0.00"
+    fidelity_cell.alignment = CENTER
+    if result.fidelity_score < 90:
+        fidelity_cell.font = Font(bold=True, color=C_DARKRED)
+    elif result.fidelity_score < config.FIDELITY_REVIEW_THRESHOLD:
+        fidelity_cell.font = Font(bold=True, color="FFBF8F00")
 
-        _paint_status(ws, row, 6, result.status)
+    if result.needs_review:
+        review_cell = ws.cell(row=row, column=8)
+        review_cell.font = Font(bold=True, color=C_DARKRED)
+        review_cell.alignment = CENTER
 
-        fidelity_cell = ws.cell(row=row, column=7)
-        fidelity_cell.number_format = "0.00"
-        fidelity_cell.alignment = CENTER
-        if result.fidelity_score < 90:
-            fidelity_cell.font = Font(bold=True, color=C_DARKRED)
-        elif result.fidelity_score < config.FIDELITY_REVIEW_THRESHOLD:
-            fidelity_cell.font = Font(bold=True, color="FFBF8F00")
+    if result.critical_count:
+        ws.cell(row=row, column=32).font = Font(bold=True, color=C_RED)
+    if result.warning_count:
+        ws.cell(row=row, column=33).font = Font(bold=True, color=C_DARKRED)
 
-        if result.needs_review:
-            review_cell = ws.cell(row=row, column=8)
-            review_cell.font      = Font(bold=True, color=C_DARKRED)
-            review_cell.alignment = CENTER
 
-        if result.critical_count:
-            ws.cell(row=row, column=32).font = Font(bold=True, color=C_RED)
-        if result.warning_count:
-            ws.cell(row=row, column=33).font = Font(bold=True, color=C_DARKRED)
-
-    # ── Totals row ───────────────────────────────────────────────────────────
-    total_row = len(results) + 3
+def _write_summary_totals(ws, results: List[ValidationResult], total_row: int) -> None:
     ws.cell(total_row, 1, "TOTAL").font = Font(bold=True)
     numeric_columns = {
         9: "entities_pd", 10: "entities_erwin", 11: "entities_matched",
@@ -249,16 +232,44 @@ def _build_summary(wb: Workbook, results: List[ValidationResult]) -> None:
     for column, attribute in numeric_columns.items():
         total = sum(getattr(r, attribute) for r in results)
         cell = ws.cell(total_row, column, total)
-        cell.font   = Font(bold=True, color=C_RED if column == 32 else C_BLACK)
-        cell.fill   = PatternFill("solid", fgColor=C_GRAY)
+        cell.font = Font(bold=True, color=C_RED if column == 32 else C_BLACK)
+        cell.fill = PatternFill("solid", fgColor=C_GRAY)
         cell.border = BORDER
 
     if results:
         average = round(sum(r.fidelity_score for r in results) / len(results), 2)
         cell = ws.cell(total_row, 7, average)
-        cell.font          = Font(bold=True)
+        cell.font = Font(bold=True)
         cell.number_format = "0.00"
-        cell.fill          = PatternFill("solid", fgColor=C_GRAY)
+        cell.fill = PatternFill("solid", fgColor=C_GRAY)
+
+
+def _build_summary(wb: Workbook, results: List[ValidationResult]) -> None:
+    ws = wb.active
+    ws.title = "SUMMARY"
+    ws.freeze_panes = "C3"
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 32
+
+    last_column = get_column_letter(len(SUMMARY_HEADERS))
+    ws.merge_cells(f"A1:{last_column}1")
+    banner = ws["A1"]
+    banner.value = (
+        "SAP PD (PowerDesigner LDM) -> erwin  |  Logical Model Validation Report"
+        f"   |   generated {datetime.now():%Y-%m-%d %H:%M}"
+    )
+    banner.font = Font(bold=True, color=C_WHITE, size=14, name=config.REPORT_FONT)
+    banner.fill = PatternFill("solid", fgColor=C_HEADER)
+    banner.alignment = CENTER
+
+    _header_row(ws, SUMMARY_HEADERS, 2)
+
+    for index, result in enumerate(results, start=1):
+        row = index + 2
+        _write_summary_data_row(ws, result, row, index)
+        _format_summary_row(ws, result, row)
+
+    _write_summary_totals(ws, results, len(results) + 3)
 
     _set_col_widths(ws, [5, 32, 32, 24, 24, 9, 11, 9] + [13] * 23 + [10, 10, 9])
     ws.auto_filter.ref = f"A2:{last_column}{len(results) + 2}"
@@ -266,48 +277,43 @@ def _build_summary(wb: Workbook, results: List[ValidationResult]) -> None:
     if results:
         ws.conditional_formatting.add(
             f"G3:G{len(results) + 2}",
-            DataBarRule(start_type="num", start_value=0,
-                        end_type="num", end_value=100,
-                        color="FF63BE7B", showValue=True),
+            DataBarRule(
+                start_type="num", start_value=0,
+                end_type="num", end_value=100,
+                color="FF63BE7B", showValue=True,
+            ),
         )
 
 
 # ─── DASHBOARD SHEET ──────────────────────────────────────────────────────────
 
-def _build_dashboard(wb: Workbook, results: List[ValidationResult]) -> None:
-    ws = wb.create_sheet("DASHBOARD")
-
-    ws.merge_cells("A1:F1")
-    banner = ws["A1"]
-    banner.value     = "Migration Reconciliation Dashboard"
-    banner.font      = Font(bold=True, color=C_WHITE, size=14, name=config.REPORT_FONT)
-    banner.fill      = PatternFill("solid", fgColor=C_HEADER)
-    banner.alignment = CENTER
-    ws.row_dimensions[1].height = 22
-
+def _dashboard_statistics(results: List[ValidationResult]) -> list:
     status_counts = Counter(r.status for r in results)
-    total_models  = len(results)
-    average_score = (round(sum(r.fidelity_score for r in results) / total_models, 2)
-                     if total_models else 0.0)
-
-    # ── Run statistics ───────────────────────────────────────────────────────
-    _header_row(ws, ["Run Statistic", "Value"], 3, fill=SUBHDR_FILL)
-    statistics = [
-        ("Models validated",        total_models),
-        ("PASS",                    status_counts.get("PASS", 0)),
-        ("WARN",                    status_counts.get("WARN", 0)),
-        ("FAIL",                    status_counts.get("FAIL", 0)),
-        ("ERROR",                   status_counts.get("ERROR", 0)),
-        ("Average fidelity score",  average_score),
-        ("Models needing review",   sum(1 for r in results if r.needs_review)),
-        ("Total findings",          sum(len(r.findings) for r in results)),
-        ("CRITICAL findings",       sum(r.critical_count for r in results)),
-        ("WARNING findings",        sum(r.warning_count for r in results)),
-        ("INFO findings",           sum(r.info_count for r in results)),
-        ("Entities compared",       sum(r.entities_pd for r in results)),
-        ("Attributes compared",     sum(r.attributes_pd for r in results)),
-        ("Relationships compared",  sum(r.relationships_pd for r in results)),
+    total_models = len(results)
+    average_score = (
+        round(sum(r.fidelity_score for r in results) / total_models, 2)
+        if total_models else 0.0
+    )
+    return [
+        ("Models validated", total_models),
+        ("PASS", status_counts.get("PASS", 0)),
+        ("WARN", status_counts.get("WARN", 0)),
+        ("FAIL", status_counts.get("FAIL", 0)),
+        ("ERROR", status_counts.get("ERROR", 0)),
+        ("Average fidelity score", average_score),
+        ("Models needing review", sum(1 for r in results if r.needs_review)),
+        ("Total findings", sum(len(r.findings) for r in results)),
+        ("CRITICAL findings", sum(r.critical_count for r in results)),
+        ("WARNING findings", sum(r.warning_count for r in results)),
+        ("INFO findings", sum(r.info_count for r in results)),
+        ("Entities compared", sum(r.entities_pd for r in results)),
+        ("Attributes compared", sum(r.attributes_pd for r in results)),
+        ("Relationships compared", sum(r.relationships_pd for r in results)),
     ]
+
+
+def _write_dashboard_statistics(ws, statistics: list) -> None:
+    _header_row(ws, ["Run Statistic", "Value"], 3, fill=SUBHDR_FILL)
     for offset, (label, value) in enumerate(statistics):
         row = 4 + offset
         _data_row(ws, [label, value], row, alt=(offset % 2 == 1))
@@ -315,12 +321,13 @@ def _build_dashboard(wb: Workbook, results: List[ValidationResult]) -> None:
         if label in STATUS_FILL:
             _paint_status(ws, row, 2, label)
 
-    # ── Lowest-fidelity models ───────────────────────────────────────────────
-    worst_start = 4 + len(statistics) + 2
-    ws.cell(worst_start - 1, 1, "Lowest-fidelity models").font = Font(bold=True, size=11)
-    _header_row(ws, ["Model", "Status", "Fidelity %", "CRITICAL", "WARNING"],
-                worst_start, fill=SUBHDR_FILL)
 
+def _write_worst_models(ws, results: List[ValidationResult], worst_start: int) -> None:
+    ws.cell(worst_start - 1, 1, "Lowest-fidelity models").font = Font(bold=True, size=11)
+    _header_row(
+        ws, ["Model", "Status", "Fidelity %", "CRITICAL", "WARNING"],
+        worst_start, fill=SUBHDR_FILL,
+    )
     worst = sorted(results, key=lambda r: r.fidelity_score)[:15]
     for offset, result in enumerate(worst, start=1):
         row = worst_start + offset
@@ -334,15 +341,14 @@ def _build_dashboard(wb: Workbook, results: List[ValidationResult]) -> None:
         _paint_status(ws, row, 2, result.status)
         ws.cell(row=row, column=3).number_format = "0.00"
 
-    _set_col_widths(ws, [34, 14, 13, 11, 11, 11])
 
-    # ── Severity chart ───────────────────────────────────────────────────────
+def _add_severity_chart(ws, results: List[ValidationResult]) -> None:
     chart_anchor_row = 4
     ws.cell(chart_anchor_row - 1, 8, "Findings by severity").font = Font(bold=True)
     severity_rows = [
         ("CRITICAL", sum(r.critical_count for r in results)),
-        ("WARNING",  sum(r.warning_count for r in results)),
-        ("INFO",     sum(r.info_count for r in results)),
+        ("WARNING", sum(r.warning_count for r in results)),
+        ("INFO", sum(r.info_count for r in results)),
         ("VERIFIED", sum(1 for r in results for f in r.findings if f.severity == "VERIFIED")),
     ]
     for offset, (label, value) in enumerate(severity_rows):
@@ -351,27 +357,53 @@ def _build_dashboard(wb: Workbook, results: List[ValidationResult]) -> None:
 
     try:
         chart = BarChart()
-        chart.type   = "col"
-        chart.title  = "Findings by severity"
+        chart.type = "col"
+        chart.title = "Findings by severity"
         chart.y_axis.title = "Findings"
         chart.height = 7
-        chart.width  = 13
-        data       = Reference(ws, min_col=9, min_row=chart_anchor_row,
-                               max_row=chart_anchor_row + len(severity_rows) - 1)
-        categories = Reference(ws, min_col=8, min_row=chart_anchor_row,
-                               max_row=chart_anchor_row + len(severity_rows) - 1)
+        chart.width = 13
+        data = Reference(
+            ws, min_col=9, min_row=chart_anchor_row,
+            max_row=chart_anchor_row + len(severity_rows) - 1,
+        )
+        categories = Reference(
+            ws, min_col=8, min_row=chart_anchor_row,
+            max_row=chart_anchor_row + len(severity_rows) - 1,
+        )
         chart.add_data(data, titles_from_data=False)
         chart.set_categories(categories)
         chart.legend = None
         ws.add_chart(chart, "K3")
-    except Exception as exc:                                   # pragma: no cover
+    except Exception as exc:  # pragma: no cover
         logger.warning("Could not render dashboard chart: %s", exc)
+
+
+def _build_dashboard(wb: Workbook, results: List[ValidationResult]) -> None:
+    ws = wb.create_sheet("DASHBOARD")
+
+    ws.merge_cells("A1:F1")
+    banner = ws["A1"]
+    banner.value = "Migration Reconciliation Dashboard"
+    banner.font = Font(bold=True, color=C_WHITE, size=14, name=config.REPORT_FONT)
+    banner.fill = PatternFill("solid", fgColor=C_HEADER)
+    banner.alignment = CENTER
+    ws.row_dimensions[1].height = 22
+
+    statistics = _dashboard_statistics(results)
+    _write_dashboard_statistics(ws, statistics)
+
+    worst_start = 4 + len(statistics) + 2
+    _write_worst_models(ws, results, worst_start)
+    _set_col_widths(ws, [34, 14, 13, 11, 11, 11])
+    _add_severity_chart(ws, results)
 
 
 # ─── FINDINGS SHEET ───────────────────────────────────────────────────────────
 
+OBJECT_TYPE_HEADER = "Object Type"
+
 FINDINGS_HEADERS = [
-    "Model", "Status", "Severity", "Category", "Object Type",
+    "Model", "Status", "Severity", "Category", OBJECT_TYPE_HEADER,
     "Object", "Member", "Message",
     "SAP PD Value", "erwin Value", "Recommended Action", "Manual Review",
 ]
@@ -536,7 +568,7 @@ def _build_category_analysis(wb: Workbook, results: List[ValidationResult]) -> N
 # ─── DOCUMENTATION SHEET (Comments → Notes, Definition → Definition) ──────────
 
 DESCRIPTION_HEADERS = [
-    "Model", "Object Type", "Object", "Code",
+    "Model", OBJECT_TYPE_HEADER, "Object", "Code",
     "Mapping", "Source Field", "Target Field",
     "SAP PD Value (source)", "erwin Value (target)",
     "Status", "Similarity %",
@@ -549,6 +581,61 @@ DOC_STATUS_FILL = {
     "MISSING_IN_SAP_PD": PatternFill("solid", fgColor="FFEB9C"),
     "BOTH_EMPTY":        PatternFill("solid", fgColor="F2F2F2"),
 }
+
+
+def _write_documentation_summary(ws, rows: list) -> int:
+    """Per-mapping status counts; returns the next free line."""
+    summary: Dict[str, Dict[str, int]] = {}
+    for row in rows:
+        bucket = summary.setdefault(row.mapping, {})
+        bucket[row.status] = bucket.get(row.status, 0) + 1
+
+    _header_row(ws, ["Mapping", "MATCHED", "MISMATCH", "MISSING IN ERWIN",
+                     "MISSING IN SAP PD", "BOTH EMPTY", "Total"], 1)
+    line = 2
+    for mapping, counts in sorted(summary.items()):
+        total = sum(counts.values())
+        _data_row(ws, [
+            mapping,
+            counts.get("MATCHED", 0),
+            counts.get("MISMATCH", 0),
+            counts.get("MISSING_IN_ERWIN", 0),
+            counts.get("MISSING_IN_SAP_PD", 0),
+            counts.get("BOTH_EMPTY", 0),
+            total,
+        ], line)
+        line += 1
+    return line
+
+
+def _documentation_sort_key(row) -> tuple:
+    """Problems first: a reviewer should not have to scroll past matches."""
+    if row.status in ("MISSING_IN_ERWIN", "MISMATCH"):
+        rank = 0
+    elif row.status == "MISSING_IN_SAP_PD":
+        rank = 1
+    elif row.status == "MATCHED":
+        rank = 2
+    else:
+        rank = 3
+    return (rank, row.model, row.object_type, row.object_name, row.mapping)
+
+
+def _write_documentation_detail(ws, rows: list, line: int) -> int:
+    """One row per object/mapping pair; returns the next free line."""
+    for index, row in enumerate(sorted(rows, key=_documentation_sort_key)):
+        _data_row(ws, [
+            row.model, row.object_type, row.object_name, row.object_code,
+            row.mapping, row.source_field, row.target_field,
+            row.source_value, row.target_value,
+            row.status,
+            row.similarity if row.status == "MISMATCH" else "",
+        ], line, alt=bool(index % 2))
+        fill = DOC_STATUS_FILL.get(row.status)
+        if fill is not None:
+            ws.cell(row=line, column=10).fill = fill
+        line += 1
+    return line
 
 
 def _build_documentation(wb: Workbook, results: List[ValidationResult]) -> None:
@@ -576,26 +663,7 @@ def _build_documentation(wb: Workbook, results: List[ValidationResult]) -> None:
         return
 
     # ── Summary block ────────────────────────────────────────────────────────
-    summary: Dict[str, Dict[str, int]] = {}
-    for row in rows:
-        bucket = summary.setdefault(row.mapping, {})
-        bucket[row.status] = bucket.get(row.status, 0) + 1
-
-    _header_row(ws, ["Mapping", "MATCHED", "MISMATCH", "MISSING IN ERWIN",
-                     "MISSING IN SAP PD", "BOTH EMPTY", "Total"], 1)
-    line = 2
-    for mapping, counts in sorted(summary.items()):
-        total = sum(counts.values())
-        _data_row(ws, [
-            mapping,
-            counts.get("MATCHED", 0),
-            counts.get("MISMATCH", 0),
-            counts.get("MISSING_IN_ERWIN", 0),
-            counts.get("MISSING_IN_SAP_PD", 0),
-            counts.get("BOTH_EMPTY", 0),
-            total,
-        ], line)
-        line += 1
+    line = _write_documentation_summary(ws, rows)
 
     # ── Detail block ─────────────────────────────────────────────────────────
     line += 1
@@ -603,27 +671,7 @@ def _build_documentation(wb: Workbook, results: List[ValidationResult]) -> None:
     _header_row(ws, DESCRIPTION_HEADERS, detail_header)
     line += 1
 
-    # Problems first: a reviewer should not have to scroll past matches.
-    ordered_rows = sorted(
-        rows,
-        key=lambda r: (0 if r.status in ("MISSING_IN_ERWIN", "MISMATCH") else
-                       1 if r.status == "MISSING_IN_SAP_PD" else
-                       2 if r.status == "MATCHED" else 3,
-                       r.model, r.object_type, r.object_name, r.mapping),
-    )
-
-    for index, row in enumerate(ordered_rows):
-        _data_row(ws, [
-            row.model, row.object_type, row.object_name, row.object_code,
-            row.mapping, row.source_field, row.target_field,
-            row.source_value, row.target_value,
-            row.status,
-            row.similarity if row.status == "MISMATCH" else "",
-        ], line, alt=bool(index % 2))
-        fill = DOC_STATUS_FILL.get(row.status)
-        if fill is not None:
-            ws.cell(row=line, column=10).fill = fill
-        line += 1
+    line = _write_documentation_detail(ws, rows, line)
 
     _set_col_widths(ws, [22, 12, 38, 24, 24, 20, 20, 60, 60, 18, 12])
     ws.freeze_panes = ws.cell(row=detail_header + 1, column=1)
@@ -652,7 +700,7 @@ def _build_config_sheet(wb: Workbook) -> None:
 # ─── PER-MODEL SHEET ──────────────────────────────────────────────────────────
 
 MODEL_SHEET_HEADERS = [
-    "#", "Severity", "Category", "Object Type", "Object", "Member",
+    "#", "Severity", "Category", OBJECT_TYPE_HEADER, "Object", "Member",
     "Message", "SAP PD Value", "erwin Value", "Recommended Action",
 ]
 
@@ -802,7 +850,12 @@ def generate_report(results: List[ValidationResult],
                 logger.warning("Could not create detail sheet for %s: %s",
                                result.pd_file, exc)
 
-    wb.save(out_path)
+
+    out_path_abs = os.path.abspath(out_path)
+    os.makedirs(os.path.dirname(out_path_abs), exist_ok=True)
+    if os.name == 'nt' and not out_path_abs.startswith("\\\\?\\"):
+        out_path_abs = "\\\\?\\" + out_path_abs
+    wb.save(out_path_abs)
     logger.info("Report saved → %s", out_path)
 
     if config.EXPORT_FINDINGS_CSV:

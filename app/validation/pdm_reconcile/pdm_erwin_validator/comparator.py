@@ -41,7 +41,16 @@ except Exception:                       # pragma: no cover - standalone use
     except Exception:
         config = None
 
+# UDP integration. Guarded because this validator is also run standalone from
+# its own folder (pdm_erwin_validator/main.py), where app.* is not importable.
+try:
+    from app.validation import udp_fidelity
+except Exception:                       # pragma: no cover - standalone use
+    udp_fidelity = None
+
 logger = logging.getLogger(__name__)
+
+NONE_VALUE = "(none)"
 
 
 # ─── SEVERITY POLICY ──────────────────────────────────────────────────────────
@@ -284,33 +293,11 @@ def _duplicate_codes(columns: List[Dict]) -> Dict[str, int]:
     return {code: n for code, n in counts.items() if n > 1}
 
 
-def _compare_columns(result: ValidationResult, tbl_code: str,
-                     pd_cols: List[Dict], erwin_cols: List[Dict]):
-    """
-    Compare columns of a matched table.
-
-    Returns (matched, missing, extra, duplicate_pd, duplicate_erwin) so that
-    ``len(pd_cols) == matched + missing + duplicate_pd`` and
-    ``len(erwin_cols) == matched + extra + duplicate_erwin``.
-
-    Both sides used to be indexed straight into ``{code: column}``. When erwin
-    migrates the same parent key twice — which it does when PowerDesigner holds
-    two references between the same pair of tables on the same column — the
-    entity really does end up with two attributes of one physical name, and the
-    second one was silently discarded here. The workbook then reported 476 erwin
-    columns, 473 matched and 0 extra, which cannot all be true, and the
-    duplicates (invalid DDL if the model is generated) were never mentioned.
-    """
-    pd_map    = {_key(c["code"]): c for c in pd_cols}
-    erwin_map = {_key(c["code"]): c for c in erwin_cols}
-    pd_names, erwin_names = set(pd_map), set(erwin_map)
-
-    matched = pd_names & erwin_names
-    missing = pd_names - erwin_names
-    extra   = erwin_names - pd_names
-
-    pd_dupes    = _duplicate_codes(pd_cols)
+def _emit_duplicate_columns(result: ValidationResult, tbl_code: str,
+                            pd_cols: List[Dict], erwin_cols: List[Dict]):
+    pd_dupes = _duplicate_codes(pd_cols)
     erwin_dupes = _duplicate_codes(erwin_cols)
+
     for code, count in sorted(pd_dupes.items()):
         result.emit("COLUMN_DUPLICATE", category="COLUMN", table=tbl_code,
                     column=code,
@@ -318,6 +305,7 @@ def _compare_columns(result: ValidationResult, tbl_code: str,
                             f"PowerDesigner table '{tbl_code}'",
                     pd_value=f"{count} objects share this physical name",
                     erwin_value=str(erwin_dupes.get(code, 1)))
+
     for code, count in sorted(erwin_dupes.items()):
         result.emit("COLUMN_DUPLICATE", category="COLUMN", table=tbl_code,
                     column=code,
@@ -328,68 +316,113 @@ def _compare_columns(result: ValidationResult, tbl_code: str,
                     pd_value=str(pd_dupes.get(code, 1)),
                     erwin_value=f"{count} objects share this physical name")
 
-    duplicate_pd    = len(pd_cols) - len(pd_names)
-    duplicate_erwin = len(erwin_cols) - len(erwin_names)
+    return (len(pd_cols) - len({_key(c["code"]) for c in pd_cols}),
+            len(erwin_cols) - len({_key(c["code"]) for c in erwin_cols}))
+
+
+def _compare_column_data_type(result: ValidationResult, tbl_code: str, col_key: str,
+                              pd_c: Dict, erwin_c: Dict) -> None:
+    if not getattr(config, "CHECK_DATA_TYPES", True):
+        return
+
+    pd_dt = pd_c.get("data_type", "")
+    erwin_dt = erwin_c.get("data_type", "")
+    if not pd_dt or not erwin_dt or types_match(pd_dt, erwin_dt):
+        return
+
+    pd_base, _ = _base_and_len(pd_dt)
+    ew_base, _ = _base_and_len(erwin_dt)
+    abstract = {t.upper() for t in getattr(config, "PD_ABSTRACT_TYPES", {"ENUM"})}
+
+    if pd_base.upper() in abstract:
+        key = "DATA_TYPE_ABSTRACT"
+        label = f"PD abstract type '{pd_dt}' realised in ERwin"
+    elif pd_base == ew_base:
+        key = "DATA_TYPE_LENGTH"
+        label = "Data type length mismatch"
+    else:
+        key = "DATA_TYPE"
+        label = "Data type mismatch"
+
+    result.emit(key, category="DATA_TYPE", table=tbl_code, column=col_key,
+                message=f"{label} on column '{col_key}'",
+                pd_value=f"{pd_dt} → {normalize(pd_dt)}",
+                erwin_value=f"{erwin_dt} → {normalize(erwin_dt)}")
+
+
+def _compare_column_nullability(result: ValidationResult, tbl_code: str, col_key: str,
+                                pd_c: Dict, erwin_c: Dict) -> None:
+    if not getattr(config, "CHECK_NULLABILITY", True):
+        return
+    if pd_c.get("not_null") == erwin_c.get("not_null"):
+        return
+
+    result.emit("NULLABILITY", category="NULLABILITY", table=tbl_code,
+                column=col_key,
+                message=f"Nullability mismatch on column '{col_key}'",
+                pd_value="NOT NULL" if pd_c.get("not_null") else "NULL",
+                erwin_value="NOT NULL" if erwin_c.get("not_null") else "NULL")
+
+
+def _compare_column_default(result: ValidationResult, tbl_code: str, col_key: str,
+                            pd_c: Dict, erwin_c: Dict) -> None:
+    if not getattr(config, "CHECK_DEFAULT_VALUES", True):
+        return
+
+    pd_def = (pd_c.get("default") or "").strip()
+    erwin_def = (erwin_c.get("default") or "").strip()
+    if _key(pd_def) == _key(erwin_def):
+        return
+
+    result.emit("DEFAULT", category="DEFAULT", table=tbl_code, column=col_key,
+                message=f"Default value mismatch on column '{col_key}'",
+                pd_value=pd_def or NONE_VALUE,
+                erwin_value=erwin_def or NONE_VALUE)
+
+
+def _compare_matched_column(result: ValidationResult, tbl_code: str, col_key: str,
+                            pd_c: Dict, erwin_c: Dict) -> None:
+    before = len(result.findings)
+    _compare_column_data_type(result, tbl_code, col_key, pd_c, erwin_c)
+    _compare_column_nullability(result, tbl_code, col_key, pd_c, erwin_c)
+    _compare_column_default(result, tbl_code, col_key, pd_c, erwin_c)
+
+    if len(result.findings) != before:
+        return
+
+    result.emit("COLUMN_VERIFIED", category="COLUMN", table=tbl_code,
+                column=col_key,
+                message=f"Column '{col_key}' migrated intact — present in "
+                        f"ERwin with matching type, nullability and default",
+                pd_value=pd_c.get("data_type", "") or "(untyped)",
+                erwin_value=erwin_c.get("data_type", "") or "(untyped)")
+
+
+def _compare_columns(result: ValidationResult, tbl_code: str,
+                     pd_cols: List[Dict], erwin_cols: List[Dict]):
+    pd_map = {_key(c["code"]): c for c in pd_cols}
+    erwin_map = {_key(c["code"]): c for c in erwin_cols}
+    pd_names, erwin_names = set(pd_map), set(erwin_map)
+
+    matched = pd_names & erwin_names
+    missing = pd_names - erwin_names
+    extra = erwin_names - pd_names
+    duplicate_pd, duplicate_erwin = _emit_duplicate_columns(
+        result, tbl_code, pd_cols, erwin_cols)
 
     for col in sorted(missing):
         result.emit("COLUMN_MISSING", category="COLUMN", table=tbl_code, column=col,
                     message=f"Column '{col}' exists in PowerDesigner but NOT in ERwin",
                     pd_value=col, erwin_value="—")
+
     for col in sorted(extra):
         result.emit("COLUMN_EXTRA", category="COLUMN", table=tbl_code, column=col,
                     message=f"Column '{col}' exists in ERwin but NOT in PowerDesigner",
                     pd_value="—", erwin_value=col)
 
     for col_key in sorted(matched):
-        pd_c, erwin_c = pd_map[col_key], erwin_map[col_key]
-        _before = len(result.findings)
-
-        if getattr(config, "CHECK_DATA_TYPES", True):
-            pd_dt, erwin_dt = pd_c.get("data_type", ""), erwin_c.get("data_type", "")
-            if pd_dt and erwin_dt and not types_match(pd_dt, erwin_dt):
-                pd_base, _ = _base_and_len(pd_dt)
-                ew_base, _ = _base_and_len(erwin_dt)
-                abstract = {t.upper() for t in
-                            getattr(config, "PD_ABSTRACT_TYPES", {"ENUM"})}
-                if pd_base.upper() in abstract:
-                    # PD uses an abstract/logical token (e.g. 'Enum') with no
-                    # concrete SQL form; ERwin realised it physically. Not a
-                    # like-for-like data-type comparison, so it is context only.
-                    key, label = ("DATA_TYPE_ABSTRACT",
-                                  f"PD abstract type '{pd_dt}' realised in ERwin")
-                elif pd_base == ew_base:
-                    # same underlying type, only length/precision differs -> softer
-                    key, label = "DATA_TYPE_LENGTH", "Data type length mismatch"
-                else:
-                    key, label = "DATA_TYPE", "Data type mismatch"
-                result.emit(key, category="DATA_TYPE", table=tbl_code, column=col_key,
-                            message=f"{label} on column '{col_key}'",
-                            pd_value=f"{pd_dt} → {normalize(pd_dt)}",
-                            erwin_value=f"{erwin_dt} → {normalize(erwin_dt)}")
-
-        if getattr(config, "CHECK_NULLABILITY", True):
-            if pd_c.get("not_null") != erwin_c.get("not_null"):
-                result.emit("NULLABILITY", category="NULLABILITY", table=tbl_code,
-                            column=col_key,
-                            message=f"Nullability mismatch on column '{col_key}'",
-                            pd_value="NOT NULL" if pd_c.get("not_null") else "NULL",
-                            erwin_value="NOT NULL" if erwin_c.get("not_null") else "NULL")
-
-        if getattr(config, "CHECK_DEFAULT_VALUES", True):
-            pd_def    = (pd_c.get("default") or "").strip()
-            erwin_def = (erwin_c.get("default") or "").strip()
-            if _key(pd_def) != _key(erwin_def):
-                result.emit("DEFAULT", category="DEFAULT", table=tbl_code, column=col_key,
-                            message=f"Default value mismatch on column '{col_key}'",
-                            pd_value=pd_def or "(none)", erwin_value=erwin_def or "(none)")
-
-        if len(result.findings) == _before:
-            result.emit("COLUMN_VERIFIED", category="COLUMN", table=tbl_code,
-                        column=col_key,
-                        message=f"Column '{col_key}' migrated intact — present in "
-                                f"ERwin with matching type, nullability and default",
-                        pd_value=pd_c.get("data_type", "") or "(untyped)",
-                        erwin_value=erwin_c.get("data_type", "") or "(untyped)")
+        _compare_matched_column(result, tbl_code, col_key,
+                                pd_map[col_key], erwin_map[col_key])
 
     return (len(matched), len(missing), len(extra),
             duplicate_pd, duplicate_erwin)
@@ -411,14 +444,14 @@ def _compare_primary_keys(result, tbl_code, pd_tbl, erwin_tbl):
     if pd_pk is None:
         result.emit("PRIMARY_KEY_PD_ONLY", category="PRIMARY_KEY", table=tbl_code,
                     message="No Primary Key in PowerDesigner; ERwin has one",
-                    pd_value="(none)", erwin_value=str(sorted(erwin_pk)))
+                    pd_value=NONE_VALUE, erwin_value=str(sorted(erwin_pk)))
         return
     if erwin_pk is None or not erwin_pk:
         # erwin sometimes does not serialise PK members for fully-migrated keys;
         # only flag if PD genuinely has PK columns and ERwin genuinely has none.
         result.emit("PRIMARY_KEY", category="PRIMARY_KEY", table=tbl_code,
                     message="Primary Key exists in PowerDesigner but NOT in ERwin",
-                    pd_value=str(sorted(pd_pk)), erwin_value="(none)")
+                    pd_value=str(sorted(pd_pk)), erwin_value=NONE_VALUE)
         return
     if set(pd_pk) != set(erwin_pk):
         result.emit("PRIMARY_KEY", category="PRIMARY_KEY", table=tbl_code,
@@ -445,80 +478,88 @@ def _fk_signature(ref: Dict) -> str:
     return f"{parent}→{child}:{joins}"
 
 
+def _group_references_by_signature(refs: List[Dict]) -> Dict[str, List[Dict]]:
+    grouped: Dict[str, List[Dict]] = {}
+    for reference in refs:
+        grouped.setdefault(_fk_signature(reference), []).append(reference)
+    return grouped
+
+
+def _emit_matched_references(result: ValidationResult, sig: str,
+                             references: List[Dict]) -> None:
+    for reference in references:
+        result.emit(
+            "REFERENCE_VERIFIED", category="FOREIGN_KEY",
+            table=f"{reference.get('parent_table', '?')}→{reference.get('child_table', '?')}",
+            column=reference.get("name") or reference.get("code", ""),
+            message=f"Reference '{reference.get('name') or reference.get('code', '?')}' "
+                    f"migrated intact — same parent/child and join columns",
+            pd_value=sig, erwin_value=sig)
+
+
+def _emit_missing_references(result: ValidationResult, sig: str,
+                             references: List[Dict]) -> None:
+    for reference in references:
+        result.emit(
+            "FOREIGN_KEY_MISSING", category="FOREIGN_KEY",
+            table=f"{reference.get('parent_table','?')}→{reference.get('child_table','?')}",
+            column=reference.get("name") or reference.get("code", ""),
+            message=f"FK '{reference.get('name','?')}' exists in PowerDesigner but NOT in ERwin",
+            pd_value=sig, erwin_value="—")
+
+
+def _emit_extra_references(result: ValidationResult, sig: str,
+                           references: List[Dict]) -> None:
+    for reference in references:
+        result.emit(
+            "FOREIGN_KEY_EXTRA", category="FOREIGN_KEY",
+            table=f"{reference.get('parent_table','?')}→{reference.get('child_table','?')}",
+            column=reference.get("name") or reference.get("code", ""),
+            message=f"FK '{reference.get('name','?')}' exists in ERwin but NOT in PowerDesigner",
+            pd_value="—", erwin_value=sig)
+
+
+def _emit_duplicate_reference(result: ValidationResult, sig: str,
+                              pd_side: List[Dict], erwin_side: List[Dict]) -> None:
+    if len(pd_side) <= 1:
+        return
+
+    names = ", ".join(r.get("name") or r.get("code", "?") for r in pd_side)
+    result.emit(
+        "FOREIGN_KEY_DUPLICATE", category="FOREIGN_KEY",
+        table=f"{pd_side[0].get('parent_table','?')}→{pd_side[0].get('child_table','?')}",
+        column=names,
+        message=f"{len(pd_side)} PowerDesigner references share one "
+                f"parent/child/join signature ({names}); erwin migrates "
+                f"the join column once per reference",
+        pd_value=sig, erwin_value=str(len(erwin_side)))
+
+
 def _compare_foreign_keys(result, pd_refs, erwin_refs):
-    """
-    Reconcile references one OBJECT at a time, not one signature at a time.
-
-    Keying references straight into ``{signature: reference}`` silently absorbed
-    every reference that shared a signature with another, so a PowerDesigner
-    model whose "List of References" shows 157 was reported as 154 and three
-    genuine duplicate references — the ones that make erwin migrate the same
-    column twice — never appeared anywhere in the workbook. Counting per object
-    keeps the totals honest:
-
-        fk_pd    == fk_matched + fk_missing_in_erwin
-        fk_erwin == fk_matched + fk_extra_in_erwin
-    """
-    pd_by_sig: Dict[str, List[Dict]] = {}
-    for reference in pd_refs:
-        pd_by_sig.setdefault(_fk_signature(reference), []).append(reference)
-    erwin_by_sig: Dict[str, List[Dict]] = {}
-    for reference in erwin_refs:
-        erwin_by_sig.setdefault(_fk_signature(reference), []).append(reference)
-
+    pd_by_sig = _group_references_by_signature(pd_refs)
+    erwin_by_sig = _group_references_by_signature(erwin_refs)
     matched = missing = extra = 0
 
     for sig in sorted(set(pd_by_sig) | set(erwin_by_sig)):
-        pd_side    = pd_by_sig.get(sig, [])
+        pd_side = pd_by_sig.get(sig, [])
         erwin_side = erwin_by_sig.get(sig, [])
         pair_count = min(len(pd_side), len(erwin_side))
         matched += pair_count
         missing += len(pd_side) - pair_count
-        extra   += len(erwin_side) - pair_count
+        extra += len(erwin_side) - pair_count
 
-        for reference in pd_side[:pair_count]:
-            result.emit(
-                "REFERENCE_VERIFIED", category="FOREIGN_KEY",
-                table=f"{reference.get('parent_table', '?')}→{reference.get('child_table', '?')}",
-                column=reference.get("name") or reference.get("code", ""),
-                message=f"Reference '{reference.get('name') or reference.get('code', '?')}' "
-                        f"migrated intact — same parent/child and join columns",
-                pd_value=sig, erwin_value=sig)
-        for reference in pd_side[pair_count:]:
-            result.emit(
-                "FOREIGN_KEY_MISSING", category="FOREIGN_KEY",
-                table=f"{reference.get('parent_table','?')}→{reference.get('child_table','?')}",
-                column=reference.get("name") or reference.get("code", ""),
-                message=f"FK '{reference.get('name','?')}' exists in PowerDesigner but NOT in ERwin",
-                pd_value=sig, erwin_value="—")
-        for reference in erwin_side[pair_count:]:
-            result.emit(
-                "FOREIGN_KEY_EXTRA", category="FOREIGN_KEY",
-                table=f"{reference.get('parent_table','?')}→{reference.get('child_table','?')}",
-                column=reference.get("name") or reference.get("code", ""),
-                message=f"FK '{reference.get('name','?')}' exists in ERwin but NOT in PowerDesigner",
-                pd_value="—", erwin_value=sig)
+        _emit_matched_references(result, sig, pd_side[:pair_count])
+        _emit_missing_references(result, sig, pd_side[pair_count:])
+        _emit_extra_references(result, sig, erwin_side[pair_count:])
+        _emit_duplicate_reference(result, sig, pd_side, erwin_side)
 
-        # Two references with an identical parent/child/join signature are the
-        # root cause of erwin's duplicate migrated columns; say so explicitly.
-        if len(pd_side) > 1:
-            names = ", ".join(r.get("name") or r.get("code", "?") for r in pd_side)
-            result.emit(
-                "FOREIGN_KEY_DUPLICATE", category="FOREIGN_KEY",
-                table=f"{pd_side[0].get('parent_table','?')}→{pd_side[0].get('child_table','?')}",
-                column=names,
-                message=f"{len(pd_side)} PowerDesigner references share one "
-                        f"parent/child/join signature ({names}); erwin migrates "
-                        f"the join column once per reference",
-                pd_value=sig, erwin_value=str(len(erwin_side)))
-
-    result.fk_pd      = len(pd_refs)
-    result.fk_erwin   = len(erwin_refs)
+    result.fk_pd = len(pd_refs)
+    result.fk_erwin = len(erwin_refs)
     result.fk_matched = matched
     result.fk_missing_in_erwin = missing
-    result.fk_extra_in_erwin   = extra
-    result.fk_duplicate_pd     = len(pd_refs) - len(pd_by_sig)
-    result.fk_duplicate_erwin  = len(erwin_refs) - len(erwin_by_sig)
+    result.fk_extra_in_erwin = extra
+    result.fk_duplicate_pd = len(pd_refs) - len(pd_by_sig)
+    result.fk_duplicate_erwin = len(erwin_refs) - len(erwin_by_sig)
 
 
 # ─── INDEXES ─────────────────────────────────────────────────────────────────
@@ -575,115 +616,137 @@ def _compare_indexes(result, tbl_code, pd_tbl, erwin_tbl):
 
 # ─── PUBLIC API ───────────────────────────────────────────────────────────────
 
-def compare(pd_model: Dict[str, Any], erwin_model: Dict[str, Any]) -> ValidationResult:
-    result = ValidationResult(
-        pd_file    = pd_model.get("source_file", ""),
-        erwin_file = erwin_model.get("source_file", ""),
-        pd_model   = pd_model.get("model_name", ""),
-        erwin_model= erwin_model.get("model_name", ""),
-    )
+def _parse_error_result(result: ValidationResult, model: Dict[str, Any],
+                        source_label: str) -> bool:
+    if "error" not in model:
+        return False
+    result.status = "ERROR"
+    result.add(Finding("PARSE_ERROR", "CRITICAL",
+                       message=f"{source_label} parse error: {model['error']}"))
+    result.compute_score()
+    return True
 
-    if "error" in pd_model:
-        result.status = "ERROR"
-        result.add(Finding("PARSE_ERROR", "CRITICAL",
-                           message=f"PD parse error: {pd_model['error']}"))
-        result.compute_score()
-        return result
-    if "error" in erwin_model:
-        result.status = "ERROR"
-        result.add(Finding("PARSE_ERROR", "CRITICAL",
-                           message=f"ERwin parse error: {erwin_model['error']}"))
-        result.compute_score()
-        return result
 
-    pd_tables    = pd_model.get("tables", {})
-    erwin_tables = erwin_model.get("tables", {})
-    pd_keys    = {_key(k): v for k, v in pd_tables.items()}
-    erwin_keys = {_key(k): v for k, v in erwin_tables.items()}
-    pd_names, erwin_names = set(pd_keys), set(erwin_keys)
-
-    # Tables that collided on physical name were dropped by the parsers. Add
-    # them back into the totals and report them, so "Tables (SAP PD)" is the
-    # number PowerDesigner's own List of Tables shows and a dropped table is
-    # never invisible.
-    pd_dupe_tables    = pd_model.get("duplicate_tables", {}) or {}
+def _report_duplicate_tables(result: ValidationResult, pd_model: Dict[str, Any],
+                             erwin_model: Dict[str, Any]) -> None:
+    pd_dupe_tables = pd_model.get("duplicate_tables", {}) or {}
     erwin_dupe_tables = erwin_model.get("duplicate_tables", {}) or {}
-    result.tables_duplicate_pd    = sum(n - 1 for n in pd_dupe_tables.values())
+    result.tables_duplicate_pd = sum(n - 1 for n in pd_dupe_tables.values())
     result.tables_duplicate_erwin = sum(n - 1 for n in erwin_dupe_tables.values())
+
     for code, count in sorted(pd_dupe_tables.items()):
         result.emit("TABLE_DUPLICATE", category="TABLE", table=code,
                     message=f"{count} PowerDesigner tables share the physical "
                             f"name '{code}'; only the first was compared",
                     pd_value=f"{count} tables", erwin_value="1 compared")
+
     for code, count in sorted(erwin_dupe_tables.items()):
         result.emit("TABLE_DUPLICATE", category="TABLE", table=code,
                     message=f"{count} ERwin entities share the physical name "
                             f"'{code}'; only the first was compared",
                     pd_value="1 compared", erwin_value=f"{count} entities")
 
-    result.tables_pd    = len(pd_keys) + result.tables_duplicate_pd
+
+def _set_model_counts(result: ValidationResult, pd_keys: Dict[str, Dict],
+                      erwin_keys: Dict[str, Dict]) -> None:
+    pd_names, erwin_names = set(pd_keys), set(erwin_keys)
+    result.tables_pd = len(pd_keys) + result.tables_duplicate_pd
     result.tables_erwin = len(erwin_keys) + result.tables_duplicate_erwin
     result.tables_matched = len(pd_names & erwin_names)
-
-    # Column totals across ALL tables (denominator for fidelity + summary).
-    result.columns_pd    = sum(len(t.get("columns", [])) for t in pd_keys.values())
+    result.columns_pd = sum(len(t.get("columns", [])) for t in pd_keys.values())
     result.columns_erwin = sum(len(t.get("columns", [])) for t in erwin_keys.values())
-
-    # Key / index totals for the SUMMARY census columns.
-    result.keys_pd       = sum(len(t.get("keys", [])) for t in pd_keys.values())
-    result.keys_erwin    = sum(len(t.get("keys", [])) for t in erwin_keys.values())
-    result.indexes_pd    = sum(len(t.get("indexes", [])) for t in pd_keys.values())
+    result.keys_pd = sum(len(t.get("keys", [])) for t in pd_keys.values())
+    result.keys_erwin = sum(len(t.get("keys", [])) for t in erwin_keys.values())
+    result.indexes_pd = sum(len(t.get("indexes", [])) for t in pd_keys.values())
     result.indexes_erwin = sum(len(t.get("indexes", [])) for t in erwin_keys.values())
 
-    # ── Table presence ────────────────────────────────────────────────────────
+
+def _compare_table_presence(result: ValidationResult, pd_keys: Dict[str, Dict],
+                            erwin_keys: Dict[str, Dict]) -> None:
+    if not getattr(config, "CHECK_TABLES", True):
+        return
+
+    pd_names, erwin_names = set(pd_keys), set(erwin_keys)
+    for tbl in sorted(pd_names - erwin_names):
+        result.tables_missing_in_erwin += 1
+        result.emit("TABLE_MISSING", category="TABLE", table=tbl,
+                    message=f"Table '{tbl}' in PowerDesigner is MISSING from ERwin",
+                    pd_value=tbl, erwin_value="—")
+        result.columns_missing_in_erwin += len(pd_keys[tbl].get("columns", []))
+
+    for tbl in sorted(erwin_names - pd_names):
+        result.tables_extra_in_erwin += 1
+        result.emit("TABLE_EXTRA", category="TABLE", table=tbl,
+                    message=f"Table '{tbl}' in ERwin does NOT exist in PowerDesigner",
+                    pd_value="—", erwin_value=tbl)
+        result.columns_extra_in_erwin += len(erwin_keys[tbl].get("columns", []))
+
+
+def _compare_matched_table(result: ValidationResult, tbl_key: str,
+                           pd_tbl: Dict, erwin_tbl: Dict) -> None:
     if getattr(config, "CHECK_TABLES", True):
-        for tbl in sorted(pd_names - erwin_names):
-            result.tables_missing_in_erwin += 1
-            result.emit("TABLE_MISSING", category="TABLE", table=tbl,
-                        message=f"Table '{tbl}' in PowerDesigner is MISSING from ERwin",
-                        pd_value=tbl, erwin_value="—")
-            # every column of a dropped table is a missing column
-            result.columns_missing_in_erwin += len(pd_keys[tbl].get("columns", []))
-        for tbl in sorted(erwin_names - pd_names):
-            result.tables_extra_in_erwin += 1
-            result.emit("TABLE_EXTRA", category="TABLE", table=tbl,
-                        message=f"Table '{tbl}' in ERwin does NOT exist in PowerDesigner",
-                        pd_value="—", erwin_value=tbl)
-            result.columns_extra_in_erwin += len(erwin_keys[tbl].get("columns", []))
+        result.emit("TABLE_VERIFIED", category="TABLE", table=tbl_key,
+                    message=f"Table '{tbl_key}' migrated — present in both models",
+                    pd_value=f"{len(pd_tbl.get('columns', []))} column(s)",
+                    erwin_value=f"{len(erwin_tbl.get('columns', []))} column(s)")
 
-    # ── Per-matched-table checks ────────────────────────────────────────────────
-    for tbl_key in sorted(pd_names & erwin_names):
-        pd_tbl, erwin_tbl = pd_keys[tbl_key], erwin_keys[tbl_key]
+    if getattr(config, "CHECK_COLUMNS", True):
+        matched, missing, extra, dup_pd, dup_er = _compare_columns(
+            result, tbl_key, pd_tbl.get("columns", []), erwin_tbl.get("columns", []))
+        result.columns_matched += matched
+        result.columns_missing_in_erwin += missing
+        result.columns_extra_in_erwin += extra
+        result.columns_duplicate_pd += dup_pd
+        result.columns_duplicate_erwin += dup_er
 
-        if getattr(config, "CHECK_TABLES", True):
-            result.emit(
-                "TABLE_VERIFIED", category="TABLE", table=tbl_key,
-                message=f"Table '{tbl_key}' migrated — present in both models",
-                pd_value=f"{len(pd_tbl.get('columns', []))} column(s)",
-                erwin_value=f"{len(erwin_tbl.get('columns', []))} column(s)")
+    if getattr(config, "CHECK_PRIMARY_KEYS", True):
+        _compare_primary_keys(result, tbl_key, pd_tbl, erwin_tbl)
+    if getattr(config, "CHECK_INDEXES", True):
+        _compare_indexes(result, tbl_key, pd_tbl, erwin_tbl)
 
-        if getattr(config, "CHECK_COLUMNS", True):
-            m, miss, ext, dup_pd, dup_er = _compare_columns(
-                result, tbl_key,
-                pd_tbl.get("columns", []),
-                erwin_tbl.get("columns", []))
-            result.columns_matched += m
-            result.columns_missing_in_erwin += miss
-            result.columns_extra_in_erwin += ext
-            result.columns_duplicate_pd += dup_pd
-            result.columns_duplicate_erwin += dup_er
 
-        if getattr(config, "CHECK_PRIMARY_KEYS", True):
-            _compare_primary_keys(result, tbl_key, pd_tbl, erwin_tbl)
+def _compare_all_matched_tables(result: ValidationResult, pd_keys: Dict[str, Dict],
+                                erwin_keys: Dict[str, Dict]) -> None:
+    for tbl_key in sorted(set(pd_keys) & set(erwin_keys)):
+        _compare_matched_table(result, tbl_key, pd_keys[tbl_key], erwin_keys[tbl_key])
 
-        if getattr(config, "CHECK_INDEXES", True):
-            _compare_indexes(result, tbl_key, pd_tbl, erwin_tbl)
 
-    # ── Foreign keys (model level) ──────────────────────────────────────────────
+def compare(pd_model: Dict[str, Any], erwin_model: Dict[str, Any]) -> ValidationResult:
+    result = ValidationResult(
+        pd_file=pd_model.get("source_file", ""),
+        erwin_file=erwin_model.get("source_file", ""),
+        pd_model=pd_model.get("model_name", ""),
+        erwin_model=erwin_model.get("model_name", ""),
+    )
+
+    if _parse_error_result(result, pd_model, "PD"):
+        return result
+    if _parse_error_result(result, erwin_model, "ERwin"):
+        return result
+
+    pd_tables = pd_model.get("tables", {})
+    erwin_tables = erwin_model.get("tables", {})
+    pd_keys = {_key(k): v for k, v in pd_tables.items()}
+    erwin_keys = {_key(k): v for k, v in erwin_tables.items()}
+
+    _report_duplicate_tables(result, pd_model, erwin_model)
+    _set_model_counts(result, pd_keys, erwin_keys)
+    _compare_table_presence(result, pd_keys, erwin_keys)
+    _compare_all_matched_tables(result, pd_keys, erwin_keys)
+
     if getattr(config, "CHECK_FOREIGN_KEYS", True):
         _compare_foreign_keys(result, pd_model.get("references", []),
                               erwin_model.get("references", []))
 
     result.compute_status()
     result.compute_score()
+
+    # ─── UDP FIDELITY ─────────────────────────────────────────────────────────
+    # Added by the UDP integration. Scores SAP PD Extended Attributes against
+    # the UDPs the erwin export carries and blends the result into the fidelity
+    # score, preserving the reconciliation number on
+    # result.structural_fidelity_score. Runs AFTER the score is computed, so it
+    # cannot influence a single finding, and it never raises.
+    if udp_fidelity is not None:
+        udp_fidelity.apply(result, "PDM")
     return result

@@ -92,7 +92,7 @@ def _split_type_and_precision(dtype: str):
     Split 'INTEGER'       → ('integer', '')
     """
     dtype = dtype.strip()
-    m = re.match(r"^([a-zA-Z][a-zA-Z0-9_ ]*?)\s*(?:\(([^)]*)\))?$", dtype)
+    m = re.match(r"^([a-zA-Z]\w*(?:[ \t]+\w+)*)\s*(?:\(([^)]*)\))?$", dtype)
     if m:
         base = m.group(1).strip().lower()
         prec = (m.group(2) or "").strip()

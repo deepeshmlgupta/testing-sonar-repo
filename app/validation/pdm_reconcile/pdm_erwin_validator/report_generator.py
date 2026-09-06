@@ -102,14 +102,18 @@ SUMMARY_HEADERS = [
 ]
 
 
-def _build_summary(wb: Workbook, results: List[ValidationResult]):
-    ws = wb.active
-    ws.title = "SUMMARY"
-    ws.freeze_panes = "C3"
-    ws.row_dimensions[1].height = 22
-    ws.row_dimensions[2].height = 32
+SUMMARY_TOTAL_COLUMNS = [
+    (9, "tables_pd"), (10, "tables_erwin"), (11, "tables_matched"),
+    (12, "tables_missing_in_erwin"), (13, "tables_extra_in_erwin"),
+    (14, "columns_pd"), (15, "columns_erwin"), (16, "columns_matched"),
+    (17, "columns_missing_in_erwin"), (18, "columns_extra_in_erwin"),
+    (19, "fk_pd"), (20, "fk_erwin"), (21, "fk_matched"),
+    (22, "fk_missing_in_erwin"), (23, "fk_extra_in_erwin"),
+    (24, "critical_count"), (25, "warning_count"), (26, "info_count"),
+]
 
-    last_col = get_column_letter(len(SUMMARY_HEADERS))
+
+def _summary_banner(ws, last_col: str):
     ws.merge_cells(f"A1:{last_col}1")
     banner = ws["A1"]
     banner.value = ("PDM → ERwin  |  Physical Model Validation Report"
@@ -118,67 +122,59 @@ def _build_summary(wb: Workbook, results: List[ValidationResult]):
     banner.fill = HEADER_FILL
     banner.alignment = CENTER
 
-    _header_row(ws, SUMMARY_HEADERS, 2)
 
-    totals = {"PASS": 0, "WARN": 0, "FAIL": 0, "ERROR": 0}  # nosec B105
-    review_threshold = getattr(config, "FIDELITY_REVIEW_THRESHOLD", 90.0)
+def _summary_values(idx: int, r: ValidationResult) -> list:
+    """One SUMMARY row's cell values, in column order."""
+    return [
+        idx,
+        os.path.basename(r.pd_file),
+        os.path.basename(r.erwin_file),
+        r.pd_model,
+        r.erwin_model,
+        r.status,
+        r.fidelity_score,
+        "YES" if r.needs_review else "",
+        r.tables_pd, r.tables_erwin, r.tables_matched,
+        r.tables_missing_in_erwin, r.tables_extra_in_erwin,
+        r.columns_pd, r.columns_erwin, r.columns_matched,
+        r.columns_missing_in_erwin, r.columns_extra_in_erwin,
+        r.fk_pd, r.fk_erwin, r.fk_matched,
+        r.fk_missing_in_erwin, r.fk_extra_in_erwin,
+        r.critical_count, r.warning_count, r.info_count,
+    ]
 
-    for idx, r in enumerate(results, start=1):
-        row = idx + 2
-        _data_row(ws, [
-            idx,
-            os.path.basename(r.pd_file),
-            os.path.basename(r.erwin_file),
-            r.pd_model,
-            r.erwin_model,
-            r.status,
-            r.fidelity_score,
-            "YES" if r.needs_review else "",
-            r.tables_pd, r.tables_erwin, r.tables_matched,
-            r.tables_missing_in_erwin, r.tables_extra_in_erwin,
-            r.columns_pd, r.columns_erwin, r.columns_matched,
-            r.columns_missing_in_erwin, r.columns_extra_in_erwin,
-            r.fk_pd, r.fk_erwin, r.fk_matched,
-            r.fk_missing_in_erwin, r.fk_extra_in_erwin,
-            r.critical_count, r.warning_count, r.info_count,
-        ], row, alt=(idx % 2 == 0))
 
-        status_cell = ws.cell(row=row, column=6)
-        status_cell.fill = STATUS_FILL.get(r.status, PatternFill())
-        status_cell.font = Font(bold=True,
-                                color=C_WHITE if r.status in ("FAIL", "ERROR") else "FF000000")
-        status_cell.alignment = CENTER
+def _paint_summary_row(ws, row: int, r: ValidationResult, review_threshold: float):
+    """Status, fidelity and finding-count emphasis for one SUMMARY row."""
+    status_cell = ws.cell(row=row, column=6)
+    status_cell.fill = STATUS_FILL.get(r.status, PatternFill())
+    status_cell.font = Font(bold=True,
+                            color=C_WHITE if r.status in ("FAIL", "ERROR") else "FF000000")
+    status_cell.alignment = CENTER
 
-        fid = ws.cell(row=row, column=7)
-        fid.number_format = "0.00"
-        fid.alignment = CENTER
-        if r.fidelity_score < 90:
-            fid.font = Font(bold=True, color=C_DARKRED)
-        elif r.fidelity_score < review_threshold:
-            fid.font = Font(bold=True, color="FFBF8F00")
-        else:
-            fid.font = Font(bold=True, color="FF375623")
+    fid = ws.cell(row=row, column=7)
+    fid.number_format = "0.00"
+    fid.alignment = CENTER
+    if r.fidelity_score < 90:
+        fid.font = Font(bold=True, color=C_DARKRED)
+    elif r.fidelity_score < review_threshold:
+        fid.font = Font(bold=True, color="FFBF8F00")
+    else:
+        fid.font = Font(bold=True, color="FF375623")
 
-        ws.cell(row=row, column=24).font = Font(bold=True, color=C_RED) if r.critical_count else Font()
-        ws.cell(row=row, column=25).font = Font(bold=True, color=C_DARKRED) if r.warning_count else Font()
-        totals[r.status if r.status in totals else "ERROR"] += 1
+    ws.cell(row=row, column=24).font = Font(bold=True, color=C_RED) if r.critical_count else Font()
+    ws.cell(row=row, column=25).font = Font(bold=True, color=C_DARKRED) if r.warning_count else Font()
 
-    # Totals row
-    trow = len(results) + 3
+
+def _write_summary_totals(ws, results: List[ValidationResult], trow: int):
     ws.cell(trow, 1, "TOTAL").font = Font(bold=True)
     def _sum(attr): return sum(getattr(r, attr) for r in results)
-    for col, attr in [
-        (9, "tables_pd"), (10, "tables_erwin"), (11, "tables_matched"),
-        (12, "tables_missing_in_erwin"), (13, "tables_extra_in_erwin"),
-        (14, "columns_pd"), (15, "columns_erwin"), (16, "columns_matched"),
-        (17, "columns_missing_in_erwin"), (18, "columns_extra_in_erwin"),
-        (19, "fk_pd"), (20, "fk_erwin"), (21, "fk_matched"),
-        (22, "fk_missing_in_erwin"), (23, "fk_extra_in_erwin"),
-        (24, "critical_count"), (25, "warning_count"), (26, "info_count"),
-    ]:
+    for col, attr in SUMMARY_TOTAL_COLUMNS:
         ws.cell(trow, col, _sum(attr)).font = Font(bold=True)
 
-    # Stats block on the right
+
+def _write_summary_stats(ws, results: List[ValidationResult], totals: dict):
+    """Stats block on the right."""
     stats_col = len(SUMMARY_HEADERS) + 2
     avg_fid = (round(sum(r.fidelity_score for r in results) / len(results), 2)
                if results else 0.0)
@@ -194,6 +190,34 @@ def _build_summary(wb: Workbook, results: List[ValidationResult]):
     for i, (lbl, val) in enumerate(stat_labels, start=2):
         ws.cell(i, stats_col, lbl).font = Font(bold=True)
         ws.cell(i, stats_col + 1, val)
+
+
+def _build_summary(wb: Workbook, results: List[ValidationResult]):
+    ws = wb.active
+    ws.title = "SUMMARY"
+    ws.freeze_panes = "C3"
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 32
+
+    last_col = get_column_letter(len(SUMMARY_HEADERS))
+    _summary_banner(ws, last_col)
+
+    _header_row(ws, SUMMARY_HEADERS, 2)
+
+    totals = {"PASS": 0, "WARN": 0, "FAIL": 0, "ERROR": 0}  # nosec B105
+    review_threshold = getattr(config, "FIDELITY_REVIEW_THRESHOLD", 90.0)
+
+    for idx, r in enumerate(results, start=1):
+        row = idx + 2
+        _data_row(ws, _summary_values(idx, r), row, alt=(idx % 2 == 0))
+        _paint_summary_row(ws, row, r, review_threshold)
+        totals[r.status if r.status in totals else "ERROR"] += 1
+
+    # Totals row
+    _write_summary_totals(ws, results, len(results) + 3)
+
+    # Stats block on the right
+    _write_summary_stats(ws, results, totals)
 
     widths = [5, 30, 30, 20, 20, 8, 10, 8,
               10, 12, 12, 10, 9, 11, 13, 13, 10, 9,
