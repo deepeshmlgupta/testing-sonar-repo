@@ -152,7 +152,7 @@ def _pd_attr(elem: ET.Element, name: str) -> str:
     """
     uri = _PD_NS["a"]
     suffix = "." + name
-    for child in elem:
+    for child in list(elem):
         tag = child.tag
         if isinstance(tag, str) and tag.startswith(f"{{{uri}}}"):
             local = tag.split("}", 1)[1]
@@ -239,7 +239,7 @@ def _local(tag: Any) -> str:
 
 
 def _props(elem: ET.Element) -> Optional[ET.Element]:
-    for child in elem:
+    for child in list(elem):
         if _local(child.tag).endswith("Props"):
             return child
     return None
@@ -254,7 +254,7 @@ def _first_value(values) -> str:
 
 
 def _child_value(elem: ET.Element, name: str) -> str:
-    for child in elem:
+    for child in list(elem):
         if _local(child.tag) == name and child.text and child.text.strip():
             return child.text.strip()
     return ""

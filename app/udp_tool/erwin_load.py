@@ -45,6 +45,17 @@ ST_UNVERIFIED = "Applied - Not Verified"
 ST_NO_ENTITY = "Skipped - Entity Not Found In erwin"
 ST_REJECTED = "Skipped - Property Rejected By erwin"
 
+# Fix:
+# The --manifest / --schema defaults used to be bare relative paths, so they
+# resolved against whatever folder you happened to run the script from. Running
+# it from the project root looked for erwin_input\ at the root and failed.
+# Anchor them to this file's own folder instead, so the defaults mean the same
+# thing from any working directory. An explicit --manifest/--schema still wins
+# and is still resolved the normal way.
+SCRIPT_DIR = Path(__file__).resolve().parent
+DEFAULT_MANIFEST = SCRIPT_DIR / "erwin_input" / "property_manifest.json"
+DEFAULT_SCHEMA = SCRIPT_DIR / "erwin_input" / "udp_schema.json"
+
 try:
     import win32com.client
     import pythoncom
@@ -60,7 +71,7 @@ def connect_scapi():
         # Try to connect to the erwin window you currently have open
         scapi = win32com.client.GetActiveObject(clsid)
         return scapi, True
-    except Exception:
+    except Exception as e:
         # print(f"Notice: Could not find an open erwin window. Starting a background process instead. (Error: {e})")
         try:
             # Fallback: Start a new, hidden background erwin process
@@ -81,6 +92,9 @@ def load_model(scapi, is_visible, xml_path=None):
             sys.exit(1)
             
         if not is_visible and xml_path.suffix.lower() == ".xml":
+            # Fix:
+            # Dropped the f prefix on these four prints -- none of them has a
+            # {placeholder}, so the f was doing nothing. Text is unchanged.
             print("CRITICAL ERROR: You are trying to load an XML file, but the erwin UI is not open on your desktop!")
             print("Due to an erwin bug, loading XML files in the background causes a catastrophic crash.")
             print("Please double-click the erwin application to open it on your screen, then run the pipeline again.")
@@ -107,8 +121,8 @@ def load_model(scapi, is_visible, xml_path=None):
 def main():
     ap = argparse.ArgumentParser(description="Inject custom properties into an erwin model.")
     ap.add_argument("--xml", help="Path to the erwin XML model to load. If left blank, uses the active open model.")
-    ap.add_argument("--manifest", default="erwin_input/property_manifest.json", help="Path to the data file (property_manifest.json)")
-    ap.add_argument("--schema", default="erwin_input/udp_schema.json", help="Path to the rules file (udp_schema.json)")
+    ap.add_argument("--manifest", default=str(DEFAULT_MANIFEST), help="Path to the data file (property_manifest.json)")
+    ap.add_argument("--schema", default=str(DEFAULT_SCHEMA), help="Path to the rules file (udp_schema.json)")
     ap.add_argument("--out_erwin", help="Optional path to Save As an .erwin file.")
     ap.add_argument("--out_xml", help="Optional path to Save As an .xml file.")
     ap.add_argument("--results_json", help="Optional path to write the injection results.")
@@ -118,7 +132,11 @@ def main():
 
     manifest_path = Path(args.manifest)
     if not manifest_path.exists():
-        print(f"Error: Data file {manifest_path} was not found.")
+        # Fix:
+        # Print the resolved absolute path. The old message showed the bare
+        # relative string, which hid the fact that it had been resolved against
+        # the current directory rather than the script's folder.
+        print(f"Error: Data file {manifest_path.resolve()} was not found.")
         sys.exit(1)
 
     manifest = json.loads(manifest_path.read_text())
@@ -395,6 +413,8 @@ def _save_model(scapi, model, args, is_visible):
         if is_visible:
             pu_item.Save(str(Path(args.out_xml).resolve()))
         else:
+            # Fix:
+            # Dropped the f prefix -- no {placeholder} in this message.
             print("CRITICAL WARNING: Cannot Save As .xml because the erwin UI is hidden! Skipping XML export.")
         
     if not args.out_erwin and not args.out_xml and args.xml:

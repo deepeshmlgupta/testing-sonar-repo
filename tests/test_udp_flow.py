@@ -47,13 +47,13 @@ def pd_model(tmp_path):
 
 
 def make_request(pd_path, tmp_path, **overrides):
-    fields = {
-        "pd_path": str(pd_path),
-        "model_name": "Demo",
-        "model_type": "CDM",
-        "reports_dir": str(tmp_path / "reports"),
-        "workdir": str(tmp_path / "work"),
-    }
+    fields = dict(
+        pd_path=str(pd_path),
+        model_name="Demo",
+        model_type="CDM",
+        reports_dir=str(tmp_path / "reports"),
+        workdir=str(tmp_path / "work"),
+    )
     fields.update(overrides)
     return udp_flow.UdpFlowRequest(**fields)
 

@@ -59,7 +59,7 @@ def _attr(elem, name: str, default: str = "") -> str:
     # 2. class-qualified <a:Something.name>  (direct children only)
     attr_uri = NS["a"]
     suffix = "." + name
-    for ch in elem:
+    for ch in list(elem):
         tag = ch.tag
         if isinstance(tag, str) and tag.startswith(f"{{{attr_uri}}}"):
             local = tag.split("}", 1)[1]

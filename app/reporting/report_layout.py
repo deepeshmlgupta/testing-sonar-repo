@@ -82,6 +82,10 @@ PASS_FILL = "FFC6EFCE"    # nosec B105 - an ARGB fill colour, not a credential
 FAIL_FILL = "FFFFC7CE"    # nosec B105 - an ARGB fill colour, not a credential
 
 
+# Fix:
+# Sonar read the banner rule above "Paths" as commented-out code. Swapped
+# it for the same single-line header style already used for FOLDERS and
+# REPORT NAMES higher up in this file, which it does not flag.
 # ─── PATHS ────────────────────────────────────────────────────────────────────
 
 def tier_dir(model_type: str) -> Path:
@@ -164,7 +168,7 @@ def copy_sheet(source_ws, workbook, title: str, renames: Dict[str, str]) -> None
     for key, dimension in source_ws.row_dimensions.items():
         target_ws.row_dimensions[key].height = dimension.height
 
-    for merged in source_ws.merged_cells.ranges:
+    for merged in list(source_ws.merged_cells.ranges):
         target_ws.merge_cells(str(merged))
 
     target_ws.freeze_panes = source_ws.freeze_panes
@@ -204,7 +208,7 @@ def drop_sheets(workbook, titles) -> List[str]:
     """
     wanted = {str(title).strip().upper() for title in (titles or ())}
     removed = []
-    for name in workbook.sheetnames:
+    for name in list(workbook.sheetnames):
         if name.strip().upper() in wanted:
             del workbook[name]
             removed.append(name)

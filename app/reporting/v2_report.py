@@ -65,25 +65,17 @@ def _counts(udp) -> dict:
         return {}
 
 
-def _udp_attr(udp, name: str, default: Any = None) -> Any:
-    """Attribute of the UDP outcome, or `default` when there is no outcome."""
-    if udp is None:
-        return default
-    return getattr(udp, name, default)
+def _mapping_rows(request: V2ReportRequest) -> List[Tuple[str, Any, str]]:
+    from app.validation import fidelity_stages
 
+    udp = request.udp_outcome
+    result = request.result
+    counts = _counts(udp)
 
-def _identity_rows(request: V2ReportRequest) -> List[Tuple[str, Any, str]]:
-    return [
+    rows: List[Tuple[str, Any, str]] = [
         ("Model", request.model_name, ""),
         ("Model type", request.model_type, ""),
-        ("SAP PD file",
-         os.path.basename(str(getattr(request.result, "pd_file", "") or "")), ""),
-    ]
-
-
-def _mapping_section(udp) -> List[Tuple[str, Any, str]]:
-    """MAPPING — SAP PD Extended Attributes Text to erwin UDPs."""
-    return [
+        ("SAP PD file", os.path.basename(str(getattr(result, "pd_file", "") or "")), ""),
         ("", "", ""),
         ("MAPPING — SAP PD Extended Attributes Text to erwin UDPs", "", ""),
         ("UDP definitions mapped",
@@ -95,49 +87,37 @@ def _mapping_section(udp) -> List[Tuple[str, Any, str]]:
         ("Mapping artefacts",
          os.path.dirname(str(getattr(udp, "manifest_path", "") or "")) or layout.NOT_AVAILABLE,
          "Per-model working directory"),
-    ]
-
-
-def _enrichment_section(udp) -> List[Tuple[str, Any, str]]:
-    """ENRICHMENT — erwin V1 to erwin V2."""
-    return [
         ("", "", ""),
         ("ENRICHMENT — erwin V1 to erwin V2", "", ""),
         ("UDPs injected into erwin",
          "Yes" if getattr(udp, "injected", False) else "No", ""),
         ("Enrichment stage",
-         _udp_attr(udp, "stage", layout.NOT_AVAILABLE),
+         getattr(udp, "stage", layout.NOT_AVAILABLE) if udp is not None else layout.NOT_AVAILABLE,
          "SKIPPED / EXTRACTED / INJECTED / COMPARED / FAILED"),
         ("erwin model read back",
          os.path.basename(str(getattr(udp, "erwin_read", "") or "")) or layout.NOT_AVAILABLE,
          "The .erwin binary the comparison was taken from"),
         ("Read-back method",
-         _udp_attr(udp, "readback_method", "") or layout.NOT_AVAILABLE,
+         (getattr(udp, "readback_method", "") or layout.NOT_AVAILABLE)
+         if udp is not None else layout.NOT_AVAILABLE,
          "com = erwin SCAPI; binary = independent file decode"),
         ("Read-back reliable", _reliability(udp),
          "The binary decoder scores itself and refuses to report below 80%"),
-    ]
-
-
-def _verification_section(udp, counts: dict) -> List[Tuple[str, Any, str]]:
-    """VERIFICATION — what erwin actually holds, plus the per-status tally."""
-    rows: List[Tuple[str, Any, str]] = [
         ("", "", ""),
         ("VERIFICATION — what erwin actually holds", "", ""),
-        ("UDP values compared", _udp_attr(udp, "udp_values", 0), ""),
+        ("UDP values compared",
+         getattr(udp, "udp_values", 0) if udp is not None else 0, ""),
         ("UDP mapping pass rate %",
-         _percent(_udp_attr(udp, "pass_rate", None)),
+         _percent(getattr(udp, "pass_rate", None)) if udp is not None else layout.NOT_AVAILABLE,
          "Share of SAP values present and equal in the enriched erwin model"),
-        ("Verdict", _udp_attr(udp, "verdict", layout.NOT_AVAILABLE), ""),
+        ("Verdict",
+         getattr(udp, "verdict", layout.NOT_AVAILABLE) if udp is not None else layout.NOT_AVAILABLE,
+         ""),
     ]
     for status, count in sorted(counts.items()):
         rows.append((f"    {status}", count, ""))
-    return rows
 
-
-def _fidelity_section(result, fidelity_stages) -> List[Tuple[str, Any, str]]:
-    """V2 FIDELITY (after preprocessing, before enrichment is scored)."""
-    return [
+    rows.extend([
         ("", "", ""),
         ("V2 FIDELITY (after preprocessing, before enrichment is scored)", "", ""),
         ("V2 fidelity %", _percent(fidelity_stages.stage_value(result, fidelity_stages.STAGE_V2)),
@@ -148,33 +128,12 @@ def _fidelity_section(result, fidelity_stages) -> List[Tuple[str, Any, str]]:
          "Comments / Descriptions / Annotations that survived"),
         ("UDP fidelity % (erwin XML)", _percent(getattr(result, "udp_fidelity_score", None)),
          "The XML export carries no UDPs — the enriched binary is the evidence above"),
-    ]
-
-
-def _notes_section(udp) -> List[Tuple[str, Any, str]]:
-    rows: List[Tuple[str, Any, str]] = [
         ("", "", ""),
-        ("Notes", " | ".join(_udp_attr(udp, "messages", []) or []), ""),
-    ]
-    error = _udp_attr(udp, "error", "")
+        ("Notes", " | ".join(getattr(udp, "messages", []) or []) if udp is not None else "", ""),
+    ])
+    error = getattr(udp, "error", "") if udp is not None else ""
     if error:
         rows.append(("Error", error, ""))
-    return rows
-
-
-def _mapping_rows(request: V2ReportRequest) -> List[Tuple[str, Any, str]]:
-    from app.validation import fidelity_stages
-
-    udp = request.udp_outcome
-    counts = _counts(udp)
-
-    rows: List[Tuple[str, Any, str]] = []
-    rows.extend(_identity_rows(request))
-    rows.extend(_mapping_section(udp))
-    rows.extend(_enrichment_section(udp))
-    rows.extend(_verification_section(udp, counts))
-    rows.extend(_fidelity_section(request.result, fidelity_stages))
-    rows.extend(_notes_section(udp))
     return rows
 
 

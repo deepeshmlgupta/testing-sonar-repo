@@ -26,7 +26,7 @@ from collections import Counter
 from pathlib import Path
 
 # erwin UDP names cannot contain dots or spaces.
-SAFE = re.compile(r"\W")
+SAFE = re.compile(r"[^A-Za-z0-9_]")
 
 # Structural UDPs that must exist regardless of the source model.
 STRUCTURAL = [
@@ -42,7 +42,7 @@ STRUCTURAL = [
 
 BOOLEANS = {"true", "false"}
 DATE_RE = re.compile(r"^\d{1,4}[-/]\d{1,2}[-/]\d{1,4}")
-GUID_RE = re.compile(r"^\{?[\dA-Fa-f]{8}-")
+GUID_RE = re.compile(r"^\{?[0-9A-Fa-f]{8}-")
 
 
 def udp_name(path: str) -> str:
@@ -133,6 +133,7 @@ def main():
 
     profile = json.loads((a.baseline / "extended_attributes.json").read_text())
     entities = json.loads((a.baseline / "entities.json").read_text())
+    counts = json.loads((a.baseline / "counts.json").read_text())
 
     schema = build_udp_schema(profile)
     (a.outdir / "udp_schema.json").write_text(json.dumps(schema, indent=2))
@@ -155,6 +156,7 @@ def main():
         w.writeheader()
         w.writerows(manifest)
 
+    lists = [r for r in schema if r["type"] == "List"]
     print(f"       Extracted {len(schema)} UDPs and {len(manifest)} property values.")
 
 

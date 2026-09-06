@@ -108,7 +108,7 @@ def test_parse_extended_attributes_text_handles_nesting_and_multiline():
 
 def test_pd_extraction_skips_placeholders_and_pointer_stubs(files):
     pd_file, _ = files
-    values, stats, _ = uf.extract_pd_udps(pd_file)
+    values, stats, notes = uf.extract_pd_udps(pd_file)
     names = sorted((v.object_type, v.object_name, v.udp_name) for v in values)
     assert names == [
         ("ATTRIBUTE", "Customer Id", "PII"),

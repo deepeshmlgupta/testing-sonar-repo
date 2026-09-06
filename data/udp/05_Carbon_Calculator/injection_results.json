@@ -3,8 +3,8 @@
   "erwin_source": "app\\udp_tool\\input_erwin_models\\05_Carbon_Calculator.erwin",
   "erwin_output": "erwinmodels\\2_preprocessed\\erwin\\05_Carbon_Calculator.erwin",
   "session": "Background erwin process",
-  "started": "2026-09-05 21:16:56",
-  "finished": "2026-09-05 21:17:04",
+  "started": "2026-09-05 20:23:22",
+  "finished": "2026-09-05 20:23:41",
   "entities_in_erwin": 102,
   "totals": {
     "applied": 1541,

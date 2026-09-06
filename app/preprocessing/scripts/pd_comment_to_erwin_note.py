@@ -130,18 +130,6 @@ library alone.
 
 from __future__ import annotations
 
-KEY_ERWIN = "erwin"
-EXT_XML = ".xml"
-PROP_NAME = "Name"
-PROP_COMMENT = "Comment"
-KEY_KIND = "kind"
-KEY_ENTITY = "entity"
-KEY_PNAME = "physical_name"
-ENC_UTF8 = "utf-8"
-KEY_MIGRATE = "migrate"
-
-
-
 import argparse
 import csv
 import os
@@ -233,13 +221,20 @@ def _has_own_path(value: str) -> bool:
 
 
 def resolve_input(value, base_dir, extensions, what, flag=None):
+    """
+    Turn a CLI value into a real input path.
+
+      - absolute path or path with directories  -> used as given
+      - bare filename                           -> looked up in base_dir
+      - omitted                                 -> auto-discovered in base_dir
+                                                   when exactly one file matches
+    """
     if _has_own_path(value):
         return value
+
     if value:
         return os.path.join(base_dir, value)
-    return _auto_discover_input(base_dir, extensions, what, flag)
 
-def _auto_discover_input(base_dir, extensions, what, flag):
     if not os.path.isdir(base_dir):
         raise SystemExit(
             "ERROR: %s directory does not exist:\n    %s\n"
@@ -260,7 +255,7 @@ def _auto_discover_input(base_dir, extensions, what, flag):
         "Pass the one you want, e.g. --%s %s"
         % (len(found), what, base_dir,
            "\n".join("      " + f for f in found),
-           flag or KEY_ERWIN, found[0]))
+           flag or "erwin", found[0]))
 
 
 def resolve_output(value, default_name):
@@ -279,7 +274,7 @@ def resolve_output(value, default_name):
 
 def default_output_name(erwin_path: str) -> str:
     stem, ext = os.path.splitext(os.path.basename(erwin_path))
-    return "%s%s%s" % (stem, DEFAULT_OUTPUT_SUFFIX, ext or EXT_XML)
+    return "%s%s%s" % (stem, DEFAULT_OUTPUT_SUFFIX, ext or ".xml")
 
 
 def xml_escape_text(s: str) -> str:
@@ -368,7 +363,7 @@ class PDModel:
             tree = ET.parse(path, ET.XMLParser(huge_tree=True, resolve_entities=False, no_network=True))
         except ImportError:
             import xml.etree.ElementTree as ET  # nosec B405
-            from defusedxml.ElementTree import parse as safe_parse
+            from defusedxml.ElementTree import parse as safe_parse, iterparse as safe_iterparse
             tree = safe_parse(path)
 
         m = cls()
@@ -382,16 +377,16 @@ class PDModel:
             # <o:Entity Ref="oNNN"/> are pointers, not definitions - skip them
             if ent.get("Id") is None:
                 continue
-            ename, ecode = val(ent, PROP_NAME), val(ent, "Code")
-            m.entities[(ename, ecode)] = val(ent, PROP_COMMENT)
+            ename, ecode = val(ent, "Name"), val(ent, "Code")
+            m.entities[(ename, ecode)] = val(ent, "Comment")
             m.entity_codes.setdefault(ecode, []).append((ename, ecode))
             m.entity_names.setdefault(ename.lower(), []).append((ename, ecode))
 
             for att in ent.iter("{%s}EntityAttribute" % PD_OBJ):
                 if att.get("Id") is None:
                     continue
-                m.attributes[(ename, val(att, PROP_NAME), val(att, "Code"))] = \
-                    val(att, PROP_COMMENT)
+                m.attributes[(ename, val(att, "Name"), val(att, "Code"))] = \
+                    val(att, "Comment")
         return m
 
 
@@ -400,7 +395,7 @@ class PDModel:
 # --------------------------------------------------------------------------
 
 class ErwinObject:
-    __slots__ = (KEY_KIND, KEY_ENTITY, "name", KEY_PNAME,
+    __slots__ = ("kind", "entity", "name", "physical_name",
                  "anchor_end", "props_close", "note_array_span",
                  "existing_notes")
 
@@ -469,7 +464,7 @@ def scan_erwin(raw: bytes):
             parent = stack[-2] if len(stack) >= 2 else None
 
             if parent in PROPS_TAGS:
-                if n == PROP_NAME and o.name is None:
+                if n == "Name" and o.name is None:
                     o.name = text
                 elif n == "Physical_Name" and o.physical_name is None:
                     o.physical_name = text
@@ -479,7 +474,7 @@ def scan_erwin(raw: bytes):
 
             if n == NOTE_ARRAY_TAG and state["in_note_array"]:
                 idx = parser.CurrentByteIndex
-                closing = ("</%s>" % NOTE_ARRAY_TAG).encode(ENC_UTF8)
+                closing = ("</%s>" % NOTE_ARRAY_TAG).encode("utf-8")
                 if raw[idx:idx + len(closing)] == closing:
                     nla_end = idx + len(closing)
                 else:                                   # self-closing <X/>
@@ -591,9 +586,12 @@ def _match_attribute(o, pd, att_by_code, att_by_name):
 
 def cmd_inspect(args):
     pd = _inspect_pd_model(args)
-    raw, objs = _inspect_erwin_xml(args)
-    _inspect_note_structure(args, raw)
-    _inspect_match_preview(pd, objs, args)
+# Fix:
+    # The raw bytes aren't needed here any more -- _inspect_note_structure reads
+    # its own copy from --reference -- so we just drop that half of the tuple.
+    _, objs = _inspect_erwin_xml(args)
+    _inspect_note_structure(args)
+    _inspect_match_preview(pd, objs)
 
 def _inspect_pd_model(args):
     print("=" * 74)
@@ -628,8 +626,10 @@ def _inspect_erwin_xml(args):
     print("  already carrying %s : %d" % (NOTE_ARRAY_TAG, sum(1 for o in objs if o.note_array_span)))
     print("  existing Note_List recs : %d" % sum(o.existing_notes for o in objs))
     return raw, objs
-
-def _inspect_note_structure(args, raw):
+# Fix: 
+# Dropped the old `raw` argument: this function opens --reference (falling back
+# to --erwin) itself, so the bytes passed in by cmd_inspect were never read.
+def _inspect_note_structure(args):
     ref = args.reference or args.erwin
     refraw = open(ref, "rb").read()
     print()
@@ -641,9 +641,9 @@ def _inspect_note_structure(args, raw):
         print("  no populated <Note_List> in this file (pass --reference <file with verified notes>)")
         return
 
-    rec = found.group(1).decode(ENC_UTF8)
+    rec = found.group(1).decode("utf-8")
     openttag = refraw[found.start():found.start() + found.group(0).find(b">") + 1]
-    print("  element    : %s" % openttag.decode(ENC_UTF8))
+    print("  element    : %s" % openttag.decode("utf-8"))
     print("  separator  : %r  (literal 6 chars; real 0x1F bytes in file: %d)" % (SEP, refraw.count(b"\x1f")))
     
     d = decode_note_record(rec)
@@ -656,13 +656,15 @@ def _inspect_note_structure(args, raw):
 
     m = re.search(rb"<Note_List_Array\b", refraw)
     if m:
-        before = refraw[max(0, m.start() - 200):m.start()].decode(ENC_UTF8, "replace")
-        after = refraw[m.start():m.start() + 200].decode(ENC_UTF8, "replace")
+        before = refraw[max(0, m.start() - 200):m.start()].decode("utf-8", "replace")
+        after = refraw[m.start():m.start() + 200].decode("utf-8", "replace")
         prev = re.findall(r"</([A-Za-z_]+)>\s*$", before)
         nxt = re.findall(r"<([A-Za-z_]+)[ />]", after[after.find(">"):])
         print("  placement  : after </%s>, before <%s>" % (prev[-1] if prev else "?", nxt[0] if nxt else "?"))
-
-def _inspect_match_preview(pd, objs, args):
+# Fix:
+# Dropped the old `args` argument: the preview works purely off the already
+# loaded PD model and erwin objects, so nothing here ever looked at args.
+def _inspect_match_preview(pd, objs):
     print()
     print("=" * 74)
     print("MATCH PREVIEW")
@@ -705,8 +707,8 @@ def cmd_migrate(args):
     _write_migrate_csv(args, rows)
 
 def _process_migrate_object(o, matches, only, args, raw, edits, rows, stats):
-    row = {KEY_KIND: o.kind, KEY_ENTITY: o.entity or "", "name": o.name or "",
-           KEY_PNAME: o.physical_name or "", STATUS_KEY: "",
+    row = {"kind": o.kind, "entity": o.entity or "", "name": o.name or "",
+           "physical_name": o.physical_name or "", STATUS_KEY: "",
            "match_tier": "", REASON_KEY: "", "comment_chars": 0}
 
     if id(o) not in matches:
@@ -749,22 +751,22 @@ def _process_migrate_object(o, matches, only, args, raw, edits, rows, stats):
 def _apply_migrate_edit(o, comment, args, raw, edits, row):
     if o.existing_notes and args.on_existing == "append":
         start, end = o.note_array_span
-        existing = raw[start:end].decode(ENC_UTF8)
+        existing = raw[start:end].decode("utf-8")
         recs = re.findall(r"<Note_List\b[^>]*>(.*?)</Note_List>", existing, re.S)
-        recs = list(recs)
+        recs = [r for r in recs]
         new = build_note_record(comment, args.author, args.newline_mode, number=len(recs) + 1)
-        payload = build_note_array([_unescape(r) for r in recs] + [new]).encode(ENC_UTF8)
+        payload = build_note_array([_unescape(r) for r in recs] + [new]).encode("utf-8")
         edits.append((start, end, payload))
         row[REASON_KEY] = "appended as note #%d" % (len(recs) + 1)
     elif o.note_array_span:
         start, end = o.note_array_span
         rec = build_note_record(comment, args.author, args.newline_mode)
-        edits.append((start, end, build_note_array([rec]).encode(ENC_UTF8)))
+        edits.append((start, end, build_note_array([rec]).encode("utf-8")))
         row[REASON_KEY] = "replaced existing Note_List_Array" if o.existing_notes else "filled empty Note_List_Array"
     else:
         start = o.anchor_end
         rec = build_note_record(comment, args.author, args.newline_mode)
-        edits.append((start, start, build_note_array([rec]).encode(ENC_UTF8)))
+        edits.append((start, start, build_note_array([rec]).encode("utf-8")))
         row[REASON_KEY] = "created new Note_List_Array"
 
 def _write_migrate_output(args, raw, edits):
@@ -781,9 +783,10 @@ def _write_migrate_output(args, raw, edits):
 
 def _write_migrate_csv(args, rows):
     if getattr(args, "csv", None):
-        with open(args.csv, "w", newline="", encoding=ENC_UTF8) as f:
+        import csv
+        with open(args.csv, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=[
-                KEY_KIND, KEY_ENTITY, "name", KEY_PNAME, STATUS_KEY,
+                "kind", "entity", "name", "physical_name", STATUS_KEY,
                 "match_tier", REASON_KEY, "comment_chars"
             ])
             writer.writeheader()
@@ -821,12 +824,12 @@ def cmd_verify(args):
         return 0 if ok else 1
     
     p = etree.XMLParser(huge_tree=True, resolve_entities=False, no_network=True)
-    dict_a = _collect_properties(args.erwin, p, etree)
-    dict_b = _collect_properties(args.out, p, etree)
+    A = _collect_properties(args.erwin, p, etree)
+    B = _collect_properties(args.out, p, etree)
     
-    ok &= _verify_same_keys(dict_a, dict_b)
-    ok &= _verify_properties(dict_a, dict_b)
-    ok &= _verify_protected_fields(dict_a, dict_b)
+    ok &= _verify_same_keys(A, B)
+    ok &= _verify_properties(A, B)
+    ok &= _verify_protected_fields(A, B)
     ok &= _verify_payload_sanity(args.out, p, etree)
 
     print()
@@ -869,31 +872,27 @@ def _collect_properties(path, p, etree):
         out[(localname(el.tag), el.get("id"))] = d
     return out
 
-def _verify_same_keys(dict_a, dict_b):
-    same_keys = set(dict_a) == set(dict_b)
-    print("  [%s] same object set: %d objects in / %d out" % (STATUS_PASS if same_keys else STATUS_FAIL, len(dict_a), len(dict_b)))
+def _verify_same_keys(A, B):
+    same_keys = set(A) == set(B)
+    print("  [%s] same object set: %d objects in / %d out" % (STATUS_PASS if same_keys else STATUS_FAIL, len(A), len(B)))
     return same_keys
 
-def _verify_properties(dict_a, dict_b):
-    added, removed, changed = _compute_property_diffs(dict_a, dict_b)
+def _verify_properties(A, B):
+    added, removed, changed = _compute_property_diffs(A, B)
+
     illegal_add = {k: v for k, v in added.items() if k != NOTE_ARRAY_TAG}
     illegal_chg = {k: v for k, v in changed.items() if k != NOTE_ARRAY_TAG}
 
-    _print_diff_status("properties added", illegal_add, added)
-    _print_diff_status("properties removed", removed, removed)
-    _print_diff_status("properties changed", illegal_chg, changed)
+    print("  [%s] properties added   : %s" % (STATUS_PASS if not illegal_add else STATUS_FAIL, dict(added) if added else "{}"))
+    print("  [%s] properties removed : %s" % (STATUS_PASS if not removed else STATUS_FAIL, dict(removed) if removed else "{}"))
+    print("  [%s] properties changed : %s" % (STATUS_PASS if not illegal_chg else STATUS_FAIL, dict(changed) if changed else "{}"))
     
     return not illegal_add and not removed and not illegal_chg
 
-def _print_diff_status(label, check_dict, full_dict):
-    status = STATUS_FAIL if check_dict else STATUS_PASS
-    data_str = dict(full_dict) if full_dict else "{}"
-    print("  [%s] %s : %s" % (status, label.ljust(18), data_str))
-
-def _compute_property_diffs(dict_a, dict_b):
+def _compute_property_diffs(A, B):
     added, removed, changed = Counter(), Counter(), Counter()
-    for k in set(dict_a) & set(dict_b):
-        da, db = dict_a[k], dict_b[k]
+    for k in set(A) & set(B):
+        da, db = A[k], B[k]
         for prop in set(db) - set(da):
             added[prop] += 1
         for prop in set(da) - set(db):
@@ -903,14 +902,14 @@ def _compute_property_diffs(dict_a, dict_b):
                 changed[prop] += 1
     return added, removed, changed
 
-def _verify_protected_fields(dict_a, dict_b):
-    protected = ("Definition", PROP_COMMENT, PROP_NAME, "Physical_Name", "Type",
+def _verify_protected_fields(A, B):
+    protected = ("Definition", "Comment", "Name", "Physical_Name", "Type",
                  "Long_Id", "Owner_Path", "Logical_Data_Type",
                  "Physical_Data_Type", "Null_Option_Type", "Parent_Domain_Ref")
     bad = []
-    for k in set(dict_a) & set(dict_b):
+    for k in set(A) & set(B):
         for prop in protected:
-            if dict_a[k].get(prop) != dict_b[k].get(prop):
+            if A[k].get(prop) != B[k].get(prop):
                 bad.append((k, prop))
     print("  [%s] protected fields unchanged (%s)" % (STATUS_PASS if not bad else STATUS_FAIL, ", ".join(protected[:5]) + ", ..."))
     for k, prop in bad[:10]:
@@ -943,7 +942,7 @@ def main(argv=None):
     s.add_argument("--reference", help="erwin XML that already contains verified Notes")
     s.set_defaults(func=cmd_inspect)
 
-    s = sub.add_parser(KEY_MIGRATE, help="write PD Comments into erwin Notes")
+    s = sub.add_parser("migrate", help="write PD Comments into erwin Notes")
     s.add_argument("--ldm", help="PD .ldm (default: the one in MODEL_INPUT_DIR)")
     s.add_argument("--erwin", help="erwin XML (default: the one in ERWIN_INPUT_DIR)")
     s.add_argument("--out", help="output XML (default: <erwin name>%s.xml in OUTPUT_DIR)"
@@ -968,23 +967,23 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     # ---- resolve paths against the configured directories -----------------
-    if args.cmd in ("inspect", KEY_MIGRATE):
+    if args.cmd in ("inspect", "migrate"):
         args.ldm = resolve_input(args.ldm, MODEL_INPUT_DIR,
                                  (".ldm",), "LDM model", "ldm")
         args.erwin = resolve_input(args.erwin, ERWIN_INPUT_DIR,
-                                   (EXT_XML,), "erwin XML", KEY_ERWIN)
+                                   (".xml",), "erwin XML", "erwin")
         if args.cmd == "inspect" and args.reference:
             args.reference = resolve_input(args.reference, ERWIN_INPUT_DIR,
-                                           (EXT_XML,), "erwin XML", "reference")
-        if args.cmd == KEY_MIGRATE:
+                                           (".xml",), "erwin XML", "reference")
+        if args.cmd == "migrate":
             args.out = resolve_output(args.out, default_output_name(args.erwin))
             if args.report:
                 args.report = resolve_output(args.report, DEFAULT_REPORT_NAME)
     elif args.cmd == "verify":
         args.erwin = resolve_input(args.erwin, ERWIN_INPUT_DIR,
-                                   (EXT_XML,), "erwin XML", KEY_ERWIN)
+                                   (".xml",), "erwin XML", "erwin")
         args.out = resolve_input(args.out, OUTPUT_DIR,
-                                 (EXT_XML,), "migrated XML", "out")
+                                 (".xml",), "migrated XML", "out")
 
     return args.func(args)
 

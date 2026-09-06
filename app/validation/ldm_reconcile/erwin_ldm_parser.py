@@ -29,11 +29,11 @@ def _local(tag: Any) -> str:
 
 
 def _children(elem: ET.Element, local_name: str) -> List[ET.Element]:
-    return [child for child in elem if _local(child.tag) == local_name]
+    return [child for child in list(elem) if _local(child.tag) == local_name]
 
 
 def _first_child(elem: ET.Element, local_name: str) -> Optional[ET.Element]:
-    for child in elem:
+    for child in list(elem):
         if _local(child.tag) == local_name:
             return child
     return None
@@ -51,7 +51,7 @@ def _props_child(elem: ET.Element) -> Optional[ET.Element]:
     object type in the supplied file: Entity, Attribute, Key_Group,
     Key_Group_Member, Relationship, Domain.
     """
-    for child in elem:
+    for child in list(elem):
         if _local(child.tag).endswith("Props"):
             return child
     return None

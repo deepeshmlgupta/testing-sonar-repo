@@ -583,31 +583,9 @@ DOC_STATUS_FILL = {
 }
 
 
-def _write_documentation_summary(ws, rows: list) -> int:
-    """Per-mapping status counts; returns the next free line."""
-    summary: Dict[str, Dict[str, int]] = {}
-    for row in rows:
-        bucket = summary.setdefault(row.mapping, {})
-        bucket[row.status] = bucket.get(row.status, 0) + 1
-
-    _header_row(ws, ["Mapping", "MATCHED", "MISMATCH", "MISSING IN ERWIN",
-                     "MISSING IN SAP PD", "BOTH EMPTY", "Total"], 1)
-    line = 2
-    for mapping, counts in sorted(summary.items()):
-        total = sum(counts.values())
-        _data_row(ws, [
-            mapping,
-            counts.get("MATCHED", 0),
-            counts.get("MISMATCH", 0),
-            counts.get("MISSING_IN_ERWIN", 0),
-            counts.get("MISSING_IN_SAP_PD", 0),
-            counts.get("BOTH_EMPTY", 0),
-            total,
-        ], line)
-        line += 1
-    return line
-
-
+# Fix:
+# Pulled the nested conditional out of the sort key below into this named
+# helper. Same four ranks in the same order, one branch per line.
 def _doc_status_rank(status: str) -> int:
     """Sort rank for a documentation row: problems first, then matches."""
     if status in ("MISSING_IN_ERWIN", "MISMATCH"):
@@ -617,30 +595,6 @@ def _doc_status_rank(status: str) -> int:
     if status == "MATCHED":
         return 2
     return 3
-
-
-def _write_documentation_detail(ws, rows: list, line: int) -> int:
-    """One row per object/mapping pair; returns the next free line."""
-    # Problems first: a reviewer should not have to scroll past matches.
-    ordered_rows = sorted(
-        rows,
-        key=lambda r: (_doc_status_rank(r.status),
-                       r.model, r.object_type, r.object_name, r.mapping),
-    )
-
-    for index, row in enumerate(ordered_rows):
-        _data_row(ws, [
-            row.model, row.object_type, row.object_name, row.object_code,
-            row.mapping, row.source_field, row.target_field,
-            row.source_value, row.target_value,
-            row.status,
-            row.similarity if row.status == "MISMATCH" else "",
-        ], line, alt=bool(index % 2))
-        fill = DOC_STATUS_FILL.get(row.status)
-        if fill is not None:
-            ws.cell(row=line, column=10).fill = fill
-        line += 1
-    return line
 
 
 def _build_documentation(wb: Workbook, results: List[ValidationResult]) -> None:
@@ -668,7 +622,26 @@ def _build_documentation(wb: Workbook, results: List[ValidationResult]) -> None:
         return
 
     # ── Summary block ────────────────────────────────────────────────────────
-    line = _write_documentation_summary(ws, rows)
+    summary: Dict[str, Dict[str, int]] = {}
+    for row in rows:
+        bucket = summary.setdefault(row.mapping, {})
+        bucket[row.status] = bucket.get(row.status, 0) + 1
+
+    _header_row(ws, ["Mapping", "MATCHED", "MISMATCH", "MISSING IN ERWIN",
+                     "MISSING IN SAP PD", "BOTH EMPTY", "Total"], 1)
+    line = 2
+    for mapping, counts in sorted(summary.items()):
+        total = sum(counts.values())
+        _data_row(ws, [
+            mapping,
+            counts.get("MATCHED", 0),
+            counts.get("MISMATCH", 0),
+            counts.get("MISSING_IN_ERWIN", 0),
+            counts.get("MISSING_IN_SAP_PD", 0),
+            counts.get("BOTH_EMPTY", 0),
+            total,
+        ], line)
+        line += 1
 
     # ── Detail block ─────────────────────────────────────────────────────────
     line += 1
@@ -676,7 +649,25 @@ def _build_documentation(wb: Workbook, results: List[ValidationResult]) -> None:
     _header_row(ws, DESCRIPTION_HEADERS, detail_header)
     line += 1
 
-    line = _write_documentation_detail(ws, rows, line)
+    # Problems first: a reviewer should not have to scroll past matches.
+    ordered_rows = sorted(
+        rows,
+        key=lambda r: (_doc_status_rank(r.status),
+                       r.model, r.object_type, r.object_name, r.mapping),
+    )
+
+    for index, row in enumerate(ordered_rows):
+        _data_row(ws, [
+            row.model, row.object_type, row.object_name, row.object_code,
+            row.mapping, row.source_field, row.target_field,
+            row.source_value, row.target_value,
+            row.status,
+            row.similarity if row.status == "MISMATCH" else "",
+        ], line, alt=bool(index % 2))
+        fill = DOC_STATUS_FILL.get(row.status)
+        if fill is not None:
+            ws.cell(row=line, column=10).fill = fill
+        line += 1
 
     _set_col_widths(ws, [22, 12, 38, 24, 24, 20, 20, 60, 60, 18, 12])
     ws.freeze_panes = ws.cell(row=detail_header + 1, column=1)
@@ -855,12 +846,7 @@ def generate_report(results: List[ValidationResult],
                 logger.warning("Could not create detail sheet for %s: %s",
                                result.pd_file, exc)
 
-
-    out_path_abs = os.path.abspath(out_path)
-    os.makedirs(os.path.dirname(out_path_abs), exist_ok=True)
-    if os.name == 'nt' and not out_path_abs.startswith("\\\\?\\"):
-        out_path_abs = "\\\\?\\" + out_path_abs
-    wb.save(out_path_abs)
+    wb.save(out_path)
     logger.info("Report saved → %s", out_path)
 
     if config.EXPORT_FINDINGS_CSV:

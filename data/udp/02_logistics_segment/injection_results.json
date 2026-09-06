@@ -3,8 +3,8 @@
   "erwin_source": "app\\udp_tool\\input_erwin_models\\02_logistics_segment.erwin",
   "erwin_output": "erwinmodels\\2_preprocessed\\erwin\\02_logistics_segment.erwin",
   "session": "Background erwin process",
-  "started": "2026-09-05 21:16:29",
-  "finished": "2026-09-05 21:16:45",
+  "started": "2026-09-05 20:21:19",
+  "finished": "2026-09-05 20:22:13",
   "entities_in_erwin": 195,
   "totals": {
     "applied": 1177,
