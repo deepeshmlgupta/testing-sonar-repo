@@ -15,12 +15,12 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v2
         env:
-          SONAR_TOKEN: sqa_218787f25c64b8879a86508dea8758c5fdf4fb03
-          SONAR_HOST_URL: http://20.244.11.16:9000/
+          SONAR_TOKEN: sqa_75ed4cda2d4a1696ca29b1d5a5f6e8f5c30f2b90
+          SONAR_HOST_URL: http://74.225.250.93:9000/
         with:
           args: >
-            -Dsonar.projectKey=testing-sonar-repo1
-            -Dsonar.projectName=testing-sonar-repo1
+            -Dsonar.projectKey=testing-sonar-repo
+            -Dsonar.projectName=testing-sonar-repo
             -Dsonar.sources=.
             -Dsonar.exclusions=**/__pycache__/**,**/*.pyc,**/output_*/**,**/output_excel_reports/**,**/output_jsons/**,.pytest_cache/**
             -Dsonar.python.version=3.13
